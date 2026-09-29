@@ -1,0 +1,154 @@
+<ng-container *transloco="let t">
+  <div class="stats-grid">
+    <!-- IPC - Primary metric -->
+    <div class="stat-card primary">
+      <span class="stat-label" [title]="t('SUPERSCALAR.STATS.IPC_HINT')">IPC</span>
+      <div class="stat-main">
+        <div class="stat-icon">
+          <mat-icon>speed</mat-icon>
+        </div>
+        <span class="stat-value">{{ ipc() }}</span>
+      </div>
+      <span class="stat-helper" [title]="t('SUPERSCALAR.STATS.IPC_HINT')">{{ t('SUPERSCALAR.STATS.IPC_HINT') }}</span>
+    </div>
+
+    <!-- Cycles -->
+    <div class="stat-card">
+      <span class="stat-label">{{ t('SUPERSCALAR.STATS.CYCLES') }}</span>
+      <div class="stat-main">
+        <div class="stat-icon">
+          <mat-icon>timer</mat-icon>
+        </div>
+        <span class="stat-value">{{ cycle() }}</span>
+      </div>
+      <span class="stat-helper">{{ t('SUPERSCALAR.STATS.CYCLES_HINT') }}</span>
+    </div>
+
+    <!-- Committed Instructions -->
+    <div class="stat-card">
+      <span class="stat-label">{{ t('SUPERSCALAR.STATS.COMMITTED') }}</span>
+      <div class="stat-main">
+        <div class="stat-icon">
+          <mat-icon>task_alt</mat-icon>
+        </div>
+        <span class="stat-value">{{ stats().instructionsCommitted }}</span>
+      </div>
+      <span class="stat-helper">{{ t('SUPERSCALAR.STATS.COMMITTED_HINT') }}</span>
+    </div>
+
+    <!-- Branch Accuracy -->
+    <div class="stat-card" [ngClass]="getBranchAccuracyClass(branchAccuracy())">
+      <span class="stat-label">{{ t('SUPERSCALAR.STATS.BRANCH_ACC') }}</span>
+      <div class="stat-main with-progress">
+        <div class="stat-icon">
+          <mat-icon>insights</mat-icon>
+        </div>
+        <div class="stat-value-progress">
+          <span class="stat-value">{{ branchAccuracy() | number:'1.1-1' }}%</span>
+          <mat-progress-bar
+            mode="determinate"
+            [value]="branchAccuracy()">
+          </mat-progress-bar>
+        </div>
+      </div>
+      <span class="stat-helper">{{ stats().branchPredictions - stats().branchMispredictions }}/{{ stats().branchPredictions }} {{ t('SUPERSCALAR.STATS.CORRECT') }}</span>
+    </div>
+
+    <!-- Flushed Instructions -->
+    <div class="stat-card danger" [class.highlight]="stats().flushedInstructions > 0">
+      <span class="stat-label">{{ t('SUPERSCALAR.STATS.FLUSHED') }}</span>
+      <div class="stat-main">
+        <div class="stat-icon">
+          <mat-icon>delete_sweep</mat-icon>
+        </div>
+        <span class="stat-value">{{ stats().flushedInstructions }}</span>
+      </div>
+      <span class="stat-helper">{{ t('SUPERSCALAR.STATS.FLUSHED_HINT') }}</span>
+    </div>
+
+    <!-- ROB Utilization -->
+    <div class="stat-card info" [class.highlight]="stats().robUtilization > 0.8">
+      <span class="stat-label">{{ t('SUPERSCALAR.STATS.ROB_UTIL') }}</span>
+      <div class="stat-main with-progress">
+        <div class="stat-icon">
+          <mat-icon>inventory_2</mat-icon>
+        </div>
+        <div class="stat-value-progress">
+          <span class="stat-value">{{ stats().robUtilization * 100 | number:'1.0-0' }}%</span>
+          <mat-progress-bar
+            mode="determinate"
+            [value]="stats().robUtilization * 100">
+          </mat-progress-bar>
+        </div>
+      </div>
+      <span class="stat-helper">Reorder Buffer</span>
+    </div>
+
+    <!-- RS Utilization -->
+    <div class="stat-card info" [class.highlight]="stats().rsUtilization > 0.8">
+      <span class="stat-label">{{ t('SUPERSCALAR.STATS.RS_UTIL') }}</span>
+      <div class="stat-main with-progress">
+        <div class="stat-icon">
+          <mat-icon>queue</mat-icon>
+        </div>
+        <div class="stat-value-progress">
+          <span class="stat-value">{{ stats().rsUtilization * 100 | number:'1.0-0' }}%</span>
+          <mat-progress-bar
+            mode="determinate"
+            [value]="stats().rsUtilization * 100">
+          </mat-progress-bar>
+        </div>
+      </div>
+      <span class="stat-helper">Reservation Stations</span>
+    </div>
+
+    <!-- Fetch Stalls -->
+    <div class="stat-card warning" [class.highlight]="stallBreakdown().fetch > 0">
+      <span class="stat-label">{{ t('SUPERSCALAR.STATS.FETCH_STALLS') }}</span>
+      <div class="stat-main">
+        <div class="stat-icon">
+          <mat-icon>downloading</mat-icon>
+        </div>
+        <span class="stat-value">{{ stallBreakdown().fetch }}</span>
+      </div>
+      <span class="stat-helper">{{ t('SUPERSCALAR.STATS.FETCH_STALLS_HINT') }}</span>
+    </div>
+
+    <!-- ROB Full Stalls -->
+    <div class="stat-card warning" [class.highlight]="stallBreakdown().rob > 0">
+      <span class="stat-label">{{ t('SUPERSCALAR.STATS.ROB_STALLS') }}</span>
+      <div class="stat-main">
+        <div class="stat-icon">
+          <mat-icon>block</mat-icon>
+        </div>
+        <span class="stat-value">{{ stallBreakdown().rob }}</span>
+      </div>
+      <span class="stat-helper">{{ t('SUPERSCALAR.STATS.ROB_STALLS_HINT') }}</span>
+    </div>
+
+    <!-- RS Full Stalls -->
+    <div class="stat-card warning" [class.highlight]="stallBreakdown().rs > 0">
+      <span class="stat-label">{{ t('SUPERSCALAR.STATS.RS_STALLS') }}</span>
+      <div class="stat-main">
+        <div class="stat-icon">
+          <mat-icon>pause_circle_outline</mat-icon>
+        </div>
+        <span class="stat-value">{{ stallBreakdown().rs }}</span>
+      </div>
+      <span class="stat-helper">{{ t('SUPERSCALAR.STATS.RS_STALLS_HINT') }}</span>
+    </div>
+
+    <!-- Structural Stalls -->
+    <div class="stat-card warning" [class.highlight]="stallBreakdown().structural > 0">
+      <span class="stat-label">{{ t('SUPERSCALAR.STATS.STRUCTURAL') }}</span>
+      <div class="stat-main">
+        <div class="stat-icon">
+          <mat-icon>build_circle</mat-icon>
+        </div>
+        <span class="stat-value">{{ stallBreakdown().structural }}</span>
+      </div>
+      <span class="stat-helper">{{ t('SUPERSCALAR.STATS.STRUCTURAL_HINT') }}</span>
+    </div>
+
+  </div>
+</ng-container>

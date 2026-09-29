@@ -1,0 +1,175 @@
+$bg:          #090e09;
+$bg-title:    #0d140d;
+$green:       #39ff14;
+$green-dim:   #2e8c1a;
+$green-glow:  rgba(57, 255, 20, 0.75);
+$green-faint: rgba(57, 255, 20, 0.18);
+$font:        'Courier New', 'Consolas', 'Lucida Console', monospace;
+
+//ontenedor principal
+
+.terminal {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: $bg;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid $green-dim;
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.6),
+    0 0 18px $green-faint,
+    inset 0 0 40px rgba(0, 0, 0, 0.45);
+
+  // Scanlines CRT
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(0, 0, 0, 0.12) 3px,
+        rgba(0, 0, 0, 0.12) 4px
+    );
+    pointer-events: none;
+    z-index: 5;
+    border-radius: inherit;
+  }
+}
+
+//Barra de título
+
+.terminal-titlebar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px;
+  background: $bg-title;
+  border-bottom: 1px solid $green-dim;
+  flex-shrink: 0;
+  z-index: 6;
+
+  .titlebar-label {
+    flex: 1;
+    text-align: center;
+    font-family: $font;
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: $green;
+    text-shadow: 0 0 6px $green-glow;
+    opacity: 0.7;
+  }
+
+  .clear-btn {
+    background: none;
+    border: 1px solid $green;
+    color: $green;
+    cursor: pointer;
+    font-family: $font;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    padding: 2px 7px;
+    border-radius: 3px;
+    text-shadow: 0 0 5px $green-glow;
+    box-shadow: 0 0 5px rgba(57, 255, 20, 0.15);
+    transition: opacity 0.15s, box-shadow 0.15s;
+    opacity: 0.65;
+
+    &:hover {
+      opacity: 1;
+      box-shadow: 0 0 10px rgba(57, 255, 20, 0.4);
+    }
+  }
+}
+
+//Cuerpo del terminal
+
+.terminal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 14px 8px;
+  z-index: 6;
+
+  &::-webkit-scrollbar {
+    width: 5px;
+  }
+  &::-webkit-scrollbar-track {
+    background: $bg;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: $green-dim;
+    border-radius: 3px;
+  }
+}
+
+//Salida del programa
+
+.terminal-output {
+  margin: 0;
+  font-family: $font;
+  font-size: 0.82rem;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: $green;
+  text-shadow: 0 0 7px $green-glow;
+}
+
+//Cursor parpadeante de espera
+
+.cursor {
+  display: inline-block;
+  color: $green;
+  text-shadow: 0 0 7px $green-glow;
+  font-size: 0.78rem;
+  vertical-align: text-bottom;
+
+  &.cursor-blink {
+    animation: crt-blink 1.1s step-end infinite;
+  }
+}
+
+@keyframes crt-blink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+// Entrada stdin
+
+.stdin-line {
+  display: flex;
+  align-items: center;
+  margin-top: 1px;
+
+  .stdin-prompt {
+    font-family: $font;
+    font-size: 0.82rem;
+    color: $green;
+    text-shadow: 0 0 7px $green-glow;
+    white-space: nowrap;
+    user-select: none;
+  }
+
+  .stdin-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: $green;
+    text-shadow: 0 0 7px $green-glow;
+    font-family: $font;
+    font-size: 0.82rem;
+    line-height: 1.55;
+    caret-color: $green;
+    padding: 0;
+    margin: 0;
+
+    &::selection {
+      background: rgba(57, 255, 20, 0.25);
+    }
+  }
+}

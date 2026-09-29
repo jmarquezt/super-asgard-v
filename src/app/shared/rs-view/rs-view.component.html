@@ -1,0 +1,53 @@
+<ng-container *transloco="let t">
+  <div class="rs-container">
+    <h3 class="section-title">{{ t('SUPERSCALAR.RS.TITLE') }}</h3>
+
+    <div class="rs-groups-wrapper">
+      @for (group of groupedEntries(); track group.type) {
+        <div class="rs-group">
+          <div class="group-header"
+               [style.border-color]="getFuTypeColor(group.type)"
+               [class.full]="group.occupied === group.total">
+            <span class="group-type">{{ group.type }}</span>
+            <span class="group-count">Ocupación: {{ group.occupied }} / {{ group.total }}</span>
+          </div>
+
+          <table class="rs-table">
+            <thead>
+            <tr>
+              <th>{{ t('SUPERSCALAR.RS.OP') }}</th>
+              <th>V1/Q1</th>
+              <th>V2/Q2</th>
+              <th>{{ t('SUPERSCALAR.RS.DEST') }}</th>
+              <th>{{ t('SUPERSCALAR.RS.STATE') }}</th>
+            </tr>
+            </thead>
+            <tbody>
+              @for (entry of group.entries; track entry.destino) {
+                <tr [class]="getStateClass(entry)">
+                  <td class="col-op">{{ entry.opcode }}</td>
+                  <td class="col-operand">{{ formatOperand(entry.v1, entry.q1) }}</td>
+                  <td class="col-operand">{{ formatOperand(entry.v2, entry.q2) }}</td>
+                  <td class="col-dest">ROB[{{ entry.destino.slot }}]</td>
+                  <td class="col-state">
+                    @if (isReady(entry)) {
+                      <span class="ready-badge">{{ t('SUPERSCALAR.RS.READY') }}</span>
+                    } @else {
+                      <span class="waiting-badge">{{ t('SUPERSCALAR.RS.WAITING') }}</span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+
+      @if (groupedEntries().length === 0) {
+        <div class="empty-message">
+          {{ t('SUPERSCALAR.RS.EMPTY') }}
+        </div>
+      }
+    </div>
+  </div>
+</ng-container>

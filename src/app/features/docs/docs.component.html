@@ -1,0 +1,154 @@
+<ng-container *transloco="let t">
+  <div class="docs-layout" [class.mobile]="isMobile()">
+
+    <!-- Sidebar: en móvil se oculta en cuanto hay una entrada seleccionada, para dejar sitio al contenido -->
+    <aside class="docs-sidebar" [class.mobile-hidden]="isMobile() && selected()">
+      <div class="sidebar-search">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input
+          type="text"
+          [placeholder]="t('DOCS.SEARCH_PLACEHOLDER')"
+          (input)="onSearch($event)"
+          class="search-input"
+          autocomplete="off"
+        />
+      </div>
+
+      <nav class="sidebar-nav">
+        @for (section of filteredSections(); track section.id) {
+          <div class="section-group">
+            <div class="section-header">
+              <mat-icon class="section-icon">{{ section.icon }}</mat-icon>
+              <span>{{ translate(section.label) }}</span>
+            </div>
+
+            @for (cat of section.categories; track cat.id) {
+              <div class="cat-section">
+                <button class="cat-header" (click)="toggleCategory(cat.id)">
+                  <mat-icon class="cat-icon">{{ cat.icon }}</mat-icon>
+                  <span class="cat-label">{{ translate(cat.label) }}</span>
+                  <mat-icon class="cat-arrow">{{ isOpen(cat.id) ? 'expand_less' : 'expand_more' }}</mat-icon>
+                </button>
+
+                @if (isOpen(cat.id)) {
+                  <ul class="cat-entries">
+                    @for (entry of cat.entries; track entry.id) {
+                      <li
+                        class="entry-item"
+                        [class.active]="selected()?.id === entry.id"
+                        (click)="select(entry)"
+                      >
+                        {{ translate(entry.name) }}
+                      </li>
+                    }
+                  </ul>
+                }
+              </div>
+            }
+          </div>
+        }
+      </nav>
+    </aside>
+
+    <!-- Contenido: en móvil solo se muestra una vez seleccionada una entrada -->
+    <main class="docs-content" [class.mobile-hidden]="isMobile() && !selected()">
+      @if (selected(); as entry) {
+        <article class="doc-article">
+
+          @if (isMobile()) {
+            <button class="mobile-back-btn" type="button" (click)="backToList()">
+              <mat-icon>arrow_back</mat-icon>
+              <span>{{ t('DOCS.BACK') }}</span>
+            </button>
+          }
+
+          <header class="article-header">
+            <h1 class="article-title">{{ translate(entry.name) }}</h1>
+            <pre class="article-syntax">{{ translate(entry.syntax) }}</pre>
+          </header>
+
+          <section class="article-section">
+            <h2 class="section-title">{{ t('DOCS.DESCRIPTION') }}</h2>
+            <div class="article-description">
+              @for (line of formatDescription(entry.description); track $index) {
+                @if (line.trim()) {
+                  <p>{{ line }}</p>
+                } @else {
+                  <br>
+                }
+              }
+            </div>
+          </section>
+
+          @if (entry.operands?.length) {
+            <section class="article-section">
+              <h2 class="section-title">{{ t('DOCS.OPERANDS.TITLE') }}</h2>
+              <div class="operands-grid">
+                @for (op of entry.operands; track op.name) {
+                  <div class="operand-card">
+                    <div class="op-name"><code>{{ op.name }}</code></div>
+                    <div class="op-desc">{{ translate(op.description) }}</div>
+                  </div>
+                }
+              </div>
+            </section>
+          }
+
+          @if (entry.example) {
+            <section class="article-section">
+              <h2 class="section-title">{{ t('DOCS.EXAMPLE') }}</h2>
+              <div class="code-header">
+                <span>SUPER ASGARD-V Assembly</span>
+                <button class="copy-btn" (click)="$event.stopPropagation()">
+                  <mat-icon>content_copy</mat-icon>
+                </button>
+              </div>
+              <pre class="code-block">{{ translate(entry.example) }}</pre>
+            </section>
+          }
+
+          @if (entry.notes) {
+            <section class="article-section">
+              <div class="notes-box">
+                <mat-icon class="notes-icon">info</mat-icon>
+                <div class="notes-content">
+                  @for (line of formatDescription(entry.notes); track $index) {
+                    @if (line.trim()) {
+                      <p>{{ line }}</p>
+                    }
+                  }
+                </div>
+              </div>
+            </section>
+          }
+
+        </article>
+      } @else {
+        <div class="docs-welcome">
+          <div class="welcome-header">
+            <div class="welcome-icon-box">
+              <mat-icon>menu_book</mat-icon>
+            </div>
+            <h2>{{ t('DOCS.WELCOME_TITLE') }}</h2>
+            <p>{{ t('DOCS.WELCOME_TEXT') }}</p>
+          </div>
+
+          <div class="welcome-grid">
+            @for (section of sections; track section.id) {
+              <div class="welcome-section-card">
+                <mat-icon class="card-icon">{{ section.icon }}</mat-icon>
+                <h3>{{ translate(section.label) }}</h3>
+                <div class="card-stats">
+                  @for (cat of section.categories; track cat.id) {
+                    <span class="stat-tag">{{ translate(cat.label) }}</span>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </main>
+
+  </div>
+</ng-container>

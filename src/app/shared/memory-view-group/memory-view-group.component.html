@@ -1,0 +1,66 @@
+<ng-container *transloco="let t">
+  <div class="memory-container shadow-sm">
+    <div class="memory-header">
+      <div class="title">
+        <mat-icon>storage</mat-icon>
+        <h3>{{ t('MEMORY.TITLE') }}</h3>
+      </div>
+
+      <div class="search-box">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input
+          class="search-input"
+          type="text"
+          [placeholder]="t('MEMORY.SEARCH')"
+          [value]="searchQuery()"
+          (input)="searchQuery.set($any($event.target).value)"
+        />
+        @if (searchQuery()) {
+          <button class="clear-btn" type="button" (click)="searchQuery.set('')">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </div>
+
+      <mat-button-toggle-group [ngModel]="displayMode()" (ngModelChange)="displayMode.set($event)">
+        <mat-button-toggle value="dec">DEC</mat-button-toggle>
+        <mat-button-toggle value="hex">HEX</mat-button-toggle>
+        <mat-button-toggle value="bin">BIN</mat-button-toggle>
+        <mat-button-toggle value="ascii">ASCII</mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+
+    <mat-tab-group
+      dynamicHeight
+      [selectedIndex]="activeTabIndex()"
+      (selectedIndexChange)="activeTabIndex.set($event)">
+      @for (memory of memories; track $index) {
+        <mat-tab [label]="memory.getName()">
+          <div class="viewport">
+            <div class="memory-table">
+              <div class="memory-row header-row">
+                <div class="cell address">{{ t('MEMORY.ADDRESS') }}</div>
+                <div class="cell content">{{ t('MEMORY.CONTENT') }}</div>
+              </div>
+
+              @for (word of filteredWords(); track word.address) {
+                <div class="memory-row" [class.last-access]="memory.getLastAccess() === (word.address / 4)">
+                  <div class="cell address">{{ word.address | numberFormat:(displayMode() === 'ascii' ? 'dec' : displayMode()) }}</div>
+                  <div class="cell content">
+                    @if (displayMode() === 'hex' || displayMode() === 'dec') {
+                      @for(i of [0,1,2,3]; track i) {
+                        {{ memory.get()[word.address + i] | numberFormat:displayMode() }}{{ i < 3 ? ' ' : '' }}
+                      }
+                    } @else {
+                      {{ word.value | numberFormat:displayMode() }}
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </mat-tab>
+      }
+    </mat-tab-group>
+  </div>
+</ng-container>

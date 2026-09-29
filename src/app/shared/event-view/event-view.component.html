@@ -1,0 +1,57 @@
+<ng-container *transloco="let t">
+  <div class="log-container shadow-sm">
+    <div class="log-header">
+      <div class="title">
+        <mat-icon>terminal</mat-icon>
+        <h3>{{ t('EVENTS.TITLE') }}</h3>
+      </div>
+
+      <div class="search-box">
+        <mat-icon class="search-icon">search</mat-icon>
+        <input
+          class="search-input"
+          type="text"
+          [placeholder]="t('EVENTS.SEARCH')"
+          [value]="searchQuery()"
+          (input)="searchQuery.set($any($event.target).value)"
+        />
+        @if (searchQuery()) {
+          <button class="clear-btn" type="button" (click)="searchQuery.set('')">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </div>
+
+      <div class="actions">
+        <button mat-icon-button (click)="logService.clearLog()" [matTooltip]="t('EVENTS.CLEAR')">
+          <mat-icon>delete_sweep</mat-icon>
+        </button>
+      </div>
+    </div>
+
+    <div class="log-body" #scrollContainer>
+      @if (logService.eventLog().length === 0) {
+        <div class="empty-state">
+          <mat-icon>query_builder</mat-icon>
+          <p>{{ t('EVENTS.WAITING') }}</p>
+        </div>
+      } @else if (filteredEvents().length === 0) {
+        <div class="empty-state empty-state--search">
+          <mat-icon>search_off</mat-icon>
+          <p>{{ t('EVENTS.NO_RESULTS') }}</p>
+        </div>
+      }
+
+      @for (entry of filteredEvents(); track entry) {
+        <div class="log-entry" [ngClass]="entry.type">
+          <span class="cycle-badge">{{ t('EVENTS.CYCLE') }} {{ entry.cycle }}</span>
+          <span class="message">{{ entry.message }}</span>
+          <mat-icon class="status-icon">
+            {{ entry.type === 'success' ? 'check_circle' :
+            entry.type === 'warning' ? 'error_outline' : 'info' }}
+          </mat-icon>
+        </div>
+      }
+    </div>
+  </div>
+</ng-container>

@@ -1,0 +1,168 @@
+.pipeline-wrapper {
+  height: 100%;
+  box-sizing: border-box;
+  background: var(--mat-sys-surface-container);
+  border-radius: 12px;
+  padding: 5px 10px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  display: flex;
+  flex-direction: column;
+
+  .pipeline-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+    flex: 0 0 auto;
+    h3 {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-weight: 600;
+      font-size: 0.75rem;
+      mat-icon { font-size: 15px; width: 15px; height: 15px; }
+    }
+  }
+}
+
+.pipeline-stages {
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  gap: 4px;
+  min-height: 0;
+}
+
+.stage-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.stage-box {
+  flex: 1;
+  border: 2px solid var(--mat-sys-outline-variant);
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  background: var(--mat-sys-surface-container-low);
+
+  .stage-label {
+    background: var(--mat-sys-surface-container-high);
+    font-size: 0.65rem;
+    font-weight: 800;
+    padding: 2px;
+    text-align: center;
+    color: var(--mat-sys-on-surface-variant);
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+    flex: 0 0 auto;
+  }
+
+  .instr-list {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 4px;
+    gap: 4px;
+    overflow-y: auto;
+    scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
+
+    .empty-msg {
+      font-size: 0.6rem;
+      opacity: 0.5;
+      text-align: center;
+      margin-top: auto;
+      margin-bottom: auto;
+    }
+  }
+
+  // Estilos por etapa (clonados de tu componente original)
+  &.stage-IF.active  { border-color: #1e40af; background: #dbeafe; .stage-label { background: #1e40af; color: #fff; } }
+  &.stage-ID.active  { border-color: #92400e; background: #fef9c3; .stage-label { background: #b45309; color: #fff; } }
+  &.stage-II.active  { border-color: #6d28d9; background: #ede9fe; .stage-label { background: #6d28d9; color: #fff; } }
+  &.stage-EX.active  { border-color: #166534; background: #dcfce7; .stage-label { background: #166534; color: #fff; } }
+  &.stage-WR.active  { border-color: #b45309; background: #fef3c7; .stage-label { background: #b45309; color: #fff; } }
+  &.stage-RI.active  { border-color: #991b1b; background: #fee2e2; .stage-label { background: #991b1b; color: #fff; } }
+}
+
+.instr-mini {
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 4px;
+  padding: 2px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border: 1px solid rgba(0,0,0,0.05);
+  animation: slideIn 0.3s ease-out;
+
+  .opcode {
+    font-family: 'Roboto Mono', monospace;
+    font-weight: 800;
+    font-size: 0.7rem;
+    line-height: 1;
+  }
+
+  .tag, .rs-info, .phase, .latency {
+    font-size: 0.55rem;
+    font-weight: 500;
+    opacity: 0.8;
+  }
+
+  .latency { color: #dc2626; font-weight: 700; }
+  .phase { color: #166534; }
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+    margin-top: 2px;
+  }
+
+  .done-icon { color: #166534; }
+  .commit-icon { color: #991b1b; animation: spin 2s linear infinite; }
+
+  &.commit {
+    background: #fecaca;
+    border-color: #991b1b;
+  }
+}
+
+.connector {
+  color: var(--mat-sys-outline-variant);
+  font-size: 16px;
+  align-self: center;
+  flex: 0 0 auto;
+}
+
+@keyframes slideIn {
+  from { transform: translateY(5px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+:host-context(.dark-theme) {
+  .stage-box {
+    background: var(--mat-sys-surface-container-low);
+    &.stage-IF.active  { border-color: #93c5fd; background: #1e3a5f; .stage-label { background: #1e3a5f; color: #93c5fd; } }
+    &.stage-ID.active  { border-color: #fde68a; background: #3b2e00; .stage-label { background: #3b2e00; color: #fde68a; } }
+    &.stage-II.active  { border-color: #c4b5fd; background: #2e1065; .stage-label { background: #2e1065; color: #c4b5fd; } }
+    &.stage-EX.active  { border-color: #86efac; background: #14301f; .stage-label { background: #14301f; color: #86efac; } }
+    &.stage-WR.active  { border-color: #fcd34d; background: #3b2500; .stage-label { background: #3b2500; color: #fcd34d; } }
+    &.stage-RI.active  { border-color: #fca5a5; background: #3b1a1a; .stage-label { background: #3b1a1a; color: #fca5a5; } }
+  }
+  .instr-mini {
+    background: rgba(0, 0, 0, 0.3);
+    color: #fff;
+    .opcode { color: inherit; }
+  }
+}

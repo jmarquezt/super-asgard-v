@@ -1,0 +1,174 @@
+<ng-container *transloco="let t">
+  <div class="registers-container shadow-sm">
+    <div class="header">
+      <h3><mat-icon>memory</mat-icon> {{ t('REGISTERS.TITLE') }}</h3>
+      <mat-button-toggle-group [(ngModel)]="displayMode" aria-label="Modo de visualización">
+        <mat-button-toggle value="dec">DEC</mat-button-toggle>
+        <mat-button-toggle value="hex">HEX</mat-button-toggle>
+        <mat-button-toggle value="bin">BIN</mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+
+    <mat-tab-group dynamicHeight>
+      <mat-tab [label]="t('REGISTERS.TAB_INT')">
+        <div class="reg-grid">
+          @for (val of registers(); track $index) {
+            <div class="reg-card"
+                 [class.modified]="lastModifiedReg()?.type === 'R' && lastModifiedReg()?.index === $index"
+                 [class.is-busy]="isSuperscalar() && getIntRRF($index).ocupado">
+              <div class="reg-header">
+                <span class="reg-name">R{{$index}}</span>
+                @if (isSuperscalar() && getIntRRF($index).ocupado) {
+                  <span class="rob-badge">ROB[{{ getIntRRF($index).slot }}]</span>
+                }
+              </div>
+              <span class="reg-value">{{ val | numberFormat:displayMode:'R' }}</span>
+            </div>
+          }
+          <div class="reg-card special-reg" [class.modified]="iar() !== 0">
+            <span class="reg-name">IAR</span>
+            <span class="reg-value">{{ iar() | numberFormat:displayMode:'R' }}</span>
+          </div>
+        </div>
+      </mat-tab>
+
+      <mat-tab [label]="t('REGISTERS.TAB_FLOAT')">
+        <div class="reg-grid">
+          @for (val of floatRegisters(); track $index) {
+            <div class="reg-card"
+                 [class.modified]="isRegModified($index)"
+                 [class.is-pair]="$index % 2 === 0"
+                 [class.is-busy]="isSuperscalar() && getFloatRRF($index).ocupado">
+              <div class="reg-header">
+                <span class="reg-name">F{{$index}}</span>
+                @if ($index % 2 === 0) { <span class="double-badge">64b</span> }
+                @if (isSuperscalar() && getFloatRRF($index).ocupado) {
+                  <span class="rob-badge">ROB[{{ getFloatRRF($index).slot }}]</span>
+                }
+              </div>
+              @if ($index % 2 === 0) {
+                @if (isDouble($index)) {
+                  <span class="reg-value" [title]="val">
+                  {{ getFloatValue($index, true) | numberFormat:displayMode:'D' }}
+                </span>
+                } @else {
+                  <span class="reg-value" [title]="val">{{ getFloatValue($index, false) | numberFormat:displayMode:'F' }}</span>
+                }
+              } @else {
+                @if (isDouble($index - 1)) {
+                  <span class="reg-value empty">-</span>
+                } @else {
+                  <span class="reg-value" [title]="val">{{ getFloatValue($index, false) | numberFormat:displayMode:'F' }}</span>
+                }
+              }
+            </div>
+          }
+          <div class="reg-card special-reg" [class.modified]="fpConditionBit() !== 0">
+            <span class="reg-name">FPBC</span>
+            <span class="reg-value">{{ fpConditionBit() }}</span>
+          </div>
+        </div>
+      </mat-tab>
+
+      <mat-tab [label]="t('REGISTERS.TAB_VECTOR')">
+        <div class="vector-container">
+          <mat-accordion multi="false" class="modern-accordion">
+            @for (reg of vectorRegisters(); track $index) {
+              <mat-expansion-panel [class.has-content]="hasData($index)"
+                                   [class.is-busy]="isSuperscalar() && getVectorRRF($index).ocupado"
+                                   class="vector-panel">
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    <div class="reg-id">
+                      <mat-icon>matrix</mat-icon>
+                      <span>V{{$index}}</span>
+                    </div>
+                  </mat-panel-title>
+
+                  <mat-panel-description>
+                    <div class="status-wrapper">
+                      @if (isSuperscalar() && getVectorRRF($index).ocupado) {
+                        <span class="rob-badge">ROB[{{ getVectorRRF($index).slot }}]</span>
+                      }
+                      @if (hasData($index)) {
+                        <span class="badge data">{{ t('REGISTERS.ACTIVE') }}</span>
+                        <div class="mini-preview">
+                          {{ reg[0] }}, {{ reg[1] }}, ...
+                        </div>
+                      } @else {
+                        <span class="badge empty">{{ t('REGISTERS.EMPTY') }}</span>
+                      }
+                    </div>
+                  </mat-panel-description>
+                </mat-expansion-panel-header>
+
+                <div class="vector-grid-wrapper">
+                  <div class="vector-grid-info">
+                    {{ t('REGISTERS.VECTOR_ELEMENTS') }} {{$index}}
+                  </div>
+                  <div class="vector-modern-grid">
+                    @for (val of reg; track $index) {
+                      <div class="vector-card" [class.has-value]="val !== 0">
+                        <span class="v-idx">[{{$index}}]</span>
+                        <span class="v-val">{{ val | numberFormat:displayMode:'D' }}</span>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </mat-expansion-panel>
+            }
+          </mat-accordion>
+
+          <div class="special-regs-section">
+            <h4>{{ t('REGISTERS.SPECIAL_REGS') }}</h4>
+
+            <div class="special-regs-row">
+              <div class="special-reg-card vlr-card">
+                <span class="special-reg-name">VLR</span>
+                <span class="special-reg-value">{{ vl() }}</span>
+                <span class="special-reg-desc">{{ t('REGISTERS.VLR') }}</span>
+              </div>
+
+              <div class="special-reg-card mvl-card">
+                <span class="special-reg-name">MVL</span>
+                <span class="special-reg-value">{{ MVL() }}</span>
+                <span class="special-reg-desc">{{ t('REGISTERS.MVL') }}</span>
+              </div>
+            </div>
+
+            <mat-expansion-panel class="vector-panel special-vector-panel">
+              <mat-expansion-panel-header>
+                <mat-panel-title>
+                  <div class="reg-id">
+                    <mat-icon>rule</mat-icon>
+                    <span>VM</span>
+                  </div>
+                </mat-panel-title>
+
+                <mat-panel-description>
+                  <div class="status-wrapper">
+                    <span class="badge special">{{ t('REGISTERS.MASK') }}</span>
+                  </div>
+                </mat-panel-description>
+              </mat-expansion-panel-header>
+
+              <div class="vector-grid-wrapper">
+                <div class="vector-grid-info">
+                  {{ t('REGISTERS.VM') }} — {{ MVL() }} {{ t('REGISTERS.VM_ELEMENTS') }}
+                </div>
+                <div class="vector-modern-grid">
+                  @for (bit of vectorMask(); track $index) {
+                    <div class="vector-card vm-element" [class.has-value]="bit === 1">
+                      <span class="v-idx">[{{$index}}]</span>
+                      <span class="v-val">{{ bit }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            </mat-expansion-panel>
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+</ng-container>

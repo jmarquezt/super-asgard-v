@@ -1,0 +1,127 @@
+<ng-container *transloco="let t">
+  <div class="stats-grid">
+    <div class="stat-card primary">
+      <span class="stat-label" [title]="t('STATS.CPI_ACTUAL')">{{ t('STATS.CPI_ACTUAL') }}</span>
+      <div class="stat-main">
+        <div class="stat-icon">
+          <mat-icon>speed</mat-icon>
+        </div>
+        <span class="stat-value">{{ processor.stats().cpi }}</span>
+      </div>
+      <span class="stat-helper" [title]="t('STATS.CPI_HINT')">{{ t('STATS.CPI_HINT') }}</span>
+    </div>
+
+    <div class="stat-card warning">
+      <span class="stat-label" [title]="t('STATS.STALL_RATE')">{{ t('STATS.STALL_RATE') }}</span>
+      <div class="stat-main with-progress">
+        <div class="stat-icon">
+          <mat-icon>pause_circle_filled</mat-icon>
+        </div>
+        <div class="stat-value-progress">
+          <span class="stat-value">{{ processor.stats().stallRate }}%</span>
+          <mat-progress-bar
+            mode="determinate"
+            [value]="processor.stats().stallRate"
+            color="warn">
+          </mat-progress-bar>
+        </div>
+      </div>
+      <span class="stat-helper" [title]="t('STATS.STALL_RATE_HINT')">{{ t('STATS.STALL_RATE_HINT') }}</span>
+    </div>
+
+    <div class="stat-card">
+      <span class="stat-label" [title]="t('STATS.COMPLETED')">{{ t('STATS.COMPLETED') }}</span>
+      <div class="stat-main">
+        <div class="stat-icon">
+          <mat-icon>task_alt</mat-icon>
+        </div>
+        <span class="stat-value">{{ processor.stats().instructionsFinished }}</span>
+      </div>
+      <span class="stat-helper" [title]="t('STATS.COMPLETED_HINT')">{{ t('STATS.COMPLETED_HINT') }}</span>
+    </div>
+
+    <div class="stat-card warning" [class.highlight]="processor.stats().rawStalls > 0">
+      <span class="stat-label" [title]="t('STATS.RAW_HAZARDS')">{{ t('STATS.RAW_HAZARDS') }}</span>
+      <div class="stat-main">
+        <div class="stat-icon">
+          <mat-icon>sync_problem</mat-icon>
+        </div>
+        <span class="stat-value">{{ processor.stats().rawStalls }}</span>
+      </div>
+      <span class="stat-helper" [title]="t('STATS.RAW_HINT')">{{ t('STATS.RAW_HINT') }}</span>
+    </div>
+
+    <div class="stat-card info" [class.highlight]="processor.stats().wawStalls > 0">
+      <span class="stat-label" [title]="t('STATS.WAW_HAZARDS')">{{ t('STATS.WAW_HAZARDS') }}</span>
+      <div class="stat-main">
+        <div class="stat-icon">
+          <mat-icon>repeat</mat-icon>
+        </div>
+        <span class="stat-value">{{ processor.stats().wawStalls }}</span>
+      </div>
+      <span class="stat-helper" [title]="t('STATS.WAW_HINT')">{{ t('STATS.WAW_HINT') }}</span>
+    </div>
+
+    <div class="stat-card info" [class.highlight]="processor.stats().warStalls > 0">
+      <span class="stat-label" [title]="t('STATS.WAR_HAZARDS')">{{ t('STATS.WAR_HAZARDS') }}</span>
+      <div class="stat-main">
+        <div class="stat-icon">
+          <mat-icon>swap_horiz</mat-icon>
+        </div>
+        <span class="stat-value">{{ processor.stats().warStalls }}</span>
+      </div>
+      <span class="stat-helper" [title]="t('STATS.WAR_HINT')">{{ t('STATS.WAR_HINT') }}</span>
+    </div>
+
+    <div class="stat-card warning" [class.highlight]="processor.stats().structuralStalls > 0">
+      <span class="stat-label" [title]="t('STATS.STRUCTURAL')">{{ t('STATS.STRUCTURAL') }}</span>
+      <div class="stat-main">
+        <div class="stat-icon">
+          <mat-icon>build_circle</mat-icon>
+        </div>
+        <span class="stat-value">{{ processor.stats().structuralStalls }}</span>
+      </div>
+      <span class="stat-helper" [title]="t('STATS.STRUCTURAL_HINT')">{{ t('STATS.STRUCTURAL_HINT') }}</span>
+    </div>
+
+    <div class="stat-card danger" [class.highlight]="processor.stats().controlHazards > 0">
+      <span class="stat-label" [title]="t('STATS.CONTROL_HAZARDS')">{{ t('STATS.CONTROL_HAZARDS') }}</span>
+      <div class="stat-main">
+        <div class="stat-icon">
+          <mat-icon>error_outline</mat-icon>
+        </div>
+        <span class="stat-value">{{ processor.stats().controlHazards }}</span>
+      </div>
+      <span class="stat-helper" [title]="t('STATS.CONTROL_HINT')">{{ t('STATS.CONTROL_HINT') }}</span>
+    </div>
+
+    <div class="stat-card success" [class.highlight]="processor.stats().branchHits > 0">
+      <span class="stat-label" [title]="t('STATS.BRANCH_HITS')">{{ t('STATS.BRANCH_HITS') }}</span>
+      <div class="stat-main">
+        <div class="stat-icon">
+          <mat-icon>check_circle_outline</mat-icon>
+        </div>
+        <span class="stat-value">{{ processor.stats().branchHits }}</span>
+      </div>
+      <span class="stat-helper" [title]="t('STATS.BRANCH_HITS_HINT')">{{ t('STATS.BRANCH_HITS_HINT') }}</span>
+    </div>
+
+    <div class="stat-card" [ngClass]="getBranchHitRateClass(processor.stats().branchHitRate)">
+      <span class="stat-label" [title]="t('STATS.BRANCH_ACCURACY')">{{ t('STATS.BRANCH_ACCURACY') }}</span>
+      <div class="stat-main with-progress">
+        <div class="stat-icon">
+          <mat-icon>insights</mat-icon>
+        </div>
+        <div class="stat-value-progress">
+          <span class="stat-value">{{ processor.stats().branchHitRate }}%</span>
+          <mat-progress-bar
+            mode="determinate"
+            [value]="processor.stats().branchHitRate">
+          </mat-progress-bar>
+        </div>
+      </div>
+      <span class="stat-helper" [title]="t('STATS.MISSES') + ': ' + processor.stats().branchMisses">{{ t('STATS.MISSES') }}: {{ processor.stats().branchMisses }}</span>
+    </div>
+
+  </div>
+</ng-container>

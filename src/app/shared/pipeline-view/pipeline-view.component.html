@@ -1,0 +1,82 @@
+<ng-container *transloco="let t">
+  <div class="pipeline-wrapper shadow-sm">
+    <div class="pipeline-header">
+      <h3><mat-icon>alt_route</mat-icon> {{ t('PIPELINE.TITLE') }} {{ processor.cycle() }})</h3>
+      <span class="status-badge" [class.running]="processor.isRunning()">
+        {{ processor.isRunning() ? t('PIPELINE.RUNNING') : t('PIPELINE.PAUSED') }}
+      </span>
+    </div>
+
+    <div class="pipeline-stages">
+      <div class="stage-box stage-IF"
+           [class.active]="processor.pipeline.IF && !processor.hasDataHazardStall()"
+           [class.stall]="processor.pipeline.IF && processor.hasDataHazardStall()">
+        <div class="stage-label">IF</div>
+        <div class="instr-display">
+          {{ processor.pipeline.IF?.opcode || t('PIPELINE.EMPTY') }}
+          <small>PC: {{ processor.pc | numberFormat:'dec' }}</small>
+        </div>
+      </div>
+
+      <mat-icon class="connector">arrow_forward</mat-icon>
+
+      <div class="stage-box stage-ID"
+           [class.active]="processor.pipeline.ID && !processor.hasDataHazardStall()"
+           [class.stall]="processor.pipeline.ID && processor.hasDataHazardStall()">
+        <div class="stage-label">ID</div>
+        <div class="instr-display">
+          {{ processor.pipeline.ID?.opcode || t('PIPELINE.EMPTY') }}
+        </div>
+      </div>
+
+      <mat-icon class="connector">arrow_forward</mat-icon>
+
+      <div class="stage-box stage-EX" [class.active]="processor.pipeline.EX" [class.stall]="processor.hasDataHazardStall()">
+        <div class="stage-label">EX</div>
+        <div class="instr-display">
+          @if (processor.pipeline.EX) {
+            {{ processor.pipeline.EX.opcode }}
+            @if (processor.pipeline.EX.isVector && processor.pipeline.EX.initDelay > 0) {
+              <span class="latency-badge">[{{ processor.pipeline.EX.initDelay }}]</span>
+            } @else if (processor.pipeline.EX.isVector && processor.pipeline.EX.currentElement <= processor.getVl()) {
+              <span class="element-badge">({{ processor.pipeline.EX.currentElement }})</span>
+            } @else if (processor.pipeline.EX.cyclesRemaining > 1) {
+              <span class="latency-badge">[{{ processor.pipeline.EX.cyclesRemaining }}]</span>
+            }
+          } @else {
+            {{ processor.hasDataHazardStall() ? t('PIPELINE.STALL') : t('PIPELINE.EMPTY') }}
+          }
+        </div>
+      </div>
+
+      <mat-icon class="connector">arrow_forward</mat-icon>
+
+      <div class="stage-box stage-MEM" [class.active]="processor.pipeline.MEM">
+        <div class="stage-label">MEM</div>
+        <div class="instr-display">
+          @if (processor.pipeline.MEM) {
+            {{ processor.pipeline.MEM.opcode }}
+            @if (processor.pipeline.MEM.isVector && processor.pipeline.MEM.initDelay > 0) {
+              <span class="latency-badge">[{{ processor.pipeline.MEM.initDelay }}]</span>
+            } @else if (processor.pipeline.MEM.isVector && processor.pipeline.MEM.currentElement <= processor.getVl()) {
+              <span class="element-badge">({{ processor.pipeline.MEM.currentElement }})</span>
+            } @else if (processor.pipeline.MEM.isVector && processor.pipeline.MEM.endDelay > 0) {
+              <span class="element-badge">({{ processor.pipeline.MEM.endDelay }})</span>
+            }
+          } @else {
+            {{ t('PIPELINE.EMPTY') }}
+          }
+        </div>
+      </div>
+
+      <mat-icon class="connector">arrow_forward</mat-icon>
+
+      <div class="stage-box stage-WB" [class.active]="processor.pipeline.WB">
+        <div class="stage-label">WB</div>
+        <div class="instr-display">
+          {{ processor.pipeline.WB?.opcode || t('PIPELINE.EMPTY') }}
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-container>

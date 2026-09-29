@@ -1,0 +1,38 @@
+<ng-container *transloco="let t">
+  <div class="terminal">
+
+    <!-- Barra de título -->
+    <div class="terminal-titlebar">
+      <span class="titlebar-label">{{ t('CONSOLE.TITLE') }}</span>
+      <button class="clear-btn" (click)="clear()" [title]="t('CONSOLE.CLEAR')">CLR</button>
+    </div>
+
+    <!-- Cuerpo scrollable -->
+    <div class="terminal-body" #terminalBody>
+
+      <!-- Salida del programa -->
+      <pre class="terminal-output">{{ fullOutput }}<span
+        class="cursor"
+        [class.cursor-blink]="!trapStdinRequest()"
+      >█</span></pre>
+
+      <!-- Línea de entrada inline (TRAP 3 / stdin) -->
+      @if (trapStdinRequest(); as req) {
+        <div class="stdin-line">
+          <span class="stdin-prompt">&#x25B6;&nbsp;</span>
+          <input
+            #stdinInput
+            class="stdin-input"
+            type="text"
+            [(ngModel)]="inputText"
+            (keydown.enter)="submitInput()"
+            [maxlength]="req.maxBytes - 1"
+            autocomplete="off"
+            spellcheck="false"
+          />
+        </div>
+      }
+
+    </div>
+  </div>
+</ng-container>

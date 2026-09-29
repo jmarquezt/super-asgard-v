@@ -1,0 +1,477 @@
+.registers-container {
+  height: 100%;
+  box-sizing: border-box;
+  background: var(--mat-sys-surface-container);
+  border-radius: 12px;
+  padding: 6px 8px 0;
+  border: 1px solid var(--mat-sys-outline-variant);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  .header {
+    flex: 0 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+
+    h3 {
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.78rem;
+
+      mat-icon {
+        font-size: 15px;
+        width: 15px;
+        height: 15px;
+      }
+    }
+  }
+
+  // Reducir altura de las pestañas
+  ::ng-deep .mat-mdc-tab {
+    min-width: 60px;
+    padding: 0 10px;
+    height: 34px;
+    font-size: 0.75rem;
+  }
+
+  ::ng-deep .mat-mdc-tab-label-container {
+    height: 34px;
+  }
+
+  // Toggle buttons compactos
+  ::ng-deep .mat-button-toggle-group {
+    height: 24px;
+
+    .mat-button-toggle {
+      font-size: 0.68rem;
+    }
+
+    .mat-button-toggle-button {
+      height: 24px;
+    }
+
+    .mat-button-toggle-label-content {
+      line-height: 24px;
+      padding: 0 8px;
+      font-size: 0.68rem;
+    }
+  }
+
+  // Forzar que mat-tab-group llene el espacio restante y scrollee el contenido
+  ::ng-deep .mat-mdc-tab-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  ::ng-deep .mat-mdc-tab-header {
+    flex: 0 0 auto;
+  }
+
+  ::ng-deep .mat-mdc-tab-body-wrapper {
+    flex: 1;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  ::ng-deep .mat-mdc-tab-body-content {
+    overflow-y: auto;
+    height: 100%;
+  }
+}
+
+.reg-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  padding: 6px 0;
+}
+
+.reg-card {
+  display: flex;
+  flex-direction: column;
+  padding: 3px 6px;
+  border-radius: 4px;
+  background: var(--mat-sys-surface-container-high);
+  border: 1px solid transparent;
+  transition: all 0.3s ease;
+
+  .reg-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2px;
+  }
+
+  .reg-name {
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: var(--mat-sys-primary);
+    text-transform: uppercase;
+  }
+
+  .rob-badge {
+    font-size: 0.52rem;
+    font-weight: 800;
+    color: var(--mat-sys-on-secondary);
+    background: var(--mat-sys-secondary);
+    border-radius: 3px;
+    padding: 1px 4px;
+    line-height: 1.5;
+    white-space: nowrap;
+    letter-spacing: 0.3px;
+  }
+
+  .reg-value {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--mat-sys-on-surface);
+    overflow-wrap: break-word;
+    word-break: keep-all;
+    line-height: 1.2;
+  }
+
+  .double-badge {
+    font-size: 0.55rem;
+    background: var(--mat-sys-surface-container-highest);
+    color: var(--mat-sys-on-surface-variant);
+    padding: 1px 3px;
+    border-radius: 3px;
+    float: right;
+  }
+
+  &.modified {
+    background: color-mix(in srgb, var(--mat-sys-primary) 10%, transparent);
+    border-color: var(--mat-sys-primary);
+    animation: pulse 1s ease-in-out;
+  }
+
+  &.is-busy {
+    border-left: 3px solid var(--mat-sys-secondary);
+    background: color-mix(in srgb, var(--mat-sys-secondary) 6%, transparent);
+  }
+
+  &.special-reg {
+    border-color: var(--mat-sys-tertiary);
+    .reg-name { color: var(--mat-sys-tertiary); }
+  }
+
+  &.special-reg.modified {
+    background: color-mix(in srgb, var(--mat-sys-tertiary) 15%, transparent);
+    border-color: var(--mat-sys-tertiary);
+  }
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+
+/* vectores */
+.vector-container {
+  padding: 8px 0;
+  height: 100%;
+}
+
+.modern-accordion {
+  box-shadow: none !important;
+  background: transparent !important;
+
+  .vector-panel {
+    margin-bottom: 6px !important;
+    border-radius: 8px !important;
+    border: 1px solid var(--mat-sys-outline-variant);
+    transition: all 0.2s ease;
+
+    &:hover { border-color: var(--mat-sys-primary); }
+
+    &.has-content {
+      background: color-mix(in srgb, var(--mat-sys-primary) 3%, transparent);
+      .reg-id span { color: var(--mat-sys-primary); font-weight: 700; }
+    }
+
+    &.is-busy {
+      border-left: 3px solid var(--mat-sys-secondary) !important;
+      background: color-mix(in srgb, var(--mat-sys-secondary) 6%, transparent) !important;
+    }
+
+    mat-expansion-panel-header {
+      height: 40px;
+      padding: 0 12px;
+
+      .reg-id {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        mat-icon { font-size: 16px; width: 16px; height: 16px; color: var(--mat-sys-on-surface-variant); }
+      }
+    }
+  }
+}
+
+.status-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+
+  .rob-badge {
+    font-size: 9px;
+    font-weight: 800;
+    color: var(--mat-sys-on-secondary);
+    background: var(--mat-sys-secondary);
+    border-radius: 4px;
+    padding: 2px 5px;
+    white-space: nowrap;
+    letter-spacing: 0.3px;
+  }
+
+  .badge {
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+    font-weight: 800;
+
+    &.data {
+      background: color-mix(in srgb, var(--mat-sys-primary) 12%, transparent);
+      color: var(--mat-sys-primary);
+      border: 1px solid color-mix(in srgb, var(--mat-sys-primary) 30%, transparent);
+    }
+    &.empty {
+      background: var(--mat-sys-surface-container-high);
+      color: var(--mat-sys-on-surface-variant);
+    }
+  }
+
+  .mini-preview {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 11px;
+    color: var(--mat-sys-on-surface-variant);
+  }
+}
+
+.vector-grid-wrapper {
+  padding: 8px 0;
+
+  .vector-grid-info {
+    font-size: 10px;
+    color: var(--mat-sys-on-surface-variant);
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    font-weight: bold;
+  }
+}
+
+.vector-modern-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 6px;
+}
+
+.vector-card {
+  background: var(--mat-sys-surface-container-low);
+  border-radius: 6px;
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  transition: all 0.2s ease;
+  min-width: 0;
+
+  .v-idx {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--mat-sys-primary);
+    text-transform: uppercase;
+  }
+
+  .v-val {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--mat-sys-on-surface);
+    overflow-wrap: break-word;
+    word-break: keep-all;
+    line-height: 1.2;
+  }
+
+  &.has-value {
+    background: var(--mat-sys-surface);
+    border-color: var(--mat-sys-primary);
+    .v-val { font-weight: bold; }
+  }
+}
+
+/* Registros especiales VLR y VM */
+.special-regs-section {
+  margin-top: 16px;
+  padding: 12px;
+  background: var(--mat-sys-surface-container-low);
+  border-radius: 8px;
+  border: 1px solid var(--mat-sys-outline-variant);
+
+  h4 {
+    margin: 0 0 10px 0;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--mat-sys-on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .special-regs-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .special-vector-panel {
+    margin-top: 10px;
+    border-color: var(--mat-sys-tertiary) !important;
+    background: color-mix(in srgb, var(--mat-sys-tertiary) 3%, transparent) !important;
+
+    &:hover {
+      border-color: var(--mat-sys-tertiary) !important;
+    }
+
+    mat-expansion-panel-header {
+      height: 40px;
+      padding: 0 12px;
+    }
+
+    .reg-id {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+
+      mat-icon {
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        color: var(--mat-sys-tertiary) !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      span {
+        color: var(--mat-sys-tertiary) !important;
+        font-weight: 700;
+        line-height: 1;
+      }
+    }
+
+    .badge.special {
+      background: color-mix(in srgb, var(--mat-sys-tertiary) 12%, transparent);
+      color: var(--mat-sys-tertiary);
+      border: 1px solid color-mix(in srgb, var(--mat-sys-tertiary) 30%, transparent);
+    }
+  }
+}
+
+.special-reg-card {
+  background: var(--mat-sys-surface);
+  border: 1px solid var(--mat-sys-tertiary);
+  border-radius: 6px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    border-color: var(--mat-sys-tertiary);
+    box-shadow: 0 2px 8px color-mix(in srgb, var(--mat-sys-tertiary) 15%, transparent);
+  }
+
+  .special-reg-name {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--mat-sys-tertiary);
+    text-transform: uppercase;
+  }
+
+  .special-reg-value {
+    font-family: 'Roboto Mono', monospace;
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--mat-sys-tertiary);
+  }
+
+  .special-reg-desc {
+    font-size: 0.6rem;
+    color: var(--mat-sys-on-surface-variant);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  &.vlr-card {
+    background: color-mix(in srgb, var(--mat-sys-tertiary) 5%, transparent);
+  }
+
+  &.mvl-card {
+    background: color-mix(in srgb, var(--mat-sys-secondary) 5%, transparent);
+    border-color: var(--mat-sys-secondary);
+
+    .special-reg-name {
+      color: var(--mat-sys-secondary);
+    }
+
+    .special-reg-value {
+      color: var(--mat-sys-secondary);
+    }
+
+    &:hover {
+      border-color: var(--mat-sys-secondary);
+      box-shadow: 0 2px 8px color-mix(in srgb, var(--mat-sys-secondary) 15%, transparent);
+    }
+  }
+}
+
+.vm-bit-inline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  background: var(--mat-sys-surface-container-high);
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 3px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--mat-sys-on-surface-variant);
+  font-family: 'Roboto Mono', monospace;
+
+  &.active {
+    background: color-mix(in srgb, var(--mat-sys-tertiary) 15%, transparent);
+    border-color: var(--mat-sys-tertiary);
+    color: var(--mat-sys-tertiary);
+    font-weight: 700;
+  }
+}
+
+.vm-element {
+  &.has-value {
+    background: color-mix(in srgb, var(--mat-sys-tertiary) 8%, transparent);
+    border-color: var(--mat-sys-tertiary);
+
+    .v-idx {
+      color: var(--mat-sys-tertiary);
+    }
+
+    .v-val {
+      color: var(--mat-sys-tertiary);
+      font-weight: bold;
+    }
+  }
+}

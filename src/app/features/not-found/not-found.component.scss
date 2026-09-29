@@ -1,0 +1,107 @@
+$logoSize: 200px;
+
+:host {
+  display: block;
+  height: 100vh;
+  width: 100vw;
+}
+
+.not-found-container {
+  color: var(--mat-sys-on-surface);
+  background: var(--mat-sys-background);
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.not-found-wrapper{
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+  flex-direction: row;
+  overflow: auto;
+  gap: 20px;
+}
+
+.not-found-group1 {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  object-fit: contain;
+  padding: 10px;
+  box-sizing: border-box;
+  max-width: min(calc($logoSize * 2) , 100vh, 100vw);
+  max-height: min(calc($logoSize * 2), 100vh, 100vw);
+}
+
+.not-found-logo {
+  font-size: $logoSize;
+  width: $logoSize;
+  height: $logoSize;
+  color: var(--mat-sys-primary);
+}
+
+.not-found-group2 {
+  box-sizing: border-box;
+  width: min(100%,460px);
+  max-width: 460px;
+  padding: 10px;
+}
+
+.not-found-title{
+  padding: 5px;
+
+  h1{
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: bold;
+    font-size: 68px;
+    line-height: 102px;
+    color: var(--mat-sys-primary)
+  }
+}
+
+.not-found-text {
+  padding: 5px 10px 25px;
+}
+
+.not-found-button {
+  width: 100%;
+  button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 959px) {
+  .not-found-wrapper {
+    @media (max-height: 500px) {
+      justify-content: flex-start;
+    }
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .not-found-group1 {
+    padding: 10px 20px;
+    max-width: min(calc($logoSize * 1.5) , 100vh, 100vw);
+    max-height: min(calc($logoSize * 1.5), 100vh, 100vw);
+  }
+
+  .not-found-group2 {
+    padding: 10px 20px;
+  }
+
+  .not-found-title{
+    h1{
+      font-size: 46px;
+      line-height: 50px;
+      overflow: visible;
+    }
+  }
+}

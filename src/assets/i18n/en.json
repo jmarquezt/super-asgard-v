@@ -1,0 +1,1261 @@
+{
+  "COMMON": {
+    "TITLE": "Super Asgard-V",
+    "CANCEL": "Cancel",
+    "SAVE": "Save",
+    "CONFIRM": "Confirm",
+    "SEND": "Send",
+    "CLOSE": "Close",
+    "LOADING": "Loading..."
+  },
+  "Auth": {
+    "not_found": {
+      "title": "404",
+      "text": "The page you are looking for does not exist.",
+      "back": "Go Back"
+    }
+  },
+  "DOCS": {
+    "SEARCH_PLACEHOLDER": "Search...",
+    "BACK": "Back to index",
+    "DESCRIPTION": "Description",
+    "OPERAND": "Operand",
+    "EXAMPLE": "Example",
+    "NOTES": "Notes",
+    "WELCOME_TITLE": "Simulator Documentation",
+    "WELCOME_TEXT": "Select an instruction, directive, or system call from the sidebar to view its detailed documentation.",
+    "SECTIONS": {
+      "APPLICATION": "Application",
+      "INSTRUCTIONS": "Instructions and Directives",
+      "SCHEDULING": "Static Scheduling",
+      "EXAMPLES": "Code Examples"
+    },
+    "CATEGORIES": {
+      "INT_ALU": "Integer Arithmetic",
+      "INT_IMM": "Integer Immediates",
+      "MEMORY": "Memory",
+      "BRANCHES": "Branches and Jumps",
+      "COMPARE": "Comparisons",
+      "FLOAT": "Floating Point",
+      "VECTOR": "Vector Instructions",
+      "DIRECTIVES": "Directives",
+      "TRAPS": "System Calls",
+      "CONFIG": "Configuration",
+      "PROCESSORS": "Processors",
+      "EXCEPTIONS": "Exceptions",
+      "HOW_TO_USE": "UI and Functioning",
+      "OPTIMIZATION": "Static Optimization",
+      "EXAMPLES_BASIC": "Basic Algorithms",
+      "EXAMPLES_MATH": "Mathematical Calculation",
+      "EXAMPLES_VECTOR": "Vector Parallelism"
+    },
+    "HOW_TO_USE": {
+      "GETTING_STARTED": {
+        "NAME": "Getting Started: Your First Program",
+        "DESCRIPTION": "You don't need to know anything about computer architecture to start using SUPER ASGARD-V; this guide walks you, step by step, from a blank screen to watching your first program run.\n1. Write the code: in the editor on the left (the big text box, similar to a word processor for programmers) there's already an open tab called 'main.asg'. Type or paste an ASG program; a ready-to-copy example is provided below.\n2. Press Run (▶): the green triangle-shaped button above the editor. Pressing it translates your text into instructions the simulated processor can understand ('assembling') and starts executing them automatically, one after another, at a steady pace.\n3. Watch the results: while the program runs, look at the 'Registers' panel (left column, below the editor): these are the CPU's 'fast scratch slots' where it keeps the numbers it's working with. You'll see R1's value change the instant the instruction that modifies it executes.\n4. If something goes wrong: if you typed something incorrect, the application will NOT run anything; instead it highlights the error line in red right inside the editor and explains why in the 'Event Log' panel (below the registers). Fix that line and press Run again.\n5. To start over from scratch: press Reset (the circular ↻ icon); this clears all execution progress (registers, memory, cycles) but does not erase the code you wrote.\nWith that, you're ready to experiment: change the numbers in the example, add more lines, and press Run again to see the outcome.",
+        "EXAMPLE": "; Copy and paste this program, then press Run.\n; Adds two numbers and stores the result in memory.\n.data\n  a:          .word 5        ; first number\n  b:          .word 3        ; second number\n  result:     .word 0        ; the sum will be stored here\n.text\n  lw  r1, a      ; r1 = value stored in 'a' (5)\n  lw  r2, b      ; r2 = value stored in 'b' (3)\n  add r3, r1, r2     ; r3 = r1 + r2  ->  watch the Registers panel while this runs\n  sw  result, r3 ; store the result (8) in memory\n  trap 0             ; end the program"
+      },
+      "FLOW": {
+        "NAME": "How the Simulator Works Under the Hood",
+        "DESCRIPTION": "To make sense of what you see on screen while a program runs, it helps to know that SUPER ASGARD-V does three things, in this order, every time you press Run, Step, or Run to breakpoint:\n1. Compiling ('assembling'): the text you wrote (ASG assembly language, similar to abbreviated English instructions like 'ADD' or 'LOAD') is translated into machine code — the binary numbers a real processor would understand. This step also checks for typos, misspelled labels, non-existent registers, and so on. If anything is invalid, the process stops right here and warns you; nothing gets executed.\n2. Memory setup: the data you declared with '.data' (numbers, text, reserved space) is placed into simulated memory, at the addresses your program expects to find it at.\n3. Cycle-by-cycle execution: this is where the actual simulation happens. A real processor doesn't execute a whole instruction in one go: it processes it through several stages (fetch it, decode it, compute its result, access memory if needed, store the result), and each stage takes one unit of time called a 'clock cycle'. SUPER ASGARD-V lets you watch, cycle by cycle, which stage each instruction is in — that's what the Pipeline panel shows.",
+        "EXAMPLE": "; Typical program life cycle:\n.data\n  var: .word 5\n.text\n  lw r1, var  ; 1. Load data from memory into a register\n  addi r1, r1, #1 ; 2. Process (add 1)\n  sw var, r1  ; 3. Store the result and watch it change in the Memory View"
+      },
+      "CONTROLS": {
+        "NAME": "Simulation Master Control",
+        "DESCRIPTION": "The toolbar above the editor provides full control over the execution engine:\n- Run ▶: assembles the code in every open tab and starts continuous clock cycling. If assembly fails, the error is shown on the exact editor line and the simulation does not start.\n- Pause ❙❙: temporarily stops the cycle count without losing state; Run resumes exactly where it left off.\n- Stop ■: halts execution and leaves the processor in a 'stopped' state; the next press of Run re-assembles and reloads the program from scratch.\n- Step ⏭ (Single cycle): advances exactly one clock cycle. The main tool for debugging forwarding, stalls, and the effect of each breakpoint. Disabled while Run is active or the program has finished.\n- Run to breakpoint ⏩: assembles and automatically runs until it stops at the next breakpoint marked in the editor; only available when at least one breakpoint is set.\n- Turbo mode (lightning bolt): multiplies by 500 the number of cycles processed per browser 'tick'. Essential for long programs (loops with many iterations); in exchange, the UI only refreshes every so many cycles.\n- Reset ↻: performs a full 'Cold Boot'. Clears the pipeline (or the ROB/RS in superscalar), zeroes every register, and reloads the original .data segment into RAM. It does not re-assemble the editor's code on its own.\n- Speed (slider, 4-2000 ms): controls the interval between cycles when using Run without turbo mode; the lower the value, the faster the simulation animation.",
+        "NOTES": "You can insert breakpoints by clicking on the left margin of the editor. The simulator will stop just before fetching (IF) the marked instruction. A typical workflow is: Step to debug cycle by cycle, Run + slow Speed to watch the animation, and Run + turbo mode to reach the end of a long program quickly."
+      },
+      "MODULES": {
+        "NAME": "Main Screen Layout",
+        "DESCRIPTION": "The main screen is organized into three columns, all visible and updating in real time every cycle:\n- Left column: the code editor, the register bank, and the event log.\n- Center column: performance metrics (top), pipeline status (pipelined or superscalar), and the execution Timeline; in superscalar mode the Reservation Stations (RS), Common Data Bus (CDB), and Reorder Buffer (ROB) panels are also added.\n- Right column: the program's input/output console and the data memory view.\nEach panel works independently: you can scroll, search, or change the display format of one panel without affecting the others. The following sections of this manual describe each panel in depth."
+      },
+      "REGISTERS": {
+        "NAME": "Register Bank",
+        "DESCRIPTION": "The registers panel has three tabs:\n- Integer: R0-R31 plus the special IAR register (interrupt return address). R0 always holds 0 and cannot be modified.\n- Float: F0-F31 plus the FPBC condition bit (used by EQF/LTF... comparisons). Double-precision registers (ADDD, LD...) occupy a pair of consecutive registers starting on an even index (F0, F2, F4...); the panel shows the 64-bit value on the even register and marks the odd one as 'not accessible' while that pair is used in double precision.\n- Vector: V0-V7, each expandable to see its up to 64 elements, plus the special registers VLR (active vector length), MVL (maximum vector length), and VM (bit-per-element predicate mask).\nThe DEC/HEX/BIN selector in the header changes the numeric format of every value in the panel at once.",
+        "NOTES": "The register modified in the last cycle is highlighted so you can follow the data flow at a glance. In the superscalar processor, a register still waiting for its real value from the Reorder Buffer is marked 'busy' with a ROB[n] badge indicating which ROB entry will write it."
+      },
+      "MEMORY_VIEW": {
+        "NAME": "Data Memory View",
+        "DESCRIPTION": "Shows data memory (the .data segment) as a table of 32-bit words ordered by address:\n- Format: the DEC/HEX/BIN/ASCII selector in the header changes how bytes are interpreted and displayed; in ASCII each word is broken down into its 4 characters.\n- Search: the text field filters rows by address or content, useful for quickly locating a variable in programs with a lot of reserved memory (.space).\n- Last access: the row for the address read or written on the most recent cycle is highlighted, letting you visually confirm that an LW/SW hit the expected location.\nIf a program uses several memory regions (for example, stack and data), the application can show several of these panels at once, one per region.",
+        "NOTES": "Double values (8 bytes, used by LD/SD) occupy two consecutive words; to see them as a single double-precision floating-point number, check the corresponding float register after the load rather than memory directly."
+      },
+      "EVENT_VIEW": {
+        "NAME": "Event Log",
+        "DESCRIPTION": "This is the chronological history of everything relevant that happens during the simulation: instructions fetched and completed, detected stalls, branches taken or not taken, misprediction events, raised exceptions, and assembly error messages.\n- Each entry shows the cycle it occurred on and an icon by severity: info (blue), warning (amber, e.g. a stall or a misprediction), or success (green, e.g. the program finishing correctly).\n- Search: the text field filters entries by message content.\n- Clear (trash icon): empties the whole history; it does not affect processor state, only the visual log.\nThis is the first tool to check when a program doesn't behave as expected, since it usually points to the exact cause (for example, a misaligned memory access or an unhandled exception).",
+        "NOTES": "The event log is automatically cleared when you press Reset, since it reflects the history of the current execution run."
+      },
+      "STATS": {
+        "NAME": "Performance Metrics and Analysis",
+        "DESCRIPTION": "This panel answers 'was the program I just ran fast or slow?' with actual numbers, not just a visual impression:\n- CPI (Cycles Per Instruction): in plain terms, how many 'clock ticks' on average it took to finish each instruction. LOWER is better: 1.0 is the ideal (one instruction completed per cycle, with no time wasted). If you see 1.4 or 2.0, it means the processor had to 'wait' on some instructions — for example because one instruction needed a value the previous one hadn't finished computing yet.\n- Stall Rate: the percentage of cycles the processor spent waiting instead of making progress. It's broken down into three causes: RAW (an instruction needs a result from another that hasn't finished yet), Structural (two instructions want the same resource, e.g. the same multiplier, at the same time), and Control (the processor guessed wrong about whether a branch would be taken, and had to discard work already started).\n- Branch Accuracy: only appears when the program has conditional branch instructions (if statements, loops). Shows what percentage of the time the processor correctly 'guessed' ahead of time whether a branch would be taken. Guessing right more often means less wasted work and therefore fewer control stalls.\nIn short: to compare two configurations (for example, with and without forwarding enabled, adjustable in the Advanced Settings Panel) or two different programs, look at the final CPI after each one finishes running — the one with the lower CPI is the more efficient one.",
+        "NOTES": "The 'higher is better' equivalent of this number is called IPC (Instructions Per Cycle) and is simply 1 divided by CPI; both measure the same thing from opposite ends."
+      },
+      "EDITOR": {
+        "NAME": "Code Editor and Tabs",
+        "DESCRIPTION": "The integrated editor (based on Monaco, the same engine as VS Code) supports several simultaneous tabs, each with its own independent source module:\n- New tab (+): creates an additional empty module; when you press Run/Step/Run to breakpoint, every open tab is assembled together as if they were files of the same program, sharing labels and data memory.\n- Close tab (×): removes the module immediately with no confirmation (at least one tab must always remain open).\n- Clear tab (trash icon): erases all content of the active tab without closing it, useful for starting a program from scratch without losing the other tabs.\n- Syntax highlighting: keywords, registers, directives (.data, .text...) and comments are color-coded according to the ASG language defined for Monaco.\n- Autocomplete: as you type a mnemonic, the editor suggests valid ISA instructions.\n- Bottom status bar: shows the number of open modules and the current program counter (PC) value in hexadecimal.",
+        "NOTES": "If there's an assembly error when pressing Run/Step, the exact tab and line where the error is located are activated and highlighted in red automatically, and the error message appears in the Event Log. The application does not support exporting or saving the code to a local file: tab content only lives for the current browser session."
+      },
+      "BREAKPOINTS": {
+        "NAME": "Breakpoints",
+        "DESCRIPTION": "You can pause execution right before a specific instruction enters the Fetch (IF) stage:\n- Add: click on the left margin (the line-number gutter) next to the desired instruction; a red dot appears.\n- Remove: click the same dot again to remove it.\n- Preview: hovering over the gutter without clicking shows a dimmed dot indicating where the breakpoint would be placed.\n- Execution: when you press Run, the simulator advances cycle by cycle automatically and stops as soon as the marked instruction reaches IF, letting you inspect the exact machine state at that point.",
+        "NOTES": "Breakpoints can only be placed on lines containing an actual instruction (not on comments, directives, or blank lines)."
+      },
+      "SUPERSCALAR_VIEWS": {
+        "NAME": "Superscalar-Only Views",
+        "DESCRIPTION": "The 'Superscalar' processor is the most advanced of the three available models: instead of executing instructions strictly in the order you wrote them, it can move later instructions ahead of earlier ones when they don't depend on them, so it never wastes time waiting idly. This requires more complex internal 'bookkeeping', shown in three new panels (they replace the classic pipeline view once you enable this mode in Settings):\n- ROB — Reorder Buffer ('the ledger'): keeps track, in order, of every instruction that entered the processor. Even though instructions may execute out of order, the ROB guarantees their results become final ('commit') in the exact order they appeared in your program — so the final outcome is always correct. Each row shows the instruction, whether it has finished computing, and whether it has already been committed.\n- RS — Reservation Stations ('the waiting room'): before it can run, each instruction waits here until its input data is ready. If an operand doesn't exist yet (because another in-flight instruction is going to produce it), a tag shows which ROB entry will supply it; as soon as that result is computed, the instruction can execute.\n- CDB — Common Data Bus ('the shared loudspeaker'): the instant a functional unit finishes computing a result, it announces it here so every reservation station waiting for it picks it up in the same cycle. This panel shows what was just announced and which unit produced it.\nThe Superscalar Pipeline panel also color-codes which of the 6 internal stages (fetch, decode, issue, execute, write, retire) each instruction is currently in."
+      },
+      "IO": {
+        "NAME": "Console Input and Output",
+        "DESCRIPTION": "ASG programs can interact with the user through system calls (TRAP):\n- TRAP 3 (read): pauses execution and shows a text field in the built-in console; the program resumes as soon as you confirm the input with Enter.\n- TRAP 5 (formatted write): prints a formatted string (similar to printf) to the console output.\n- The console keeps the full execution history and can be cleared with the CLR button.",
+        "EXAMPLE": ".data\n  prompt:   .asciiz \"Enter a number: \"\n  .align 2\n  p_prompt: .word prompt\n  buffer:   .space 80\n  .align 2\n  p_read:   .word 0, buffer, 80        ; TRAP 3: [fd, buffer address, max length]\n  fmt_out:  .asciiz \"You entered: %s\\n\"\n  .align 2\n  p_out:    .word fmt_out\n            .word buffer\n.text\n  addi r14, r0, p_prompt\n  trap 5              ; prints \"Enter a number: \"\n  addi r14, r0, p_read\n  trap 3              ; reads user input into buffer\n  addi r14, r0, p_out\n  trap 5              ; prints \"You entered: <what the user typed>\"\n  trap 0"
+      },
+      "EXPORT": {
+        "NAME": "Exporting the Execution Timeline",
+        "DESCRIPTION": "The Timeline panel lets you export the recorded execution history:\n- CSV: generates a downloadable table with each instruction's stage per cycle, useful for analysis in a spreadsheet.\n- PNG: generates an image of the timeline as shown on screen, ready to include in a report.\nThe timeline capture mode (live, on-finish only, or disabled) is controlled from Settings → Timeline.",
+        "NOTES": "For very long programs, the 'on-finish' or 'disabled' mode reduces the impact on browser performance."
+      },
+      "SETTINGS": {
+        "NAME": "Advanced Settings Panel",
+        "DESCRIPTION": "If you're just getting started, you don't need to touch anything here: the default configuration already works correctly for running any program. This panel exists for when you want to compare how performance changes (see the Performance Metrics panel) as you modify the processor's internal design. Open it from the gear icon ⚙ in the top bar; its options are grouped by category:\n- Processor: choose between non-pipelined (the simplest and slowest, one full instruction at a time), pipelined (the classic 5 overlapping stages), or superscalar (the most advanced, described in 'Superscalar-Only Views' in this same manual).\n- Pipelined: toggles for specific improvements to the pipelined model — forwarding (passes a result straight to the next instruction without waiting for it to be formally written back), vector chaining (chains vector operations together), branch delay slot, and the branch prediction strategy.\n- Latencies: how many cycles each type of operation (integer add, multiply, single/double-precision float, vector) takes to finish. Raising these values simulates slower hardware; lowering them simulates faster hardware.\n- Superscalar: more technical parameters (ROB size, result-bus width, number of reservation stations and functional units). If you're not sure which values to pick, use one of the three presets (minimal, balanced, aggressive): they automatically fill in a coherent combination of all these numbers.\nChanges only take effect when you press Save; pressing Cancel or closing the dialog leaves everything unchanged.",
+        "NOTES": "Saving the configuration resets the processor state (equivalent to pressing Reset): you'll lose the current execution progress, but not the code written in the editor."
+      },
+      "STATIC_SCHEDULING_UI": {
+        "NAME": "Static Code Optimizer",
+        "DESCRIPTION": "The optimization button opens a dialog that applies compiler techniques to the editor's current code, without modifying the original until you confirm:\n- Scheduling: reorders independent instructions to reduce dependency stalls.\n- Loop unrolling: unrolls loops a configurable number of times to expose more parallelism between iterations.\n- Register renaming: removes false dependencies (WAW/WAR) by assigning distinct temporary registers.\n- Delayed branch: fills the delay slot after a branch with a useful instruction whenever it's safe to do so.\nThe dialog shows the original and optimized code side by side; pressing Apply replaces the active editor tab's code with the optimized version.",
+        "NOTES": "These optimizations are static (applied before execution) and are independent of whether the execution processor has forwarding/superscalar features enabled."
+      },
+      "THEME_LANG": {
+        "NAME": "Theme and Language",
+        "DESCRIPTION": "The top bar lets you personalize the experience:\n- Theme: toggles between light and dark mode; the preference is remembered across sessions.\n- Language: changes the entire interface language (Spanish/English) without reloading the page."
+      }
+    },
+    "OPERANDS": {
+      "RD": "Destination register",
+      "RS1": "First source operand",
+      "RS2": "Second source operand",
+      "RS1_ALT": "First operand",
+      "RS2_ALT": "Second operand",
+      "MINUEND": "Minuend",
+      "SUBTRAHEND": "Subtrahend",
+      "RS_SRC": "Source register",
+      "IMM_SIGNED": "16-bit signed immediate. The # prefix is mandatory for numeric literals. Accepts decimal (#10, #-5) or hexadecimal (#0xFF). A label (without #) can also be specified, which the assembler resolves to its address (must be defined in .data, not .text).",
+      "IMM_UNSIGNED": "16-bit unsigned immediate. The # prefix is mandatory for numeric literals. Accepts decimal (#10) or hexadecimal (#0xFF). A label (without #) can also be specified.",
+      "IMM_SIGNED_ALT": "16-bit signed immediate. The # prefix is mandatory for numeric literals. Accepts decimal (#4, #-1) or hexadecimal (#0x10). A label (without #) can also be specified.",
+      "IMM_SIGNED_BASIC": "16-bit signed immediate. The # prefix is mandatory for numeric literals.",
+      "IMM_16BIT": "16-bit immediate. The # prefix is mandatory for numeric literals. Accepts decimal (#255) or hexadecimal (#0xFF). A label (without #) can also be specified.",
+      "IMM_16BIT_HEX": "16-bit immediate. The # prefix is mandatory for numeric literals. Accepts decimal or hexadecimal (#0x80). A label (without #) can also be specified.",
+      "IMM_16BIT_ALT": "16-bit immediate. The # prefix is mandatory for numeric literals. Accepts decimal or hexadecimal (#0x01). A label (without #) can also be specified.",
+      "SHIFT_AMOUNT": "Number of positions to shift (0-63). The # prefix is mandatory. Only accepts decimal or hexadecimal literal; labels are not allowed in shift instructions.",
+      "SHIFT_AMOUNT_BASIC": "Number of positions to shift (0-63). The # prefix is mandatory. Only accepts decimal or hexadecimal literal.",
+      "IMM_HIGH": "16-bit value to place in the high part of the register. The # prefix is mandatory for numeric literals. Accepts decimal (#0x1234) or hexadecimal. A label (without #) can also be specified.",
+      "LABEL_DATA": "Symbol defined in the .data section (direct mode)",
+      "OFFSET_NUMERIC": "Signed numeric offset in decimal or hex (indirect mode)",
+      "RS_BASE": "Base register (indirect mode)",
+      "OFFSET_NO_LABEL": "Decimal or hex integer (indirect mode). Labels are not allowed as offset.",
+      "FD_EVEN": "Destination float register - must be even (F0, F2, F4...)",
+      "LABEL_DATA_SHORT": ".data symbol (direct mode)",
+      "OFFSET_INDIRECT": "Numeric offset (indirect mode)",
+      "FD_EVEN_SRC": "Source float register - must be even (F0, F2, F4...)",
+      "RS_COMPARE_ZERO": "Register to compare with 0",
+      "LABEL_TEXT_FULL": "Target label name. Only labels defined in the .text section (code labels) are allowed. .data labels cannot be used.",
+      "LABEL_TEXT": "Target label defined in the .text section.",
+      "LABEL_TEXT_NO_DATA": "Target label defined in the .text section. .data labels are not allowed.",
+      "RS_TARGET_ADDR": "Register containing the target address",
+      "RD_RETURN": "Register where the return address is saved",
+      "FD_ANY": "Destination float register (any F0-F31)",
+      "FS1_SP": "First SP operand",
+      "FS2_SP": "Second SP operand",
+      "FD_EVEN_DEST": "Even destination float register (F0, F2, F4...)",
+      "FS1_DP": "First DP operand (even register)",
+      "FS2_DP": "Second DP operand (even register)",
+      "FS1_SP_ANY": "First SP operand (any F0-F31)",
+      "FS2_SP_ANY": "Second SP operand (any F0-F31)",
+      "FS1_DP_EVEN": "First DP operand - must be even register (F0, F2, F4...)",
+      "FS2_DP_EVEN": "Second DP operand - must be even register",
+      "FD_DEST_DP": "Destination register (even for DP)",
+      "FS_SRC": "Source register",
+      "VLR": "Special vector length register (0-64)",
+      "RS_INT_SRC": "Integer source register (MOVI2S)",
+      "RD_INT_DEST": "Integer destination register",
+      "VM": "Special vector mask register",
+      "FS_FD": "Float source or destination register",
+      "VD": "Vector destination register (V0-V7)",
+      "RS_BASE_ADDR": "Integer register with base address",
+      "VD_DEST": "Vector destination register",
+      "RS_STRIDE": "Integer register with stride (step between indices)",
+      "VS1": "First source vector",
+      "VS2": "Second source vector",
+      "FS_SCALAR": "Float scalar source",
+      "VS_SRC": "Source vector",
+      "R14_PARAM": "Address of parameter block in data memory",
+      "RS2_SHIFT": "Register whose low 5 bits indicate the number of positions to shift",
+      "FD_SRC_ANY": "Source float register (any F0-F31)",
+      "FD_RD_CONV_DEST": "Destination float register. Always an Fd register, even for CVTD2I/CVTF2I (the truncated integer value is stored in the float bank, not the integer bank).",
+      "FS_CONV_SRC": "Source float register holding the value to convert",
+      "FD_MOV_DEST": "Destination float register (even for MOVD)",
+      "FD_RD_RAW_DEST": "Destination register: Fd (float) in MOVI2FP, Rd (integer) in MOVFP2I",
+      "RS_FS_RAW_SRC": "Source register: Rs (integer) in MOVI2FP, Fs (float) in MOVFP2I",
+      "VI_INDEX": "Index vector; each element supplies its own offset"
+    },
+    "INT_ALU": {
+      "ADD": {
+        "DESCRIPTION": "Signed addition of two integer registers. Performs Rd = Rs1 + Rs2. Hardware detects arithmetic overflow if the result cannot be represented in 32 signed bits.",
+        "EXAMPLE": "ADD R3, R1, R2   ; R3 = R1 + R2"
+      },
+      "ADDU": {
+        "DESCRIPTION": "Unsigned integer addition. Rd = Rs1 + Rs2. Unlike ADD, this instruction does not generate overflow exceptions; the result is simply truncated to 32 bits.",
+        "EXAMPLE": "ADDU R3, R1, R2  ; Addition without exception risk"
+      },
+      "SUB": {
+        "DESCRIPTION": "Signed integer subtraction. Rd = Rs1 - Rs2. Generas an ARITHMETIC_OVERFLOW exception if the result exceeds the 32-bit range.",
+        "EXAMPLE": "SUB R3, R5, R2   ; R3 = R5 - R2"
+      },
+      "MULT": {
+        "DESCRIPTION": "Signed 32-bit integer multiplication. In the simulated ASG processor, this operation usually has higher latency than additions (default 7 cycles in the multiplication functional unit).",
+        "EXAMPLE": "MULT R4, R2, R3  ; R4 = R2 * R3",
+        "NOTES": "Unlike ADD/SUB, MULT does not check for arithmetic overflow: the result never triggers an exception."
+      },
+      "DIV": {
+        "DESCRIPTION": "Signed integer division. Rd = Rs1 / Rs2. It is the slowest scalar operation in the system.",
+        "EXAMPLE": "DIV R4, R6, R2   ; R4 <- R6 / R2",
+        "NOTES": "If the divisor (Rs2) is zero, the processor immediately triggers a DIVISION_BY_ZERO exception."
+      },
+      "NOP": {
+        "DESCRIPTION": "No Operation. Null instruction that does not alter register or memory state. In ASG architecture, it is technically encoded as a shift 'SLL R0, R0, R0'.",
+        "EXAMPLE": "NOP ; Padding for delay slots or alignment",
+        "NOTES": "Fundamental in static scheduling to fill gaps that the compiler couldn't optimize."
+      },
+      "SUBU": {
+        "DESCRIPTION": "Unsigned arithmetic integer subtraction.",
+        "EXAMPLE": "SUBU R3, R5, R2"
+      },
+      "AND": {
+        "DESCRIPTION": "Bitwise logical AND operation.",
+        "EXAMPLE": "AND R4, R1, R2   ; R4 <- R1 & R2"
+      },
+      "OR": {
+        "DESCRIPTION": "Bitwise logical OR operation.",
+        "EXAMPLE": "OR R4, R1, R2    ; R4 <- R1 | R2"
+      },
+      "XOR": {
+        "DESCRIPTION": "Bitwise logical XOR (exclusive OR) operation.",
+        "EXAMPLE": "XOR R4, R1, R2   ; R4 <- R1 ^ R2"
+      },
+      "MULTU": {
+        "DESCRIPTION": "Unsigned integer multiplication.",
+        "EXAMPLE": "MULTU R4, R2, R3",
+        "NOTES": "Like MULT, it does not check for arithmetic overflow: the result never triggers an exception."
+      },
+      "DIVU": {
+        "DESCRIPTION": "Unsigned integer division. Rd <- (Rs1 / Rs2) treating both operands as 32-bit unsigned values.",
+        "EXAMPLE": "DIVU R4, R6, R2",
+        "NOTES": "If the divisor (Rs2) is zero, a DIVISION_BY_ZERO exception is raised."
+      },
+      "SLL": {
+        "DESCRIPTION": "Shift Left Logical. The number of positions is taken from the low 5 bits of Rs2.",
+        "EXAMPLE": "SLL R4, R1, R2   ; R4 <- R1 << R2"
+      },
+      "SRL": {
+        "DESCRIPTION": "Logical right shift (fills with zeros).",
+        "EXAMPLE": "SRL R4, R1, R2"
+      },
+      "SRA": {
+        "DESCRIPTION": "Arithmetic right shift (maintains sign bit).",
+        "EXAMPLE": "SRA R4, R1, R2"
+      }
+    },
+    "INT_IMM": {
+      "ADDI": {
+        "DESCRIPTION": "Adds Rs1 with a 16-bit sign-extended immediate and stores the result in Rd.",
+        "EXAMPLE": "ADDI R3, R1, #10       ; R3 <- R1 + 10 (decimal)\nADDI R3, R1, #0xFF     ; R3 <- R1 + 255 (hexadecimal)\nADDI R3, R1, MyVar     ; R3 <- R1 + address of MyVar",
+        "NOTES": "Commonly used to load small constants or calculate offsets. The immediate is sign-extended to 64 bits before adding."
+      },
+      "ADDUI": {
+        "DESCRIPTION": "Adds Rs1 with a 16-bit unsigned immediate (zero-extended) and stores the result in Rd.",
+        "EXAMPLE": "ADDUI R3, R1, #10      ; R3 <- R1 + 10\nADDUI R3, R1, #0x100   ; R3 <- R1 + 256",
+        "NOTES": "Unlike ADDI, the immediate is zero-extended (unsigned), so negative values are not allowed."
+      },
+      "SUBI": {
+        "DESCRIPTION": "Subtracts a 16-bit signed immediate from Rs1 and stores the result in Rd.",
+        "EXAMPLE": "SUBI R3, R1, #4        ; R3 <- R1 - 4\nSUBI R3, R1, #0x10     ; R3 <- R1 - 16",
+        "NOTES": "Commonly used to subtract small constants or adjust computed addresses. The immediate is sign-extended to 64 bits before subtracting."
+      },
+      "SUBUI": {
+        "DESCRIPTION": "Subtracts a 16-bit unsigned immediate from Rs1, treating both operands as 32-bit unsigned values. Rd <- (Rs1 - imm) mod 2³².",
+        "EXAMPLE": "SUBUI R3, R1, #4       ; R3 <- R1 - 4 (unsigned)\nSUBUI R3, R1, #0x10    ; R3 <- R1 - 16 (unsigned)",
+        "NOTES": "Unlike SUBI, the immediate is zero-extended (unsigned) and no overflow is detected; the result is truncated to 32 unsigned bits."
+      },
+      "MULTI": {
+        "DESCRIPTION": "Integer multiplication with 16-bit sign-extended immediate. Rd <- Rs1 * imm.",
+        "EXAMPLE": "MULTI R3, R1, #10      ; R3 <- R1 * 10",
+        "NOTES": "7 cycle latency. The immediate is sign-extended to 32 bits."
+      },
+      "DIVI": {
+        "DESCRIPTION": "Integer division with 16-bit sign-extended immediate. Rd <- Rs1 / imm (integer quotient).",
+        "EXAMPLE": "DIVI R3, R6, #2        ; R3 <- R6 / 2",
+        "NOTES": "24 cycle latency. If the immediate is 0, a DIVISION_BY_ZERO exception is raised."
+      },
+      "ANDI": {
+        "DESCRIPTION": "Bitwise logical AND between Rs1 and a 16-bit immediate (zero-extended).",
+        "EXAMPLE": "ANDI R4, R1, #0xFF     ; R4 <- R1 & 0xFF  (mask low 8 bits)\nANDI R4, R1, #0xF0     ; R4 <- R1 & 0xF0  (mask high nibble)",
+        "NOTES": "Useful for masking bits. The immediate is zero-extended to 64 bits."
+      },
+      "ORI": {
+        "DESCRIPTION": "Bitwise logical OR between Rs1 and a 16-bit immediate (zero-extended).",
+        "EXAMPLE": "ORI R4, R1, #0x80      ; sets bit 7\nORI R1, R1, #0x5678    ; combine with LHI to build 32-bit constants",
+        "NOTES": "Frequently combined with LHI to load 32-bit constants: LHI loads the high 16 bits and ORI fills the low 16 bits."
+      },
+      "XORI": {
+        "DESCRIPTION": "Bitwise logical XOR between Rs1 and a 16-bit immediate (zero-extended).",
+        "EXAMPLE": "XORI R4, R1, #0x01     ; inverts bit 0 of R1\nXORI R4, R1, #0xFF     ; inverts the low 8 bits",
+        "NOTES": "Useful for flipping specific bits without affecting the rest (XOR mask)."
+      },
+      "SLLI": {
+        "DESCRIPTION": "Logical left shift of Rs1 by #imm positions.",
+        "EXAMPLE": "SLLI R4, R1, #2        ; R4 <- R1 << 2  (multiply by 4)\nSLLI R4, R1, #0x3      ; R4 <- R1 << 3  (multiply by 8)",
+        "NOTES": "Bits shifted out of the register are lost. Fills with zeros on the right."
+      },
+      "SRLI": {
+        "DESCRIPTION": "Logical right shift of Rs1 by #imm positions (fills with zeros on the left).",
+        "EXAMPLE": "SRLI R4, R1, #3        ; R4 <- R1 >> 3  (divide by 8, unsigned)",
+        "NOTES": "Fills with zeros regardless of the operand's sign. For signed division use SRAI."
+      },
+      "SRAI": {
+        "DESCRIPTION": "Arithmetic right shift of Rs1 by #imm positions (propagates sign bit).",
+        "EXAMPLE": "SRAI R4, R1, #1        ; R4 <- R1 >> 1  (divide by 2, signed)",
+        "NOTES": "Propagates the most significant bit (sign) to the right. Equivalent to integer division by 2^imm preserving sign."
+      },
+      "LHI": {
+        "DESCRIPTION": "Loads the immediate into the high 16 bits of Rd (bits 31-16). The low 16 bits are set to 0. Useful for building 32-bit constants combined with ORI.",
+        "EXAMPLE": "LHI R1, #0x1234        ; R1 <- 0x12340000\nORI R1, R1, #0x5678    ; R1 <- 0x12345678",
+        "NOTES": "Standard pattern for loading a 32-bit constant: use LHI with the high 16 bits followed by ORI with the low 16 bits."
+      }
+    },
+    "MEMORY": {
+      "LB": {
+        "DESCRIPTION": "Loads a byte from memory and sign-extends it to 32 bits.\n\n- Direct addressing (2 operands): the address is the .data symbol indicated. R0 acts as implicit base.\n- Indirect addressing (3 operands): effective address is Rs + offset. The offset must be a decimal or hexadecimal integer (e.g., 4 or -0x10). Labels are not allowed as offset.",
+        "EXAMPLE": "LB R5, MyByte         ; R5 <- MEM[addr(MyByte)]\nLB R5, 0(R2)          ; R5 <- MEM[R2]",
+        "NOTES": "No alignment required (1-byte access)."
+      },
+      "LBU": {
+        "DESCRIPTION": "Loads a byte without sign extension (high bits set to 0).\n\n- Direct mode: address = .data symbol, implicit base R0.\n- Indirect mode: address = Rs + numeric offset.",
+        "EXAMPLE": "LBU R5, MyByte\nLBU R5, 0(R2)",
+        "NOTES": "No alignment required (1-byte access)."
+      },
+      "LH": {
+        "DESCRIPTION": "Loads a halfword (2 bytes) with sign extension.\n\n- Direct mode: address = .data symbol, implicit base R0.\n- Indirect mode: address = Rs + numeric offset.",
+        "EXAMPLE": "LH R5, MyHalf\nLH R5, 2(R2)",
+        "NOTES": "Requires 2-byte alignment."
+      },
+      "LHU": {
+        "DESCRIPTION": "Loads unsigned halfword.\n\n- Direct mode: address = .data symbol, implicit base R0.\n- Indirect mode: address = Rs + numeric offset.",
+        "EXAMPLE": "LHU R5, MyHalf\nLHU R5, 2(R2)",
+        "NOTES": "Requires 2-byte alignment."
+      },
+      "LW": {
+        "DESCRIPTION": "Loads a word (4 bytes) from memory and sign-extends it to 32 bits.\n\n- Direct mode: address = .data symbol, implicit base R0.\n- Indirect mode: address = Rs + numeric offset.",
+        "EXAMPLE": "LW R5, MyVar          ; R5 <- MEM[addr(MyVar)]\nLW R5, 4(R2)          ; R5 <- MEM[R2+4]",
+        "NOTES": "Causes a 'Load-Use' RAW hazard if the next instruction attempts to use the Rd register immediately. Requires 4-byte alignment."
+      },
+      "LF": {
+        "DESCRIPTION": "Loads a single precision float (32 bits) into a float register.\n\n- Direct mode: address = .data symbol, implicit base R0.\n- Indirect mode: address = Rs + numeric offset.",
+        "EXAMPLE": "LF F0, MyFloat\nLF F2, 8(R1)",
+        "NOTES": "Fd can be any float register (F0-F31). Requires 4-byte alignment."
+      },
+      "LD": {
+        "DESCRIPTION": "Loads a double precision double (64 bits) into a pair of float registers.\n\n- Direct mode: address = .data symbol, implicit base R0.\n- Indirect mode: address = Rs + numeric offset.",
+        "EXAMPLE": "LD F0, MyDouble\nLD F0, 0(R1)",
+        "NOTES": "Fd must be even. The double occupies Fd (high part) and Fd+1 (low part). Requires 8-byte alignment."
+      },
+      "SB": {
+        "DESCRIPTION": "Stores the least significant byte of Rs2 to memory.\n\n- Direct mode: address = .data symbol, implicit base R0.\n- Indirect mode: address = Rs1 + numeric offset.",
+        "EXAMPLE": "SB MyByte, R5\nSB 0(R2), R5",
+        "NOTES": "No alignment required (1-byte access)."
+      },
+      "SH": {
+        "DESCRIPTION": "Stores the low 16 bits of Rs2 to memory.\n\n- Direct mode: address = .data symbol, implicit base R0.\n- Indirect mode: address = Rs1 + numeric offset.",
+        "EXAMPLE": "SH MyHalf, R5\nSH 2(R2), R5",
+        "NOTES": "Requires 2-byte alignment."
+      },
+      "SW": {
+        "DESCRIPTION": "Stores a word (32 bits) to memory.\n\n- Direct mode: address = .data symbol, implicit base R0.\n- Indirect mode: address = Rs1 + numeric offset.",
+        "EXAMPLE": "SW MyVar, R3          ; MEM[addr(MyVar)] <- R3\nSW 4(R1), R3          ; MEM[R1+4] <- R3",
+        "NOTES": "Requires 4-byte alignment."
+      },
+      "SF": {
+        "DESCRIPTION": "Stores a single precision float from a float register.\n\n- Direct mode: address = .data symbol, implicit base R0.\n- Indirect mode: address = Rs + numeric offset.",
+        "EXAMPLE": "SF MyFloat, F2\nSF 8(R1), F2",
+        "NOTES": "Requires 4-byte alignment."
+      },
+      "SD": {
+        "DESCRIPTION": "Stores a double precision double (64 bits).\n\n- Direct mode: address = .data symbol, implicit base R0.\n- Indirect mode: address = Rs + numeric offset.",
+        "EXAMPLE": "SD MyDouble, F0\nSD 0(R1), F0",
+        "NOTES": "Fd must be even. Unlike LD (requires 8-byte alignment), SD accepts 4-byte alignment."
+      },
+      "ALIGN_2": "Mandatory alignment: Address must be a multiple of 2 (Halfword).",
+      "ALIGN_4": "Mandatory alignment: Address must be a multiple of 4 (Word)."
+    },
+    "BRANCHES": {
+      "BEQZ": {
+        "DESCRIPTION": "Branches to the label if Rs == 0 (Branch if Equal to Zero).",
+        "EXAMPLE": "BEQZ R1, end     ; if R1 == 0, jump to \"end\"",
+        "NOTES": "The label must be defined in the .text section of the program. The assembler resolves it to a 16-bit PC-relative offset."
+      },
+      "BNEZ": {
+        "DESCRIPTION": "Branches if Rs != 0.",
+        "EXAMPLE": "BNEZ R1, loop"
+      },
+      "BGTZ": {
+        "DESCRIPTION": "Branches if Rs > 0 (signed).",
+        "EXAMPLE": "BGTZ R2, positive"
+      },
+      "BLTZ": {
+        "DESCRIPTION": "Branches if Rs < 0 (signed).",
+        "EXAMPLE": "BLTZ R2, negative"
+      },
+      "BFPT": {
+        "DESCRIPTION": "Branches if the floating point condition bit (fpConditionBit) is 1. Activated by float comparison instructions (EQF, LTD, etc.).",
+        "EXAMPLE": "LED F0, F2\nBFPT less_equal",
+        "NOTES": "Only code labels (.text) are allowed. The condition bit is shared with BFPF."
+      },
+      "BFPF": {
+        "DESCRIPTION": "Branches if the floating point condition bit is 0.",
+        "EXAMPLE": "EQF F0, F2\nBFPF not_equal"
+      },
+      "J": {
+        "DESCRIPTION": "Unconditional jump. The PC is updated to the label address.",
+        "EXAMPLE": "J loop",
+        "NOTES": "Only code labels (.text) are allowed. The jump is encoded as a 26-bit PC-relative offset."
+      },
+      "JAL": {
+        "DESCRIPTION": "Jump and Link. Saves the return address (PC+4) in R31 and jumps to the label.",
+        "EXAMPLE": "JAL myFunction   ; R31 <- PC+4; PC <- myFunction",
+        "NOTES": "R31 is the return register by convention in ASG. Only code labels (.text) are allowed."
+      },
+      "JR": {
+        "DESCRIPTION": "Unconditional jump to the address contained in register Rs.",
+        "EXAMPLE": "JR R31           ; function return",
+        "NOTES": "Does not use a label - the address is taken from the register. Typically used for function return (JR R31)."
+      },
+      "JALR": {
+        "DESCRIPTION": "Jump and Link Register. Saves PC+4 in Rd and jumps to the address in Rs.",
+        "EXAMPLE": "JALR R31, R2",
+        "NOTES": "Does not use a label - the target address comes from register Rs."
+      },
+      "TEXT_ONLY": "Only code labels (.text) are allowed."
+    },
+    "COMPARE": {
+      "SEQ": {
+        "DESCRIPTION": "Rd <- 1 if Rs1 == Rs2, otherwise Rd <- 0. SEQ is signed, SEQU is unsigned.",
+        "EXAMPLE": "SEQ R5, R1, R2   ; R5 <- (R1 == R2) ? 1 : 0"
+      },
+      "SNE": {
+        "DESCRIPTION": "Rd <- 1 if Rs1 != Rs2.",
+        "EXAMPLE": "SNE R5, R1, R2"
+      },
+      "SLT": {
+        "DESCRIPTION": "Rd <- 1 if Rs1 < Rs2 (signed for SLT, unsigned for SLTU).",
+        "EXAMPLE": "SLT R5, R1, R2   ; R5 <- (R1 < R2) ? 1 : 0"
+      },
+      "SGT": {
+        "DESCRIPTION": "Rd <- 1 if Rs1 > Rs2.",
+        "EXAMPLE": "SGT R5, R1, R2"
+      },
+      "SLE": {
+        "DESCRIPTION": "Rd <- 1 if Rs1 <= Rs2.",
+        "EXAMPLE": "SLE R5, R1, R2"
+      },
+      "SGE": {
+        "DESCRIPTION": "Rd <- 1 if Rs1 >= Rs2.",
+        "EXAMPLE": "SGE R5, R1, R2"
+      },
+      "SEQI": {
+        "DESCRIPTION": "Equal comparison with 16-bit immediate. SEQI uses sign extension; SEQUI uses zero extension.",
+        "EXAMPLE": "SEQI R5, R1, #10  ; R5 <- (R1 == 10) ? 1 : 0"
+      },
+      "SLTI": {
+        "DESCRIPTION": "Comparisons with immediate in all variants (less than, greater than, less than or equal, greater than or equal, not equal). Names ending in U/UI use unsigned operands.",
+        "EXAMPLE": "SLTI R5, R1, #100 ; R5 <- (R1 < 100) ? 1 : 0"
+      }
+    },
+    "FLOAT": {
+      "ADDF": {
+        "DESCRIPTION": "Single precision arithmetic (32-bit IEEE 754). The result is stored in Fd. Any float register F0-F31 is valid.",
+        "EXAMPLE": "ADDF F1, F3, F5  ; F1 <- F3 + F5 (single precision)"
+      },
+      "ADDD": {
+        "DESCRIPTION": "Double precision arithmetic (64-bit IEEE 754). Registers must be even (F0, F2, F4...).",
+        "EXAMPLE": "MULTD F0, F2, F4 ; F0 <- F2 * F4 (double precision)",
+        "NOTES": "A double occupies the register pair Fn and Fn+1. Only Fn (the even one) is specified in the instruction."
+      },
+      "EQF": {
+        "DESCRIPTION": "Single precision comparisons (32 bits). No destination register: the boolean result is written to the floating point condition bit (fpConditionBit). Use BFPT/BFPF to branch based on the result.\n\nAvailable mnemonics:\n- EQF - equal (==)\n- NEF - not equal (!=)\n- LTF - less than (<)\n- GTF - greater than (>)\n- LEF - less than or equal (<=)\n- GEF - greater than or equal (>=)\n- SLTF / SGTF / SLEF / SGEF - \"Set\" variants equivalent to LTF/GTF/LEF/GEF",
+        "EXAMPLE": "LTF F1, F3       ; fpConditionBit <- (F1 < F3)\nBFPT less        ; jump if fpConditionBit = 1",
+        "NOTES": "No register is written. The BFPT instruction jumps if fpConditionBit=1; BFPF jumps if fpConditionBit=0."
+      },
+      "EQD": {
+        "DESCRIPTION": "Double precision comparisons (64 bits). No destination register: the result is written to fpConditionBit.\n\nAvailable mnemonics:\n- EQD - equal (==)\n- NED - not equal (!=)\n- LTD - less than (<)\n- GTD - greater than (>)\n- LED - less than or equal (<=)\n- GED - greater than or equal (>=)\n- SLTD / SGTD / SLED / SGED - \"Set\" variants equivalent to LTD/GTD/LED/GED",
+        "EXAMPLE": "LED F0, F2       ; fpConditionBit <- (F0:F1 <= F2:F3)\nBFPT end",
+        "NOTES": "Registers must be even; each represents a 64-bit double together with the next register (Fn:Fn+1)."
+      },
+      "CVTF2D": {
+        "DESCRIPTION": "Conversion between single and double precision. CVTF2D converts SP->DP; CVTD2F converts DP->SP.",
+        "EXAMPLE": "CVTF2D F0, F5    ; converts F5 (SP) to DP in F0:F1"
+      },
+      "CVTI2D": {
+        "DESCRIPTION": "Conversion between integer and float.\n- CVTI2D: integer (in F register) -> double in Fd:Fd+1\n- CVTI2F: integer (in F register) -> single in Fd\n- CVTD2I: double -> truncated 32-bit integer, destination in a float register Fd (the integer value is stored numerically in the float bank, not the integer bank)\n- CVTF2I: single -> truncated 32-bit integer, destination in a float register Fd (same as CVTD2I)",
+        "EXAMPLE": "CVTI2D F0, F10   ; F0:F1 <- double(integer in F10)\nCVTD2I F3, F0    ; F3 <- trunc(F0:F1 as double)",
+        "NOTES": "CVTD2I and CVTF2I write their result to a float register (Fd), not an integer one, even though the result is a truncated integer value: the assembler requires the syntax 'CVTD2I Fd, Fs'. To move that value into an integer register (Rd) a subsequent MOVFP2I is needed. The DP destination of CVTI2D must be an even register."
+      },
+      "MOVF": {
+        "DESCRIPTION": "Copies a float register. MOVF copies single precision; MOVD copies a DP pair (Fd and Fd+1 <- Fs and Fs+1).",
+        "EXAMPLE": "MOVD F4, F0      ; F4:F5 <- F0:F1"
+      },
+      "MOVI2FP": {
+        "DESCRIPTION": "Transfers raw bits between integer and float registers without value conversion. MOVI2FP copies integer->float; MOVFP2I copies float->integer.",
+        "EXAMPLE": "MOVI2FP F10, R1  ; F10 <- R1 (bits without conversion)",
+        "NOTES": "Useful for initializing float registers with integer values before an explicit conversion (CVTI2F/CVTI2D)."
+      },
+      "MOVI2S": {
+        "DESCRIPTION": "Transfers the contents of the vector length register (VLR).\n- MOVI2S VLR, Rs: loads Rs into VLR (sets the number of active elements in vector operations).\n- MOVS2I Rd, VLR: copies the current VLR value to integer register Rd.",
+        "EXAMPLE": "ADDI R1, R0, #16\nMOVI2S VLR, R1   ; VLR <- 16 (process 16 elements)\nMOVS2I R2, VLR   ; R2 <- current VLR"
+      },
+      "MOVF2S": {
+        "DESCRIPTION": "Transfers the contents of the vector mask register (VM) to/from a float register treated as a 32-bit bitmask.\n- MOVF2S VM, Fs: the raw bits of Fs are interpreted as bitmask; VM[i] <- bit i of Fs (i=0..31); VM[32..63] <- 0.\n- MOVS2F Fd, VM: packs VM[0..31] into a 32-bit integer (bit i = VM[i]) and stores it as raw bits in Fd.",
+        "EXAMPLE": "MOVF2S VM, F0    ; VM <- bitmask(bits of F0)\nMOVS2F F1, VM    ; F1 <- packed bitmask of VM",
+        "NOTES": "Only 32 elements are represented in the float (32 bits). VM[32..63] are set to 0 in MOVF2S. Use CVM to reset VM to all-1s."
+      },
+      "POP": {
+        "DESCRIPTION": "Population count of the vector mask. Counts the number of bits set to 1 in the vector mask register (VM) and stores the result in integer register Rd.",
+        "EXAMPLE": "POP R1, VM       ; R1 <- number of active elements in VM",
+        "NOTES": "Useful for knowing how many vector elements meet a condition after a vector comparison (SLTV, SEQV, etc.)."
+      }
+    },
+    "VECTOR": {
+      "LV": {
+        "DESCRIPTION": "Loads (LV) or stores (SV) a complete vector. Elements are loaded/stored sequentially from base address Rs. The number of active elements is controlled by the vector length register (VLR).",
+        "EXAMPLE": "LV V0, R1        ; loads VLR elements from MEM[R1]"
+      },
+      "LVWS": {
+        "DESCRIPTION": "Loads/stores a vector with stride. Rs2 contains the step in bytes between consecutive elements.",
+        "EXAMPLE": "LVWS V0, R1, R2  ; V0[i] <- MEM[R1 + i*R2]"
+      },
+      "LVI": {
+        "DESCRIPTION": "Indexed vector load/store. Each element uses its own offset stored in the index vector Vi.",
+        "EXAMPLE": "LVI V0, R1, V1   ; V0[i] <- MEM[R1 + V1[i]]"
+      },
+      "ADDV": {
+        "DESCRIPTION": "Vector-vector arithmetic. The operation is applied element by element over the VLR active elements.",
+        "EXAMPLE": "ADDV V0, V1, V2  ; V0[i] <- V1[i] + V2[i]",
+        "NOTES": "With vector chaining enabled, these instructions can overlap when there are no data dependencies."
+      },
+      "ADDSV": {
+        "DESCRIPTION": "Scalar-vector arithmetic. The scalar (float register Fs) operates with each element of vector Vs.",
+        "EXAMPLE": "MULTSV V0, F2, V1 ; V0[i] <- F2 * V1[i]"
+      },
+      "ADDVS": {
+        "DESCRIPTION": "Vector-scalar arithmetic. Each element of vector Vs operates with scalar Fs.",
+        "EXAMPLE": "ADDVS V0, V1, F2  ; V0[i] <- V1[i] + F2"
+      },
+      "CVI": {
+        "DESCRIPTION": "Creates a vector of scaled indices in Vd. Each element i receives the value i x Rs, where Rs is the stride stored in an integer register.",
+        "EXAMPLE": "ADDI R1, R0, #4\nCVI V0, R1       ; V0 = [0, 4, 8, 12, ...]  (V0[i] <- i*4)",
+        "NOTES": "With Rs=1 generates the sequence 0,1,2,3,... useful as index vector for indirect accesses (LVI/SVI)."
+      },
+      "CVM": {
+        "DESCRIPTION": "Resets the vector mask to all 1s (all elements active).",
+        "EXAMPLE": "CVM"
+      },
+      "SEQV": {
+        "DESCRIPTION": "Vector-vector comparison. The element-by-element boolean result is written directly to the vector mask register (VM): VM[i] <- condition(Vs1[i], Vs2[i]).",
+        "EXAMPLE": "SLTV V1, V2      ; VM[i] <- (V1[i] < V2[i])",
+        "NOTES": "No explicit destination register; the result always goes to VM. Use CVM to reset the mask."
+      },
+      "SEQSV": {
+        "DESCRIPTION": "Scalar-vector comparison. VM[i] <- condition(Fs, Vs[i]).",
+        "EXAMPLE": "SLTSV F2, V1     ; VM[i] <- (F2 < V1[i])",
+        "NOTES": "The result is written to VM, not to a destination vector."
+      },
+      "SEQVS": {
+        "DESCRIPTION": "Vector-scalar comparison. VM[i] <- condition(Vs[i], Fs).",
+        "EXAMPLE": "SGEVS V1, F2     ; VM[i] <- (V1[i] >= F2)",
+        "NOTES": "The result is written to VM, not to a destination vector."
+      }
+    },
+    "DIRECTIVES": {
+      "DATA": {
+        "DESCRIPTION": "Marks the beginning of the data segment. Following directives (.word, .space, .asciiz, etc.) reserve space in data memory.",
+        "EXAMPLE": ".data\nMyVar: .word 42"
+      },
+      "TEXT": {
+        "DESCRIPTION": "Marks the beginning of the code segment. Following instructions are assembled into instruction memory.",
+        "EXAMPLE": ".text\nADDI R1, R0, #5"
+      },
+      "GLOBAL": {
+        "DESCRIPTION": "Declares a label as global, visible to all modules assembled together. Without this directive, labels are local to the module.",
+        "EXAMPLE": ".global InputUnsigned\nInputUnsigned:",
+        "NOTES": "Required when assembling multiple files (.s) together and one module references labels from another."
+      },
+      "WORD": {
+        "DESCRIPTION": "Reserves one or more 32-bit words in data memory and initializes with the given values. Can be used with labels to reference the address.",
+        "EXAMPLE": "MyArray: .word 1, 2, 3, 4"
+      },
+      "BYTE": {
+        "DESCRIPTION": "Reserves one or more bytes in data memory.",
+        "EXAMPLE": "MyByte: .byte 0xFF"
+      },
+      "FLOAT": {
+        "DESCRIPTION": "Reserves 4 bytes and initializes with a single precision floating point value.",
+        "EXAMPLE": "Pi: .float 3.14159"
+      },
+      "DOUBLE": {
+        "DESCRIPTION": "Reserves 8 bytes and initializes with a double precision floating point value.",
+        "EXAMPLE": "E: .double 2.718281828"
+      },
+      "SPACE": {
+        "DESCRIPTION": "Reserves n uninitialized bytes (undefined content, generally 0).",
+        "EXAMPLE": "Buffer: .space 80"
+      },
+      "ASCII": {
+        "DESCRIPTION": "Stores the text string in memory without null terminator. Standard escape sequences are processed (\\n, \\t, \\r, \\\\, \\\", \\0).",
+        "EXAMPLE": ".ascii \"Hello world\""
+      },
+      "ASCIIZ": {
+        "DESCRIPTION": "Stores the text string followed by a null byte (0x00). This is the standard form for C-compatible strings.",
+        "EXAMPLE": "Msg: .asciiz \"Value = %d\\n\"",
+        "NOTES": "Supports escape sequences: \\n (0x0A), \\t (0x09), \\r (0x0D), \\\\ (0x5C), \\\" (0x22), \\0 (0x00)."
+      },
+      "ALIGN": {
+        "DESCRIPTION": "Aligns the data pointer to the next multiple of 2^n bytes. Useful before .word or .double to meet alignment requirements.",
+        "EXAMPLE": ".align 2  ; aligns to 4 bytes (2^2)\n.word 0"
+      }
+    },
+    "TRAPS": {
+      "IAR": {
+        "SYNTAX": "(special implicit read-only register)",
+        "DESCRIPTION": "The IAR (Interrupt Address Register) is a special 32-bit register that automatically stores the return address (PC + 4 of the TRAP instruction) every time a TRAP instruction is executed. It is the hardware mechanism that allows returning to the interrupted program via RFE.",
+        "EXAMPLE": "TRAP 3           ; IAR <- PC(TRAP)+4 automatically\n; ... call handling ...\nRFE              ; PC <- IAR (returns)",
+        "NOTES": "The IAR is shown in the registers panel (integer bank, at the end). It resets to 0 when the processor restarts."
+      },
+      "RFE": {
+        "DESCRIPTION": "Returns from an interrupt or system call by restoring PC from IAR (Interrupt Address Register). Equivalent to an unconditional jump to the address stored in IAR and flushes incorrectly fetched instructions after the TRAP.",
+        "EXAMPLE": "TRAP 3           ; invokes system call, IAR <- PC+4\n; ... handling code ...\nRFE              ; PC <- IAR, continues after TRAP",
+        "NOTES": "RFE is a J-type instruction without operands. The destination is always IAR; it does not accept arguments."
+      },
+      "TRAP0": {
+        "DESCRIPTION": "Terminates program execution. The simulator stops the pipeline and marks execution as finished.",
+        "EXAMPLE": "TRAP 0"
+      },
+      "TRAP1": {
+        "DESCRIPTION": "File open (not supported in this simulator). Always returns -1 in R1.",
+        "EXAMPLE": "TRAP 1",
+        "NOTES": "Not implemented. Returns -1 to indicate error."
+      },
+      "TRAP2": {
+        "DESCRIPTION": "File close (NOP in this simulator). Returns 0 in R1.",
+        "EXAMPLE": "TRAP 2"
+      },
+      "TRAP3": {
+        "DESCRIPTION": "Reads a line of text from standard input (stdin). R14 must point to a parameter block in data memory with the following structure:\n\n- MEM[R14+0] (word): file descriptor (0 = stdin)\n- MEM[R14+4] (word): destination buffer address\n- MEM[R14+8] (word): maximum number of bytes to read\n\nThe string ends with \\n (included) and a null byte.",
+        "EXAMPLE": ".data\n  ReadBuffer: .space 80\n  ReadPar:    .word 0, ReadBuffer, 80\n.text\n  ADDI R14, R0, ReadPar\n  TRAP 3",
+        "NOTES": "Execution pauses until the user enters text in the stdout console. The simulator will show an inline prompt in the terminal."
+      },
+      "TRAP4": {
+        "DESCRIPTION": "Writes bytes to stdout or stderr. R14 points to a parameter block:\n\n- MEM[R14+0] (word): file descriptor (1 = stdout, 2 = stderr)\n- MEM[R14+4] (word): source buffer address\n- MEM[R14+8] (word): number of bytes to write",
+        "EXAMPLE": ".data\n  Msg:      .asciiz \"Hello\\n\"\n  WritePar: .word 1, Msg, 6\n.text\n  ADDI R14, R0, WritePar\n  TRAP 4"
+      },
+      "TRAP5": {
+        "DESCRIPTION": "Prints to stdout with printf-style formatting. R14 points to a block:\n\n- MEM[R14+0] (word): format string address (.asciiz)\n- MEM[R14+4], MEM[R14+8], ... : arguments according to string specifiers\n\nSupported specifiers:\n- %d - signed integer\n- %u - unsigned integer\n- %x - hexadecimal\n- %f / %g / %e - precision double\n- %s - text string\n- %c - character",
+        "EXAMPLE": ".data\n  Fmt:  .asciiz \"Factorial = %g\\n\"\n  Par:  .word Fmt\n  Val:  .space 8\n.text\n  SD Val(R0), F2\n  ADDI R14, R0, Par\n  TRAP 5",
+        "NOTES": "Float/double arguments (%f, %g, %e) must be stored as double (8 bytes, 4-byte aligned) in the parameter block. Integers as word (4 bytes). Strings as word address."
+      }
+    },
+    "CONFIG": {
+      "MEMORY": {
+        "NAME": "Memory Size",
+        "DESCRIPTION": "Data memory space size in bytes. Default value is 4096 bytes (4 KB). Instruction memory is independent.",
+        "EXAMPLE": "Default: 4096",
+        "NOTES": "Increasing this value allows programs with more data, but increases simulator memory usage."
+      },
+      "FORWARDING": {
+        "DESCRIPTION": "Enables or disables data bypass (forwarding) between pipeline stages. With forwarding enabled, EX and MEM results propagate directly to the ID stage, drastically reducing stalls due to RAW data dependencies.",
+        "EXAMPLE": "Default: enabled",
+        "NOTES": "When disabled, RAW stalls increase significantly and CPI rises. Useful for studying the impact of forwarding on performance."
+      },
+      "CHAINING": {
+        "DESCRIPTION": "Allows vector instructions to overlap (chain) when there are no data dependencies between them. With chaining enabled, a vector instruction can start before the previous one finishes if its operands are already available.",
+        "EXAMPLE": "Default: enabled",
+        "NOTES": "When disabled, vector instructions execute strictly in order, which can increase vector execution time by several cycles."
+      },
+      "ALU_LANES": {
+        "DESCRIPTION": "Number of ALU functional units for vector processing. Each lane processes one element per cycle, so with 4 lanes, 4 elements are processed simultaneously.",
+        "EXAMPLE": "Default: 4"
+      },
+      "MEM_LANES": {
+        "DESCRIPTION": "Number of memory units for vector load/store instructions. Determines how many elements are transferred per cycle.",
+        "EXAMPLE": "Default: 4"
+      },
+      "BP": {
+        "NAME": "Branch Prediction",
+        "DESCRIPTION": "Pipeline branch prediction strategy. Affects the number of cycles lost due to mispredicted branches.\n\n- none - No prediction. Always waits for the result (fixed penalty).\n- always-taken - Always predicts that the branch is taken.\n- 1-bit - 1-bit predictor per entry: remembers the last result.\n- 2-bit - 2-bit saturating counter predictor (less sensitive to isolated changes).\n- gshare - Global history XOR with branch address.\n- hybrid - Combination of local and global predictor.\n- ras - Return Address Stack for JR instructions.",
+        "EXAMPLE": "Default: none",
+        "NOTES": "Prediction accuracy statistics are shown in the Stats panel. The GHR bits (ghrBits) apply to gshare and hybrid."
+      },
+      "DELAY_SLOT": {
+        "NAME": "Branch Delay Slot",
+        "DESCRIPTION": "Emulates the branch delay slot — a classic pipeline artifact found in DLX, MIPS-I, and SPARC. When enabled, the instruction immediately following a branch or jump always executes regardless of whether the branch is taken. The processor fetches that instruction (the delay slot) before the target PC is applied.\n\nBehavior:\n- Not taken: execution continues at branch+8 (skipping the delay slot position)\n- Taken: execution jumps to target; the delay slot instruction already executed\n- On misprediction: only the IF stage is flushed, not the delay slot in ID\n- Compatible with the static scheduler's delay slot filling optimization",
+        "EXAMPLE": "With delay slot enabled:\n  BEQZ R1, done   ; branch at PC=0x100\n  ADD  R2,R3,R4   ; delay slot: always executes\n  ; if taken: jumps to 'done' after ADD\n  ; if not taken: continues at 0x108",
+        "NOTES": "Not supported in the non-pipelined processor (architecturally meaningless for single-cycle execution). The static scheduler's delay slot filling moves a safe instruction into the slot automatically, or inserts a NOP if none is found."
+      },
+      "GHR": {
+        "DESCRIPTION": "Number of bits in the Global History Register used by gshare and hybrid predictors. A higher value allows longer patterns but increases the prediction table size.",
+        "EXAMPLE": "Default: 2"
+      },
+      "MVL": {
+        "NAME": "MVL — Maximum Vector Length",
+        "DESCRIPTION": "Maximum number of elements each vector register (V0-V7) can hold. Determines how many iterations of a vectorized loop fit in a single vector instruction; loops with more elements than the MVL need 'strip-mining' (splitting into several MVL-sized chunks).",
+        "EXAMPLE": "Default: 64 elements",
+        "NOTES": "The special VLR register (Vector Length Register) can never exceed the MVL value configured here; it is set with MOVI2S VLR, Rs before executing vector instructions."
+      },
+      "LOG_LEVEL": {
+        "NAME": "Event Log Detail Level",
+        "DESCRIPTION": "Filters which kind of messages get added to the Event Log panel, independently of whether logging itself is enabled:\n- error: only error messages (assembly failures, unhandled exceptions).\n- warning: errors plus warnings (stalls, branch mispredictions).\n- relevant: errors plus success messages (e.g. the program finishing correctly). This is the default.\n- debug: all of the above plus informational messages for every cycle (instruction fetch, commit, etc.).",
+        "EXAMPLE": "Default: 'relevant'",
+        "NOTES": "Only use 'debug' to troubleshoot short programs: on long programs it generates a very high volume of messages and can slow down the UI."
+      },
+      "LOGGING": {
+        "DESCRIPTION": "Enables or disables cycle-by-cycle event logging in the \"Event Log\" panel. Disabling it improves performance in long simulations.",
+        "EXAMPLE": "Default: enabled"
+      },
+      "TIMELINE": {
+        "NAME": "Timeline Mode",
+        "DESCRIPTION": "Controls when the execution timeline is generated:\n- 'live': continuous real-time updates during RUN\n- 'on-finish': generated only when execution completes (better performance)\n- 'disabled': never generated (maximum performance)",
+        "EXAMPLE": "Default: 'live'"
+      },
+      "LATENCIES": {
+        "NAME": "Functional Unit Latencies",
+        "DESCRIPTION": "How many cycles each type of operation takes to complete, independently configurable per functional unit (the 'Latencies' tab of the Settings dialog). Raising a value simulates slower hardware for that operation; lowering it simulates faster hardware. Default values:\n- intMul (MULT/MULTU/MULTI): 7 cycles\n- intDiv (DIV/DIVU/DIVI): 24 cycles\n- fpAdd (ADDF/SUBF, single precision): 2 cycles\n- fpMul (MULTF): 7 cycles\n- fpDiv (DIVF): 24 cycles\n- fpAddD (ADDD/SUBD, double precision): 4 cycles\n- fpMulD (MULTD): 14 cycles\n- fpDivD (DIVD): 48 cycles\n- vecMem (LV/SV/LVWS/SVWS/LVI/SVI): 12 cycles\n- vecAdd (ADDV/SUBV/ADDSV/SUBSV/ADDVS/SUBVS): 6 cycles\n- vecMul (MULTV/MULTSV/MULTVS): 7 cycles\n- vecDiv (DIVV/DIVSV/DIVVS): 20 cycles\n- vecCmp (vector comparisons: SEQV, SNEV...): 1 cycle",
+        "EXAMPLE": "Example: raising intMul from 7 to 20 cycles makes every MULT take much longer to reach WB, increasing the CPI of programs with frequent multiplications.",
+        "NOTES": "These values apply to both the pipelined and superscalar processors; in the superscalar model they also determine how long each instruction occupies its functional unit before freeing it for the next one."
+      },
+      "SUPERSCALAR_RS": {
+        "NAME": "Reservation Station Type and Size",
+        "DESCRIPTION": "Superscalar processor only. Defines how the reservation stations (RS), where instructions wait for their operands to become ready, are organized:\n- centralized: a single shared RS for all functional units, with a configurable total size (rsCentralizedSize).\n- distributed: each functional unit has its own RS of equal size (rsPerUnitSize).\n- clustered: functional units are grouped into 4 clusters (integer, floating point, memory, vector), each with its own RS size (rsClusterSizes).",
+        "EXAMPLE": "Default: distributed, rsPerUnitSize = 4",
+        "NOTES": "A larger RS size allows more instructions to be 'waiting' at once, increasing potential parallelism at the cost of more internal state to manage."
+      },
+      "SUPERSCALAR_ISSUE": {
+        "NAME": "Issue Width, ROB, and CDB",
+        "DESCRIPTION": "Three parameters that determine how many instructions the superscalar processor can process at once at different points of the pipeline:\n- Issue Width (issueWidth): how many instructions can be dispatched to the reservation stations in the same cycle (1, 2, 4, or 8).\n- ROB Size (robSize): number of entries in the Reorder Buffer, i.e. how many instructions can be 'in flight' (fetched but not yet committed) at once.\n- CDB Width (cdbWidth): number of results that can be published on the Common Data Bus in the same cycle.",
+        "EXAMPLE": "Default: issueWidth = 4, robSize = 64, cdbWidth = 4",
+        "NOTES": "If the ROB fills up, the processor stops fetching new instructions until some existing one commits. A wider CDB reduces bottlenecks when several functional units finish in the same cycle."
+      },
+      "SUPERSCALAR_FU_COUNTS": {
+        "NAME": "Number of Functional Units",
+        "DESCRIPTION": "How many copies of each functional unit exist in the superscalar processor; more copies allow more instructions of the same type to run in parallel:\nScalar: integer ALU (intALUs), integer multiplier (intMulUnits), integer divider (intDivUnits), FP adder (fpAddUnits), FP multiplier (fpMulUnits), FP divider (fpDivUnits), load/store memory unit (memUnits), and branch unit (branchUnits).\nVector: vector memory (vecMemUnits), vector ALU (vecIntUnits), vector multiplier (vecMulUnits), and vector divider (vecDivUnits).",
+        "EXAMPLE": "Default: intALUs = 2, memUnits = 2, all others = 1",
+        "NOTES": "Increasing the number of units of a given type only helps if the program has several independent instructions of that type waiting to execute; otherwise it does not improve performance."
+      },
+      "SUPERSCALAR_VECTOR_OVERLAP": {
+        "NAME": "Vector Initialization Overlap",
+        "DESCRIPTION": "Superscalar processor only. When enabled, a vector instruction can start its initialization phase on a functional unit while the previous vector instruction on that same unit is still processing its last elements, reducing the total time between consecutive vector instructions.",
+        "EXAMPLE": "Default: enabled",
+        "NOTES": "This is the superscalar equivalent of the pipelined processor's 'Vector Chaining'."
+      },
+      "SUPERSCALAR_PRESETS": {
+        "NAME": "Superscalar Configuration Presets",
+        "DESCRIPTION": "Three predefined combinations of all the superscalar parameters above, so you don't have to tune every value by hand:\n- Minimal: issueWidth 2, ROB 32, centralized RS of 16, 1 integer ALU, 1 memory unit, CDB width 2. Simulates a modest superscalar processor.\n- Balanced (the default): issueWidth 4, ROB 64, distributed RS (4 per unit), 2 integer ALUs, 2 memory units, CDB width 4.\n- Aggressive: issueWidth 8, ROB 128, RS grouped into large clusters, 4 integer ALUs, 3 memory units, CDB width 8. Simulates a very high-performance processor.\nApplied with a button right on the 'Superscalar' tab of the Settings dialog; after applying a preset, each individual value can still be adjusted by hand.",
+        "EXAMPLE": "Compare the CPI of the same program with the 'Minimal' preset versus the 'Aggressive' one to see the real impact of these parameters.",
+        "NOTES": "Applying a preset overwrites all current superscalar values; it does not merge with the previous configuration."
+      },
+      "RAS": {
+        "NAME": "RAS — Return Address Stack",
+        "DESCRIPTION": "Return address stack used to predict the target of JR instructions (especially subroutine returns). When a JAL or JALR is executed, PC+4 is pushed onto the stack. Upon encountering a JR, the value is popped from the stack as the predicted target address.",
+        "EXAMPLE": "Typical size: 8-16 entries",
+        "NOTES": "It is extremely accurate for function returns because, unlike the BTB, it can predict different targets for the same JR if the function was called from different points."
+      }
+    },
+    "OPTIMIZATION": {
+      "SCHEDULING": {
+        "NAME": "Instruction Scheduling",
+        "DESCRIPTION": "Technique that consists of reordering instructions to separate dependent ones and avoid stalls in the pipeline. The scheduler analyzes the Dependency Graph (DAG) and prioritizes instructions on the critical path.",
+        "EXAMPLE": "Original code:\nLW R1, 0(R2)\nADD R3, R1, R4   ; Stall (Load-Use)\n\nOptimized:\nLW R1, 0(R2)\nSUB R5, R6, R7   ; Independent instruction moved here\nADD R3, R1, R4   ; No stall"
+      },
+      "UNROLLING": {
+        "NAME": "Loop Unrolling",
+        "DESCRIPTION": "Consists of replicating a loop body several times to reduce control overhead (increments and jumps) and increase the number of independent instructions available to the scheduler. Includes a 'Static Register Renaming' process to avoid WAR/WAW dependencies between iterations.",
+        "EXAMPLE": "A factor of 4 replicates the body 4 times and scales pointer increments by 4.",
+        "NOTES": "Increases code size (code bloat) but significantly improves IPC in deep pipelines."
+      },
+      "REGISTER_RENAMING": {
+        "NAME": "Static Register Renaming",
+        "DESCRIPTION": "Technique that eliminates false dependencies (WAR and WAW) by changing the registers used to others that are free. This allows the scheduler to move instructions more freely.",
+        "EXAMPLE": "Original (WAR Risk):\nADD R1, R2, R3\nSUB R2, R4, R5   ; R2 used before it is written\n\nOptimized:\nADD R1, R2, R3\nSUB R10, R4, R5  ; Uses R10 instead of R2 to eliminate the dependency"
+      },
+      "DELAYED_BRANCH": {
+        "NAME": "Branch Delay Slot Filling",
+        "DESCRIPTION": "Optimization specific to architectures with a Branch Delay Slot. The scheduler looks for a useful instruction before the jump that does not affect the jump condition and moves it to the position immediately after the jump.",
+        "EXAMPLE": "Aims to transform a cycle with a NOP after the branch into a cycle with a productive instruction in that slot.",
+        "NOTES": "If no safe candidates are found, the scheduler will insert a NOP to ensure semantic correctness."
+      }
+    },
+    "PROCESSORS": {
+      "NONPIPELINED": {
+        "NAME": "Non-pipelined (Single-Cycle)",
+        "SYNTAX": "Processor type: Non-pipelined",
+        "DESCRIPTION": "Single-cycle processor that executes one complete instruction before starting the next. Each instruction passes through all stages (IF, ID, EX, MEM, WB) sequentially in a single \"logical cycle\" spanning multiple clock cycles depending on instruction latency.\n\nCharacteristics:\n- No data or structural hazards (each instruction finishes before the next begins)\n- Variable CPI depending on instruction (1 for simple ALU, more for multiplication/division/FP)\n- No forwarding or branch prediction (not needed)\n- Ideal for understanding basic instruction execution flow",
+        "EXAMPLE": "Execution sequence:\nADD R1,R2,R3  [IF][ID][EX][MEM][WB]\n                              MULT R4,R1,R5  [IF][ID][EX--7 cycles--][MEM][WB]",
+        "NOTES": "Useful for initial learning and comparing performance with pipelined processors. Average CPI is higher than in a pipeline, but there are no penalties for dependencies."
+      },
+      "PIPELINED": {
+        "NAME": "Pipelined Processor (5 stages)",
+        "SYNTAX": "Processor type: Pipelined",
+        "DESCRIPTION": "Pipelined processor with classic 5-stage pipeline (IF, ID, EX, MEM, WB). Multiple instructions execute simultaneously, each in a different pipeline stage.\n\nPipeline stages:\n- IF (Instruction Fetch): Loads instruction from instruction memory\n- ID (Instruction Decode): Decodes instruction and reads source registers\n- EX (Execute): Executes ALU operation or calculates memory address\n- MEM (Memory Access): Accesses data memory (load/store)\n- WB (Write Back): Writes result to destination register\n\nCharacteristics:\n- Configurable forwarding (bypass) to reduce RAW stalls\n- Configurable branch prediction (none, always-taken, 1-bit, 2-bit, gshare, hybrid)\n- Hazard detection: RAW, WAW, WAR, structural\n- Support for vector instructions with optional chaining\n- Functional units with realistic latencies (FP, multiplication, division)",
+        "EXAMPLE": "Pipeline in action (with forwarding):\nCycle:    1    2    3    4    5    6    7\nADD R1    IF   ID   EX   MEM  WB\nSUB R2         IF   ID   EX   MEM  WB\nMULT R3             IF   ID   EX   EX   EX...",
+        "NOTES": "Ideal CPI of 1.0, but hazards and mispredicted branches introduce stalls. The Stats panel shows detailed performance metrics.",
+        "OP_FORWARDING": "Allows passing results directly from EX/MEM to ID without waiting for WB",
+        "OP_BP": "Strategy for predicting conditional branch outcomes",
+        "OP_CHAINING": "Allows overlapping vector instructions without dependencies",
+        "OP_DELAY_SLOT": "Always executes the instruction after a branch before the jump takes effect"
+      },
+      "SUPERSCALAR": {
+        "NAME": "Superscalar Processor",
+        "SYNTAX": "Processor type: Superscalar",
+        "DESCRIPTION": "Superscalar processor based on Tomasulo's algorithm with out-of-order execution and in-order commit via ROB (Reorder Buffer).\n\nMain characteristics:\n- Out-of-order execution: instructions can execute as soon as their operands are available\n- Register renaming: eliminates WAW and WAR hazards through additional physical registers\n- Reservation Stations: store instructions waiting for operands\n- ROB (Reorder Buffer): guarantees in-order commit for precise exceptions\n- Multiple functional units per type (Integer, FP, Memory, Branch, Vector)\n- CDB (Common Data Bus): broadcasts results to all units\n- Branch speculation with recovery on misprediction",
+        "EXAMPLE": "Instruction flow:\n1. Fetch: captures instructions from PC\n2. Decode/Rename: decodes and renames registers\n3. Issue: sends to reservation station and ROB\n4. Execute: waits for operands, then executes\n5. Write Result: broadcast via CDB\n6. Commit: retires from ROB in order",
+        "NOTES": "Tomasulo's algorithm enables significant ILP (Instruction Level Parallelism). Vector instructions use dedicated units (VEC_*) with direct bypass, not CDB.",
+        "OP_ROB": "Number of Reorder Buffer entries",
+        "OP_RS": "Reservation stations per functional unit",
+        "OP_ISSUE": "Number of instructions that can be issued per cycle",
+        "OP_DELAY_SLOT": "Always executes the instruction after a branch before the jump takes effect"
+      }
+    },
+    "EXCEPTIONS": {
+      "OVERVIEW": {
+        "NAME": "Exception System",
+        "SYNTAX": "(hardware mechanism)",
+        "DESCRIPTION": "The simulator implements an exception system that handles abnormal conditions during program execution. When an exception occurs:\n\n1. The return address is saved in IAR (Interrupt Address Register)\n2. The exception code is stored in the CAUSE register\n3. The PC jumps to the corresponding handler address in the vector table\n4. The handler can use RFE to return to the interrupt point\n\nSupported exception types:\n- Arithmetic overflow\n- Division by zero\n- Misaligned memory address\n- Illegal instruction\n- System calls (TRAP)",
+        "NOTES": "Exceptions are precise: the processor state reflects exactly the point where the exception occurred."
+      },
+      "VECTORS": {
+        "NAME": "Vector Table",
+        "SYNTAX": "Addresses 0x00 - 0x5F",
+        "DESCRIPTION": "The exception vector table occupies low memory addresses (0x00 to 0x5F). Each entry is a 4-byte address pointing to the corresponding handler.\n\nTable addresses:\n- 0x00: Reset / Start\n- 0x04: Arithmetic overflow\n- 0x08: Division by zero\n- 0x0C: Misaligned address\n- 0x10: Illegal instruction\n- 0x14: External interrupt\n- 0x18-0x5F: Reserved for extensions\n\nWhen an exception occurs, the processor reads the handler address from the table and jumps to it.",
+        "EXAMPLE": "; Example vector table in .data\n.data\n.word __reset_handler\n.word __overflow_handler\n.word __divzero_handler\n.word __align_handler\n.word __illegal_handler"
+      },
+      "HANDLERS": {
+        "NAME": "Predefined Handlers",
+        "DESCRIPTION": "The simulator recognizes special labels for exception handlers. If these labels are defined in the program, they will be used automatically when the corresponding exception occurs.\n\nPredefined labels:\n- __overflow_handler: Arithmetic overflow handler\n- __divzero_handler: Division by zero handler\n- __align_handler: Misaligned access handler\n- __illegal_handler: Illegal instruction handler\n- __default_handler: Default handler for uncovered exceptions\n\nIf no specific handler is defined, __default_handler is used. If it doesn't exist either, TRAP 6 (error termination) is executed.",
+        "EXAMPLE": ".text\n__overflow_handler:\n  ; save context if needed\n  ; handle the overflow\n  RFE              ; return to program",
+        "NOTES": "Handler names must start with double underscore (__) to be recognized by the assembler."
+      },
+      "DEFAULT": {
+        "DESCRIPTION": "When an exception occurs and no handler is defined (neither specific nor __default_handler), the processor executes TRAP 6, which terminates the program with an error code.\n\nTRAP 6 behavior:\n- Stops program execution\n- Marks state as \"terminated with error\"\n- Shows an error message in console indicating the exception type\n- The CAUSE register contains the original exception code",
+        "EXAMPLE": "; If you don't define handlers, a division by zero\n; will automatically cause TRAP 6:\nDIV R1, R2, R0     ; R0=0 -> TRAP 6",
+        "NOTES": "It's recommended to define at least __default_handler to have control over unhandled exceptions."
+      },
+      "IAR": {
+        "SYNTAX": "(special read-only register)",
+        "DESCRIPTION": "The IAR (Interrupt Address Register) is a special 32-bit register that automatically stores the return address when an exception occurs or a TRAP instruction is executed.\n\nBehavior:\n- On exception: IAR <- PC of the instruction that caused the exception\n- On TRAP execution: IAR <- PC + 4 (next instruction)\n- The RFE instruction restores PC <- IAR\n\nThe IAR is hardware write-only; the program cannot modify it directly.",
+        "EXAMPLE": "ADD R1, R2, R3   ; address 0x100\n; if overflow, IAR = 0x100\n; the handler can use RFE to retry or\n; modify R1 and continue",
+        "NOTES": "The IAR is shown in the simulator's register panel, at the end of the integer register bank."
+      },
+      "CAUSE": {
+        "SYNTAX": "(special register)",
+        "DESCRIPTION": "The CAUSE register stores the numeric code identifying the type of exception that occurred. It is automatically updated by hardware when an exception occurs.\n\nCause codes:\n- 0: Reset\n- 1: Arithmetic overflow\n- 2: Division by zero\n- 3: Misaligned address\n- 4: Illegal instruction\n- 5: External interrupt\n- 6-15: Reserved\n\nThe exception handler can read CAUSE to determine what type of exception occurred and act accordingly.",
+        "EXAMPLE": "__default_handler:\n  ; CAUSE contains the exception code\n  ; the handler can use it to decide\n  ; how to proceed\n  RFE",
+        "NOTES": "CAUSE can be read with MOVS2I to load it into an integer register and make decisions based on the exception type."
+      },
+      "RFE": {
+        "DESCRIPTION": "Instruction that returns from an exception handler by restoring PC from IAR. It is equivalent to an unconditional jump to the address stored in IAR.\n\nRFE effects:\n1. PC <- IAR (restores execution flow)\n2. Flushes incorrectly fetched pipeline instructions\n3. Restores normal execution mode\n\nRFE is a J-type instruction without operands.",
+        "EXAMPLE": "__overflow_handler:\n  ; The overflow already occurred, the result is\n  ; undefined. We can:\n  ; 1. Saturate the result\n  ; 2. Log the error and continue\n  ; 3. Terminate the program\n  \n  ; Option 2: continue after error\n  RFE              ; returns to PC saved in IAR",
+        "NOTES": "If RFE is used without a previous exception, the behavior depends on the current IAR value (which may be 0 or garbage)."
+      }
+    },
+    "EXAMPLES": {
+      "FACTORIAL": {
+        "NAME": "Factorial Calculation",
+        "DESCRIPTION": "Classic example using a loop to calculate the factorial of a number. Useful for observing integer register handling and basic flow control.",
+        "EXAMPLE": "; Factorial of 5\n.data\n  val: .word 5\n  res: .word 0\n.text\nmain:\n  lw r1, val\n  addi r2, r0, #1\nloop:\n  beqz r1, end\n  mult r2, r2, r1\n  addi r1, r1, #-1\n  j loop\nend:\n  sw res, r2\n  trap 0"
+      },
+      "FIBONACCI": {
+        "NAME": "Fibonacci Series",
+        "DESCRIPTION": "Generates the first N terms of the series. This code generates intense RAW dependencies as each number depends on the previous two, ideal for studying forwarding.",
+        "EXAMPLE": ".data\n  n: .word 10\n.text\nmain:\n  lw r4, n\n  addi r1, r0, #0 ; F(n-2)\n  addi r2, r0, #1 ; F(n-1)\nloop:\n  add r3, r1, r2  ; F(n)\n  addi r1, r2, #0\n  addi r2, r3, #0\n  addi r4, r4, #-1\n  bnez r4, loop\n  trap 0"
+      },
+      "CIRCLE": {
+        "NAME": "Circle Area (FPU)",
+        "DESCRIPTION": "Shows the use of the Floating Point Unit (FPU) to calculate A = π * r². Includes loading doubles and using TRAP 5 for formatted output.",
+        "EXAMPLE": ".data\n  pi:    .double 3.14159\n  radio: .double 5.0\n  fmt:   .asciiz \"Area = %f\\n\"\n  .align 2\n  par:   .word fmt\n  arg:   .space 8\n.text\n  ld f2, pi\n  ld f4, radio\n  multd f6, f4, f4 ; r^2\n  multd f6, f6, f2 ; pi * r^2\n  sd arg, f6       ; 'arg' sits right after 'par', at the offset TRAP 5 expects for the argument\n  addi r14, r0, par\n  trap 5\n  trap 0"
+      },
+      "DAXPY": {
+        "NAME": "DAXPY Operation (Vector)",
+        "DESCRIPTION": "Implements Y = a*X + Y vectorially. Illustrates Chaining between the vector multiplication and vector addition functional units.",
+        "EXAMPLE": ".data\n  alpha: .double 2.0\n  vec_x: .double 1.0, 2.0, 3.0, 4.0\n  vec_y: .double 10.0, 20.0, 30.0, 40.0\n.text\n  addi r1, r0, #4\n  movi2s VLR, r1     ; VL = 4\n  ld f0, alpha\n  lv v1, vec_x\n  lv v2, vec_y\n  multsv v3, f0, v1   ; Chaining with ADDV\n  addv v4, v3, v2\n  sv vec_y, v4\n  trap 0"
+      }
+    }
+  },
+  "STATIC_SCHEDULER": {
+    "TITLE": "Static Scheduler (Optimization)",
+    "SCHEDULING": "Scheduling (Reordering)",
+    "UNROLLING": "Loop Unrolling",
+    "FACTOR": "Factor",
+    "SOFTWARE_PIPELINING": "Software Pipelining",
+    "REGISTER_RENAMING": "Static Register Renaming",
+    "DELAYED_BRANCH": "Delay Slot Filling",
+    "UNROLL_ADJUSTED": "Unroll factor automatically adjusted to prevent memory errors",
+    "ORIGINAL": "ORIGINAL CODE",
+    "OPTIMIZED": "OPTIMIZED CODE",
+    "USE_OPTIMIZED": "Use optimized code",
+    "STAT_REORDERED_TITLE": "Instructions reordered by the scheduler",
+    "STAT_INSERTED_TITLE": "Instructions inserted by the scheduler (e.g., NOPs for delay slot)",
+    "STAT_NO_CHANGES": "no changes",
+    "ERROR_TITLE": "Error parsing code"
+  },
+  "SETTINGS": {
+    "TIMELINE_MODE": "Timeline mode",
+    "TIMELINE_LIVE": "Live (continuous updates)",
+    "TIMELINE_ON_FINISH": "On finish (generate when done)",
+    "TIMELINE_DISABLED": "Disabled (no generation)",
+    "TIMELINE_MODE_HINT": "Live updates in real-time. On finish improves performance. Disabled skips timeline generation.",
+    "TITLE": "Simulator Settings",
+    "PROCESSOR_TYPE": "Processor Type",
+    "PROCESSOR_TYPE_PIPELINED": "Pipelined",
+    "PROCESSOR_TYPE_NON_PIPELINED": "Non-pipelined (Single Cycle)",
+    "MEM_SIZE": "Memory Size",
+    "FORWARDING": "Data Forwarding",
+    "BRANCH_DELAY_SLOT": "Branch Delay Slot",
+    "BRANCH_DELAY_SLOT_HINT": "The instruction after each jump is always executed before the jump takes effect.",
+    "CHAINING": "Vector Chaining",
+    "BRANCH_PREDICTOR_STRATEGY": "Prediction Strategy",
+    "ALU_LANES": "Vector ALU Lanes",
+    "MEM_LANES": "Vector Memory Lanes",
+    "PROCESSOR": "Processor",
+    "BRANCH_PREDICTION": "Branch Prediction",
+    "VECTORIAL": "Vector Architecture",
+    "LATENCIES": "Functional Unit Latencies",
+    "LOGGING": "Logging and Visualization",
+    "MEM_SIZE_HINT": "Configures the total addressing space.",
+    "GHR_SIZE": "Global History Register (GHR) Size",
+    "GHR_COMBINATIONS": "Possible Combinations",
+    "MVL": "MVL (Maximum Vector Length)",
+    "MVL_HINT": "Maximum size of vectors (power of 2). Changing this value resets the processor.",
+    "RESET_LATENCIES": "Reset Values",
+    "LATENCIES_HINT": "Cycles each operation stays in the EX stage. Minimum 1.",
+    "LATENCY_INT": "Integer Operations",
+    "LATENCY_FP": "Floating Point",
+    "LATENCY_VEC": "Vector Operations",
+    "LATENCY_INT_MUL": "Integer Multiplication (MULT)",
+    "LATENCY_INT_DIV": "Integer Division (DIV)",
+    "LATENCY_FP_ADD": "Simple FP Add/Sub (ADDF/SUBF)",
+    "LATENCY_FP_MUL": "Simple FP Multiplication (MULTF)",
+    "LATENCY_FP_DIV": "Simple FP Division (DIVF)",
+    "LATENCY_FP_ADDD": "Double FP Add/Sub (ADDD/SUBD)",
+    "LATENCY_FP_MULD": "Double FP Multiplication (MULTD)",
+    "LATENCY_FP_DIVD": "Double FP Division (DIVD)",
+    "LATENCY_VEC_MEM": "Vector Memory (LV/SV/LVWS/SVWS/LVI/SVI)",
+    "LATENCY_VEC_ADD": "Vector Addition (ADDV/SUBV/ADDSV/SUBSV/ADDVS/SUBVS)",
+    "LATENCY_VEC_MUL": "Vector Multiplication (MULTV/MULTSV/MULTVS)",
+    "LATENCY_VEC_DIV": "Vector Division (DIVV/DIVSV/DIVVS)",
+    "LATENCY_VEC_CMP": "Vector Comparison (SEQV/SGTV/.../SLEVS)",
+    "LATENCY_DEFAULT": "Default",
+    "LATENCY_VALUE_BETWEEN": "Value between",
+    "LOG_ENABLED": "Event Logging",
+    "LOG_LEVEL": "Detail Level",
+    "LOG_LEVEL_DEBUG": "Debug (Everything)",
+    "LOG_LEVEL_RELEVANT": "Relevant (Success + Errors)",
+    "LOG_LEVEL_WARNING": "Warning (Alerts + Errors)",
+    "LOG_LEVEL_ERROR": "Error (Only Errors)",
+    "BRANCH_STRATEGY_NONE": "None (Always Not Taken)",
+    "BRANCH_STRATEGY_ALWAYS": "Static (Always Taken)",
+    "BRANCH_STRATEGY_BTFN": "Static BTFN (Backward Taken, Forward Not)",
+    "BRANCH_STRATEGY_1BIT": "Dynamic 1-Bit (Bimodal)",
+    "BRANCH_STRATEGY_2BIT": "Dynamic 2-Bit (Smith)",
+    "BRANCH_STRATEGY_GSHARE": "Dynamic 2-Bit (Gshare)",
+    "BRANCH_STRATEGY_HYBRID": "Hybrid Tournament (Local + Gshare)",
+    "BRANCH_STRATEGY_RAS": "RAS — Return Address Stack",
+    "PROCESSOR_TYPE_SUPERSCALAR": "Superscalar",
+    "SUPERSCALAR": {
+      "TITLE": "Superscalar Configuration",
+      "PRESET_MINIMAL": "Minimal",
+      "PRESET_BALANCED": "Balanced",
+      "PRESET_AGGRESSIVE": "Aggressive",
+      "RS_TYPE": "Reservation Stations Type",
+      "RS_CENTRALIZED": "Centralized",
+      "RS_DISTRIBUTED": "Distributed",
+      "RS_CLUSTERED": "Clustered",
+      "RS_TYPE_HINT": "Organization of reservation stations",
+      "ISSUE_WIDTH": "Issue Width",
+      "INSTR_CYCLE": "instr/cycle",
+      "ROB_SIZE": "ROB Size",
+      "ROB_SIZE_HINT": "Reorder Buffer entries (16-256)",
+      "CDB_WIDTH": "CDB Width",
+      "CDB_WIDTH_HINT": "Common Data Bus width (1-16)",
+      "RS_CENTRAL_SIZE": "Central RS Size",
+      "RS_PER_UNIT": "RS per unit",
+      "RS_INT_CLUSTER": "Integer Cluster",
+      "RS_FP_CLUSTER": "FP Cluster",
+      "RS_MEM_CLUSTER": "Memory Cluster",
+      "RS_VEC_CLUSTER": "Vector Cluster",
+      "FU_TITLE": "Functional Units",
+      "FU_INT_ALU": "Integer ALUs",
+      "FU_INT_MUL": "Integer Mult.",
+      "FU_INT_DIV": "Integer Div.",
+      "FU_FP_ADD": "FP Adders",
+      "FU_FP_MUL": "FP Mult.",
+      "FU_FP_DIV": "FP Div.",
+      "FU_MEM": "Load/Store Units",
+      "FU_BRANCH": "Branch Units",
+      "FU_VEC_MEM": "Vec Mem Units",
+      "FU_VEC_INT": "Vector ALUs",
+      "FU_VECT_MUL": "Vector Mult.",
+      "FU_VEC_DIV": "Vector Div.",
+      "VECTOR_INIT_OVERLAP": "Vector Init Overlap",
+      "VECTOR_INIT_OVERLAP_HINT": "Allows a vector instruction to start its initiation phase while another is still processing in the same FU"
+    }
+  },
+  "NAV": {
+    "INICIO": "Home",
+    "DOCS": "Documentation",
+    "CONFIG": "Settings"
+  },
+  "MOBILE_NAV": {
+    "EDITOR": "Editor",
+    "EXECUTION": "Run",
+    "REGISTERS": "Registers",
+    "STATS": "Stats"
+  },
+  "LANG": {
+    "ES": "Spanish",
+    "EN": "English"
+  },
+  "TIMELINE": {
+    "TITLE": "Execution Timeline (Pipeline)",
+    "EXPORT_PNG": "Export PNG",
+    "EXPORT_CSV": "Export CSV",
+    "LIVE_OFF": "Live updates disabled — the table will be shown when execution finishes.",
+    "DISABLED_MSG": "Timeline disabled — not generated to improve performance.",
+    "WAITING": "Waiting for first execution cycle...",
+    "INSTRUCTION": "INSTRUCTION"
+  },
+  "EVENTS": {
+    "TITLE": "Event Log",
+    "CLEAR": "Clear log",
+    "WAITING": "Waiting for program to start...",
+    "CYCLE": "Cycle",
+    "SEARCH": "Search...",
+    "NO_RESULTS": "No results"
+  },
+  "EDITOR": {
+    "RUN": "Run",
+    "PAUSE": "Pause",
+    "STOP": "Stop execution",
+    "STEP": "Single cycle (Step)",
+    "RUN_TO_BP": "Run to breakpoint",
+    "RESET": "Reset processor",
+    "SPEED": "CLOCK",
+    "PERFORMANCE_OFF": "Performance Mode: OFF (1 cycle/tick)",
+    "PERFORMANCE_ON": "Performance Mode: ON (500 cycles/tick)",
+    "ADD_MODULE": "Add module",
+    "CLEAR_TAB": "Clear tab",
+    "CLOSE": "Close",
+    "MODULE": "module",
+    "MODULES": "modules"
+  },
+  "MEMORY": {
+    "TITLE": "Memory",
+    "TITLE_DATA": "Data Memory",
+    "TITLE_INSTRUCTION": "Instruction Memory",
+    "ADDRESS": "Address",
+    "CONTENT": "Content",
+    "SEARCH": "Search...",
+    "EMPTY": "Memory is empty"
+  },
+  "ERRORS": {
+    "REQUIRED": "Required field",
+    "MIN_VALUE": "Minimum value",
+    "MAX_VALUE": "Maximum value",
+    "NOT_POWER_2": "Must be a power of 2"
+  },
+  "REGISTERS": {
+    "TITLE": "Register Bank",
+    "TAB_INT": "Integer (R)",
+    "TAB_FLOAT": "Floating Point (F)",
+    "TAB_VECTOR": "Vectors (V)",
+    "VECTOR_ELEMENTS": "V REGISTER ELEMENTS",
+    "SPECIAL_REGS": "Special Registers",
+    "VLR": "Vector Length Register",
+    "MVL": "Maximum Vector Length",
+    "VM": "VECTOR MASK REGISTER",
+    "VM_ELEMENTS": "ELEMENTS",
+    "ACTIVE": "ACTIVE",
+    "EMPTY": "EMPTY",
+    "MASK": "MASK"
+  },
+  "PIPELINE": {
+    "TITLE": "Pipeline Status (Cycle",
+    "TITLE_SUPERSCALAR": "Superscalar Pipeline",
+    "RUNNING": "Running",
+    "PAUSED": "Paused",
+    "EMPTY": "EMPTY",
+    "STALL": "STALL"
+  },
+  "STATS": {
+    "CPI_ACTUAL": "Current CPI",
+    "CPI_HINT": "Cycles per instruction",
+    "STALL_RATE": "Stall Rate",
+    "STALL_RATE_HINT": "Stall cycles vs Total",
+    "COMPLETED": "Completed",
+    "COMPLETED_HINT": "Instructions in WB stage",
+    "RAW_HAZARDS": "RAW Hazards",
+    "RAW_HINT": "Read After Write",
+    "WAW_HAZARDS": "WAW Hazards",
+    "WAW_HINT": "Write After Write",
+    "WAR_HAZARDS": "WAR Hazards",
+    "WAR_HINT": "Write After Read",
+    "STRUCTURAL": "Structural",
+    "STRUCTURAL_HINT": "Occupied resources",
+    "CONTROL_HAZARDS": "Control Hazards",
+    "CONTROL_HINT": "Branches / Flushes",
+    "BRANCH_HITS": "Branch Hits",
+    "BRANCH_HITS_HINT": "Correct predictions",
+    "BRANCH_ACCURACY": "Branch Accuracy",
+    "MISSES": "Misses"
+  },
+  "CONSOLE": {
+    "TITLE": "ASG — stdout",
+    "CLEAR": "Clear terminal"
+  },
+  "TRAP": {
+    "TITLE": "Standard Input (stdin)",
+    "DESCRIPTION": "The program requests keyboard input via",
+    "BUFFER_INFO": "The result will be written to the memory buffer",
+    "MAX_BYTES": "max. {{ bytes }} bytes",
+    "INPUT_LABEL": "Input",
+    "MAX_CHARS": "Max. {{ chars }} characters"
+  },
+  "BP_VIEW": {
+    "TITLE": "BRANCH PREDICTION MONITOR",
+    "GLOBAL_HISTORY": "GLOBAL HISTORY",
+    "BHT_TITLE": "BHT: History and State",
+    "BHT_INDEX": "Index",
+    "BHT_STATE": "State",
+    "BHT_PREDICTION": "Prediction",
+    "BTB_TITLE": "BTB: Known Targets",
+    "BTB_PC": "Branch PC",
+    "BTB_TARGET": "Target PC",
+    "TAKEN": "TAKEN",
+    "NOT_TAKEN": "NOT TAKEN"
+  },
+  "ASM_ERRORS": {
+    "LEXER_UNEXPECTED_CHAR": "Lexical Error: Unexpected character '{{ char }}' at line {{ line }}, col {{ col }}",
+    "UNKNOWN_OPCODE": "Line {{ line }}: Unknown opcode [{{ opcode }}]",
+    "INVALID_ARG_COUNT": "Line {{ line }}: Invalid number of arguments. Operation {{ opcode }} expects {{ expected }} arguments, received {{ received }}",
+    "INVALID_LABEL": "Line {{ line }}: Immediate argument \"{{ label }}\" is invalid. Must be a label starting with a letter or \"_\" and be alphanumeric",
+    "LABEL_NOT_DEFINED": "Line {{ line }}: Label \"{{ label }}\" not defined.",
+    "LABEL_WRONG_SEGMENT_JUMP": "Line {{ line }}: Label \"{{ label }}\" belongs to .data segment and cannot be used as jump target. Use a .text segment label.",
+    "REG_OUT_OF_BOUNDS": "Line {{ line }}: Register {{ type }}{{ num }} exceeds bounds. Valid range: 0-31",
+    "REG_NOT_EVEN": "Line {{ line }}: Register F{{ num }} is invalid for double precision. Must be an even register (F0, F2, ... F30).",
+    "R0_READ_ONLY": "Line {{ line }}: Register R0 cannot be used for writing. Valid range: 1-31",
+    "WRONG_REG_TYPE": "Line {{ line }}: Expected register type {{ expected }}, received {{ received }}.",
+    "INVALID_IMMEDIATE": "Line {{ line }}: Immediate value \"{{ value }}\" is not a valid number.",
+    "IMMEDIATE_OVERFLOW": "Line {{ line }}: Immediate value {{ arg }} ({{ value }}) exceeds allowed 16 bits.",
+    "LABEL_WRONG_SEGMENT_DATA": "Line {{ line }}: Label \"{{ label }}\" belongs to .text segment. Only .data labels are allowed as immediates.",
+    "LABEL_ADDRESS_OVERFLOW": "Line {{ line }}: Address of \"{{ label }}\" ({{ address }}) exceeds 16-bit immediate field.",
+    "INVALID_IMMEDIATE_ARG": "Line {{ line }}: Immediate argument \"{{ arg }}\" is invalid. Must be a number (#10, #0xFF) or a .data label.",
+    "INVALID_OFFSET": "Line {{ line }}: \"{{ offset }}\" is not a valid numeric offset. For direct label access use: {{ opcode }} Rd, LABEL",
+    "UNALIGNED_OFFSET": "Warning at line {{ line }}: Offset #{{ offset }} is not aligned for operation {{ opcode }}.",
+    "LABEL_NO_SEGMENT": "Line {{ line }}: Label defined outside segment (.text / .data)",
+    "INSTR_OUTSIDE_TEXT": "Line {{ line }}: Instruction found outside .text segment",
+    "INSTR_MEM_OVERFLOW": "Line {{ line }}: Instruction memory overflow.",
+    "INVALID_SYNTAX": "Line {{ line }}: Invalid syntax. Unexpected token '{{ token }}'. If trying to define data, missing directive (e.g., .word, .float).",
+    "NO_TEXT_SEGMENT": "Semantic Error: Program must include '.text' directive.",
+    "ALIGN_NO_SEGMENT": "Line {{ line }}: .align outside segment",
+    "EXPECTED_VALUE": "Line {{ line }}: Numeric value or symbol expected",
+    "DATA_MEM_OVERFLOW": "Line {{ line }}: Data memory overflow (Max: {{ max }} bytes)",
+    "UNEXPECTED_TOKEN": "Line {{ line }}: Unexpected token '{{ token }}'.",
+    "MEMORY_OVERLAP": "Overlap detected in {{ type }}. Range [0x{{ start }}-0x{{ end }}] collides with [0x{{ rangeStart }}-0x{{ rangeEnd }}].",
+    "INVALID_IMMEDIATE_VALUE": "Invalid immediate value: {{ value }}",
+    "DIRECTIVE_DATA_ONLY": "Error at line {{ line }}: Directive '{{ directive }}' is only allowed in .data",
+    "LABEL_NOT_DEFINED_PREV": "Line {{ line }}: Label not previously defined {{ label }}.",
+    "NO_FLOAT_REGS": "Error at line {{ line }}: {{ op }} does not accept floating point registers.",
+    "FLOAT_REGS_REQUIRED": "Error at line {{ line }}: {{ op }} requires floating point registers (F0-F31).",
+    "IMMEDIATE_REQUIRED": "Error at line {{ line }}: {{ op }} requires an immediate value (e.g., #10).",
+    "EVEN_REG_REQUIRED": "Error at line {{ line }}: Instruction {{ op }} requires even registers. F{{ reg }} is odd.",
+    "VECTOR_REGS_REQUIRED": "Error at line {{ line }}: Vector operation {{ op }} requires V registers.",
+    "VECTOR_MIXED_TYPES": "Error at line {{ line }}: {{ op }} requires (Dest:V, Src1:V, Src2:F).",
+    "INVALID_MEM_SYNTAX": "Line {{ line }}: Invalid memory syntax.",
+    "BASE_REG_MUST_BE_R": "Line {{ line }}: Base register must be R.",
+    "UNALIGNED_ADDRESS": "Warning at line {{ line }}: Address 0x{{ address }} is not aligned for {{ opcode }}.",
+    "ASSEMBLY_FAILED": "Assembly failed:",
+    "UNALIGNED_WARNING": "Incorrect alignment: F{{ index }} is not even.",
+    "MOVI2S_EXPECTS_VLR": "Line {{ line }}: MOVI2S expects 'VLR' as first operand, found '{{ found }}'.",
+    "MOVS2I_EXPECTS_VLR": "Line {{ line }}: MOVS2I expects 'VLR' as second operand, found '{{ found }}'.",
+    "MOVF2S_EXPECTS_VM": "Line {{ line }}: MOVF2S expects 'VM' as first operand, found '{{ found }}'.",
+    "MOVS2F_EXPECTS_VM": "Line {{ line }}: MOVS2F expects 'VM' as second operand, found '{{ found }}'.",
+    "SYMBOL_UNDEFINED": "Undefined symbol: {{ name }}"
+  },
+  "SUPERSCALAR": {
+    "ROB": {
+      "TITLE": "Reorder Buffer (ROB)",
+      "STATE": "State",
+      "OPCODE": "Opcode",
+      "DEST": "Dest",
+      "VALUE": "Value",
+      "SPEC": "Spec"
+    },
+    "RS": {
+      "TITLE": "Reservation Stations (RS)",
+      "OP": "Op",
+      "DEST": "Dest",
+      "STATE": "State",
+      "READY": "Ready",
+      "WAITING": "Wait",
+      "EMPTY": "No occupied reservation stations"
+    },
+    "RAT": {
+      "TITLE": "Register Alias Table (RAT)",
+      "INT_REGS": "Integer Registers",
+      "FLOAT_REGS": "Float Registers",
+      "VECTOR_REGS": "Vector Registers",
+      "ACTIVE": "active"
+    },
+    "ARF": {
+      "TITLE": "ARF (Architectural Register File)",
+      "SUBTITLE": "Data | Occ. | Index",
+      "DATOS": "Data",
+      "OCUPADO": "O",
+      "INDICE": "Idx",
+      "RENAMED": "renamed"
+    },
+    "CDB": {
+      "TITLE": "Common Data Bus (CDB)",
+      "CYCLE": "Cycle",
+      "TAG": "Tag",
+      "VALUE": "Value",
+      "IDLE": "Bus idle"
+    },
+    "STATS": {
+      "TITLE": "Superscalar Statistics",
+      "CYCLES": "Cycles",
+      "CYCLES_HINT": "Total execution cycles",
+      "COMMITTED": "Completed",
+      "COMMITTED_HINT": "Instructions retired from ROB",
+      "IPC_HINT": "Instructions per cycle (IPC)",
+      "BRANCH_ACC": "BP Accuracy",
+      "CORRECT": "hits",
+      "FLUSHED": "Flushes",
+      "FLUSHED_HINT": "Flushes due to misprediction",
+      "ROB_UTIL": "ROB Utilization",
+      "RS_UTIL": "RS Utilization",
+      "STALLS": "Stalls by type",
+      "FETCH_STALLS": "Fetch Stalls",
+      "FETCH_STALLS_HINT": "Empty fetch buffer",
+      "ROB_STALLS": "ROB Stalls",
+      "ROB_STALLS_HINT": "Full ROB",
+      "RS_STALLS": "RS Stalls",
+      "RS_STALLS_HINT": "No free stations",
+      "STRUCTURAL": "Structural",
+      "STRUCTURAL_HINT": "Functional unit occupied"
+    }
+  }
+}

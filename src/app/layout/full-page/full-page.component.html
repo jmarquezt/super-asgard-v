@@ -1,0 +1,43 @@
+<mat-toolbar class="custom-toolbar" *transloco="let t">
+  <div class="toolbar-container">
+    <span class="brand">
+      <mat-icon>rocket_launch</mat-icon>
+      <span>{{ t('COMMON.TITLE') }}</span>
+    </span>
+
+    <span class="spacer"></span>
+
+    <div class="menu-options">
+      <button mat-button class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">{{ t('NAV.INICIO') }}</button>
+      <button mat-button class="nav-link" routerLink="/docs" routerLinkActive="active">{{ t('NAV.DOCS') }}</button>
+
+      <div class="divider"></div>
+
+      <button mat-icon-button (click)="openSettings()" class="settings-button" [matTooltip]="t('NAV.CONFIG')">
+        <mat-icon>settings</mat-icon>
+      </button>
+
+      <button mat-icon-button (click)="toggleTheme()" class="theme-toggle">
+        <mat-icon>{{ themeService.isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+      </button>
+
+      <button mat-button [matMenuTriggerFor]="langMenu" class="lang-selector">
+        <mat-icon>language</mat-icon>
+        <span class="lang-text">{{ activeLang | uppercase }}</span>
+        <mat-icon class="arrow-icon">expand_more</mat-icon>
+      </button>
+
+      <mat-menu #langMenu="matMenu" xPosition="before" class="modern-menu">
+        <button mat-menu-item (click)="changeLang('es')">
+          <span>{{ t('LANG.ES') }}</span>
+        </button>
+        <button mat-menu-item (click)="changeLang('en')">
+          <span>{{ t('LANG.EN') }}</span>
+        </button>
+      </mat-menu>
+    </div>
+  </div>
+</mat-toolbar>
+<main>
+  <router-outlet></router-outlet>
+</main>

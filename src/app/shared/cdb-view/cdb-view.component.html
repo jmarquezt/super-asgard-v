@@ -1,0 +1,37 @@
+<ng-container *transloco="let t">
+  <div class="cdb-container">
+    <h3 class="section-title">{{ t('SUPERSCALAR.CDB.TITLE') }}</h3>
+
+    <div class="cdb-content">
+      @if (hasResults()) {
+        <div class="cdb-bus">
+          @for (result of results(); track result.robTag.slot) {
+            <div class="cdb-result" [style.border-color]="getFuTypeColor(result.fuType)">
+              <div class="result-header">
+                <span class="fu-type" [style.background]="getFuTypeColor(result.fuType)">
+                  {{ result.fuType }}
+                </span>
+                <span class="cycle">{{ t('SUPERSCALAR.CDB.CYCLE') }} {{ result.cycle }}</span>
+              </div>
+              <div class="result-body">
+                <div class="result-row">
+                  <span class="label">{{ t('SUPERSCALAR.CDB.TAG') }}:</span>
+                  <span class="value">ROB[{{ result.robTag.slot }}]</span>
+                </div>
+                <div class="result-row">
+                  <span class="label">{{ t('SUPERSCALAR.CDB.VALUE') }}:</span>
+                  <span class="value">{{ formatValue(result.value) }}</span>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      } @else {
+        <div class="empty-state">
+          <div class="bus-line"></div>
+          <span class="empty-text">{{ t('SUPERSCALAR.CDB.IDLE') }}</span>
+        </div>
+      }
+    </div>
+  </div>
+</ng-container>

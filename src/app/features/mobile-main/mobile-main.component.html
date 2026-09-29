@@ -1,0 +1,61 @@
+<ng-container *transloco="let t">
+  <div class="mobile-shell">
+
+    <div class="page" [hidden]="activeTab() !== 'editor'">
+      <app-editor [hideControls]="true"></app-editor>
+    </div>
+
+    <div class="page page-scroll" [hidden]="activeTab() !== 'execution'">
+      @if (isSuperscalar) {
+        <app-superscalar-pipeline-view></app-superscalar-pipeline-view>
+      } @else {
+        <app-pipeline-view></app-pipeline-view>
+      }
+      <app-timeline-view></app-timeline-view>
+      <app-console-view></app-console-view>
+      <app-event-view></app-event-view>
+    </div>
+
+    <div class="page page-scroll" [hidden]="activeTab() !== 'registers'">
+      <app-registers-view></app-registers-view>
+      <app-memory-view-group [memories]="memories"></app-memory-view-group>
+      @if (isSuperscalar) {
+        <app-rob-view></app-rob-view>
+        <app-rs-view></app-rs-view>
+        <app-cdb-view></app-cdb-view>
+      }
+    </div>
+
+    <div class="page page-scroll" [hidden]="activeTab() !== 'stats'">
+      @if (isSuperscalar) {
+        <app-superscalar-stats-view></app-superscalar-stats-view>
+      } @else {
+        <app-stats-view></app-stats-view>
+      }
+    </div>
+
+    @if (editor(); as editorRef) {
+      <app-mobile-exec-buttons [editor]="editorRef"></app-mobile-exec-buttons>
+    }
+
+    <nav class="bottom-nav">
+      <button type="button" class="nav-btn" [class.active]="activeTab() === 'editor'" (click)="selectTab('editor')">
+        <mat-icon>code</mat-icon>
+        <span>{{ t('MOBILE_NAV.EDITOR') }}</span>
+      </button>
+      <button type="button" class="nav-btn" [class.active]="activeTab() === 'execution'" (click)="selectTab('execution')">
+        <mat-icon>play_circle</mat-icon>
+        <span>{{ t('MOBILE_NAV.EXECUTION') }}</span>
+      </button>
+      <button type="button" class="nav-btn" [class.active]="activeTab() === 'registers'" (click)="selectTab('registers')">
+        <mat-icon>memory</mat-icon>
+        <span>{{ t('MOBILE_NAV.REGISTERS') }}</span>
+      </button>
+      <button type="button" class="nav-btn" [class.active]="activeTab() === 'stats'" (click)="selectTab('stats')">
+        <mat-icon>bar_chart</mat-icon>
+        <span>{{ t('MOBILE_NAV.STATS') }}</span>
+      </button>
+    </nav>
+
+  </div>
+</ng-container>

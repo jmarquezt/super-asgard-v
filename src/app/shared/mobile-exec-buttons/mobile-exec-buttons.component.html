@@ -1,0 +1,46 @@
+<ng-container *transloco="let t">
+  <div class="exec-buttons shadow-lg">
+    <div class="speed-row">
+      <mat-icon>speed</mat-icon>
+      <mat-slider min="4" max="2000" discrete [displayWith]="formatLabel">
+        <input matSliderThumb
+               [value]="processor.speed()"
+               (valueChange)="onSpeedChange($event)">
+      </mat-slider>
+    </div>
+
+    <div class="controls-row">
+      <button mat-icon-button (click)="togglePlayPause()"
+              [matTooltip]="t(processor.isRunning() ? 'EDITOR.PAUSE' : 'EDITOR.RUN')">
+        <mat-icon>{{ processor.isRunning() ? 'pause' : 'play_arrow' }}</mat-icon>
+      </button>
+
+      <button mat-icon-button (click)="stop()"
+              [disabled]="processor.cycle() === 0 || processor.isStopped()"
+              [matTooltip]="t('EDITOR.STOP')">
+        <mat-icon>stop</mat-icon>
+      </button>
+
+      <button mat-icon-button (click)="step()" [matTooltip]="t('EDITOR.STEP')"
+              [disabled]="processor.isRunning() || processor.finished()">
+        <mat-icon>skip_next</mat-icon>
+      </button>
+
+      <button mat-icon-button (click)="runToBreakpoint()" [matTooltip]="t('EDITOR.RUN_TO_BP')"
+              [disabled]="processor.isRunning() || processor.finished() || !editor.hasBreakpoints">
+        <mat-icon>fast_forward</mat-icon>
+      </button>
+
+      <button mat-icon-button
+              [class.performance-active]="editor.performanceMode()"
+              [matTooltip]="t(editor.performanceMode() ? 'EDITOR.PERFORMANCE_ON' : 'EDITOR.PERFORMANCE_OFF')"
+              (click)="toggleTurbo()">
+        <mat-icon>{{ editor.performanceMode() ? 'flash_on' : 'flash_off' }}</mat-icon>
+      </button>
+
+      <button mat-icon-button (click)="reset()" [matTooltip]="t('EDITOR.RESET')">
+        <mat-icon>refresh</mat-icon>
+      </button>
+    </div>
+  </div>
+</ng-container>

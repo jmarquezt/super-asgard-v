@@ -1,0 +1,20 @@
+<div class="not-found-container" *transloco="let t">
+  <div class="not-found-wrapper">
+    <div class="not-found-group1">
+      <mat-icon class="not-found-logo">search_off</mat-icon>
+    </div>
+    <div class="not-found-group2">
+      <div class="not-found-title">
+        <h1>{{ t("Auth.not_found.title") }}</h1>
+      </div>
+      <div class="not-found-text">
+        <span>{{ t("Auth.not_found.text") }}</span>
+      </div>
+      <div class="not-found-button">
+        <button mat-flat-button onclick="window.history.back();">
+          {{ t("Auth.not_found.back") }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

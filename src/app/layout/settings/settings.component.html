@@ -1,0 +1,497 @@
+<ng-container *transloco="let t">
+  <h2 mat-dialog-title>{{ t('SETTINGS.TITLE') }}</h2>
+
+  <mat-dialog-content [formGroup]="settingsForm">
+    <div class="settings-grid">
+
+      <div class="category-section">
+        <div class="category-title">
+          <mat-icon>developer_board</mat-icon>
+          <span>{{ t('SETTINGS.PROCESSOR') }}</span>
+        </div>
+        <div class="category-content">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ t('SETTINGS.PROCESSOR_TYPE') }}</mat-label>
+            <mat-select formControlName="processorType">
+              <mat-option value="pipelined">{{ t('SETTINGS.PROCESSOR_TYPE_PIPELINED') }}</mat-option>
+              <mat-option value="non-pipelined">{{ t('SETTINGS.PROCESSOR_TYPE_NON_PIPELINED') }}</mat-option>
+              <mat-option value="superscalar">{{ t('SETTINGS.PROCESSOR_TYPE_SUPERSCALAR') }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('SETTINGS.MEM_SIZE') }} (KB)</mat-label>
+            <input matInput type="number" formControlName="memorySize">
+            <mat-icon matSuffix>memory</mat-icon>
+
+            @if (memSizeControl?.hasError('required')) {
+              <mat-error>
+                {{ t('ERRORS.REQUIRED') }}
+              </mat-error>
+            }
+
+            @if (memSizeControl?.hasError('min')) {
+              <mat-error>
+                {{ t('ERRORS.MIN_VALUE') }}: {{ LIMITS.memorySize.min }} KB
+              </mat-error>
+            }
+
+            @if (memSizeControl?.hasError('max')) {
+              <mat-error>
+                {{ t('ERRORS.MAX_VALUE') }}: {{ LIMITS.memorySize.max }} KB
+              </mat-error>
+            }
+
+            @if (memSizeControl?.hasError('notPowerOfTwo')) {
+              <mat-error>
+                {{ t('ERRORS.NOT_POWER_2') }}
+              </mat-error>
+            }
+
+            <mat-hint>{{ t('SETTINGS.MEM_SIZE_HINT') }}</mat-hint>
+          </mat-form-field>
+
+          <div class="toggle-container" [class.disabled]="settingsForm.get('enableForwarding')?.disabled">
+            <span class="label">{{ t('SETTINGS.FORWARDING') }}</span>
+            <mat-slide-toggle formControlName="enableForwarding" color="primary"></mat-slide-toggle>
+          </div>
+
+          <div class="toggle-container" [class.disabled]="settingsForm.get('enableBranchDelaySlot')?.disabled">
+            <span class="label">{{ t('SETTINGS.BRANCH_DELAY_SLOT') }}</span>
+            <mat-slide-toggle formControlName="enableBranchDelaySlot" color="primary"></mat-slide-toggle>
+          </div>
+          <small class="help-text">{{ t('SETTINGS.BRANCH_DELAY_SLOT_HINT') }}</small>
+        </div>
+      </div>
+
+      <div class="category-section">
+        <div class="category-title">
+          <mat-icon>call_split</mat-icon>
+          <span>{{ t('SETTINGS.BRANCH_PREDICTION') }}</span>
+        </div>
+        <div class="category-content" [class.disabled]="settingsForm.get('branchPredictionStrategy')?.disabled">
+          <mat-form-field appearance="outline" subscriptSizing="dynamic" class="full-width">
+            <mat-label>{{ t('SETTINGS.BRANCH_PREDICTOR_STRATEGY') }}</mat-label>
+            <mat-select formControlName="branchPredictionStrategy">
+              <mat-option value="none">{{ t('SETTINGS.BRANCH_STRATEGY_NONE') }}</mat-option>
+              <mat-option value="always-taken">{{ t('SETTINGS.BRANCH_STRATEGY_ALWAYS') }}</mat-option>
+              <mat-option value="btfn">{{ t('SETTINGS.BRANCH_STRATEGY_BTFN') }}</mat-option>
+              <mat-option value="1-bit">{{ t('SETTINGS.BRANCH_STRATEGY_1BIT') }}</mat-option>
+              <mat-option value="2-bit">{{ t('SETTINGS.BRANCH_STRATEGY_2BIT') }}</mat-option>
+              <mat-option value="gshare">{{ t('SETTINGS.BRANCH_STRATEGY_GSHARE') }}</mat-option>
+              <mat-option value="hybrid">{{ t('SETTINGS.BRANCH_STRATEGY_HYBRID') }}</mat-option>
+              <mat-option value="ras">{{ t('SETTINGS.BRANCH_STRATEGY_RAS') }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <div class="slider-container" [class.disabled]="settingsForm.get('ghrBits')?.disabled">
+            <label>{{ t('SETTINGS.GHR_SIZE') }}: <b>{{ settingsForm.get('ghrBits')?.value }} bits</b></label>
+            <mat-slider [min]="LIMITS.ghrBits.min" [max]="LIMITS.ghrBits.max" step="1" showTickMarks discrete
+                        [disabled]="settingsForm.get('ghrBits')?.disabled ?? true">
+              <input matSliderThumb formControlName="ghrBits">
+            </mat-slider>
+            <small class="help-text">
+              {{ t('SETTINGS.GHR_COMBINATIONS') }}: {{ Math.pow(2, settingsForm.get('ghrBits')?.value) }}
+            </small>
+          </div>
+        </div>
+      </div>
+
+      @if (isSuperscalar) {
+        <div class="category-section superscalar-section">
+          <div class="section-header">
+            <span>
+              <mat-icon>memory</mat-icon>
+              {{ t('SETTINGS.SUPERSCALAR.TITLE') }}
+            </span>
+            <div class="preset-buttons">
+              <button mat-stroked-button type="button" (click)="applyPreset('minimal')" class="preset-btn">
+                {{ t('SETTINGS.SUPERSCALAR.PRESET_MINIMAL') }}
+              </button>
+              <button mat-stroked-button type="button" (click)="applyPreset('balanced')" class="preset-btn">
+                {{ t('SETTINGS.SUPERSCALAR.PRESET_BALANCED') }}
+              </button>
+              <button mat-stroked-button type="button" (click)="applyPreset('aggressive')" class="preset-btn">
+                {{ t('SETTINGS.SUPERSCALAR.PRESET_AGGRESSIVE') }}
+              </button>
+            </div>
+          </div>
+
+          <div formGroupName="superscalar" class="category-content">
+            <!-- Configuración principal -->
+            <div class="superscalar-grid">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('SETTINGS.SUPERSCALAR.RS_TYPE') }}</mat-label>
+                <mat-select formControlName="rsType">
+                  <mat-option value="centralized">{{ t('SETTINGS.SUPERSCALAR.RS_CENTRALIZED') }}</mat-option>
+                  <mat-option value="distributed">{{ t('SETTINGS.SUPERSCALAR.RS_DISTRIBUTED') }}</mat-option>
+                  <mat-option value="clustered">{{ t('SETTINGS.SUPERSCALAR.RS_CLUSTERED') }}</mat-option>
+                </mat-select>
+                <mat-hint>{{ t('SETTINGS.SUPERSCALAR.RS_TYPE_HINT') }}</mat-hint>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('SETTINGS.SUPERSCALAR.ISSUE_WIDTH') }}</mat-label>
+                <mat-select formControlName="issueWidth">
+                  <mat-option [value]="1">1 {{ t('SETTINGS.SUPERSCALAR.INSTR_CYCLE') }}</mat-option>
+                  <mat-option [value]="2">2 {{ t('SETTINGS.SUPERSCALAR.INSTR_CYCLE') }}</mat-option>
+                  <mat-option [value]="4">4 {{ t('SETTINGS.SUPERSCALAR.INSTR_CYCLE') }}</mat-option>
+                  <mat-option [value]="8">8 {{ t('SETTINGS.SUPERSCALAR.INSTR_CYCLE') }}</mat-option>
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('SETTINGS.SUPERSCALAR.ROB_SIZE') }}</mat-label>
+                <input matInput type="number" formControlName="robSize"
+                       [min]="LIMITS.robSize.min" [max]="LIMITS.robSize.max">
+                <mat-hint>{{ t('SETTINGS.SUPERSCALAR.ROB_SIZE_HINT') }}</mat-hint>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('SETTINGS.SUPERSCALAR.CDB_WIDTH') }}</mat-label>
+                <input matInput type="number" formControlName="cdbWidth"
+                       [min]="LIMITS.cdbWidth.min" [max]="LIMITS.cdbWidth.max">
+                <mat-hint>{{ t('SETTINGS.SUPERSCALAR.CDB_WIDTH_HINT') }}</mat-hint>
+              </mat-form-field>
+            </div>
+
+            <!-- RS Size según tipo -->
+            <div class="rs-config-section">
+              @if (rsType === 'centralized') {
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ t('SETTINGS.SUPERSCALAR.RS_CENTRAL_SIZE') }}</mat-label>
+                  <input matInput type="number" formControlName="rsCentralizedSize">
+                </mat-form-field>
+              }
+              @if (rsType === 'distributed') {
+                <mat-form-field appearance="outline">
+                  <mat-label>{{ t('SETTINGS.SUPERSCALAR.RS_PER_UNIT') }}</mat-label>
+                  <input matInput type="number" formControlName="rsPerUnitSize">
+                </mat-form-field>
+              }
+              @if (rsType === 'clustered') {
+                <div formGroupName="rsClusterSizes" class="cluster-grid">
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ t('SETTINGS.SUPERSCALAR.RS_INT_CLUSTER') }}</mat-label>
+                    <input matInput type="number" formControlName="intCluster">
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ t('SETTINGS.SUPERSCALAR.RS_FP_CLUSTER') }}</mat-label>
+                    <input matInput type="number" formControlName="fpCluster">
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ t('SETTINGS.SUPERSCALAR.RS_MEM_CLUSTER') }}</mat-label>
+                    <input matInput type="number" formControlName="memCluster">
+                  </mat-form-field>
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ t('SETTINGS.SUPERSCALAR.RS_VEC_CLUSTER') }}</mat-label>
+                    <input matInput type="number" formControlName="vecCluster">
+                  </mat-form-field>
+                </div>
+              }
+            </div>
+
+            <!-- Unidades Funcionales -->
+            <div class="fu-section">
+              <h4 class="subsection-title">{{ t('SETTINGS.SUPERSCALAR.FU_TITLE') }}</h4>
+              <div class="fu-grid">
+                <mat-form-field appearance="outline" class="fu-field">
+                  <mat-label>{{ t('SETTINGS.SUPERSCALAR.FU_INT_ALU') }}</mat-label>
+                  <input matInput type="number" formControlName="intALUs" [min]="LIMITS.fuCount.min" [max]="LIMITS.fuCount.max">
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="fu-field">
+                  <mat-label>{{ t('SETTINGS.SUPERSCALAR.FU_INT_MUL') }}</mat-label>
+                  <input matInput type="number" formControlName="intMulUnits" [min]="LIMITS.fuCount.min" [max]="LIMITS.fuCount.max">
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="fu-field">
+                  <mat-label>{{ t('SETTINGS.SUPERSCALAR.FU_INT_DIV') }}</mat-label>
+                  <input matInput type="number" formControlName="intDivUnits" [min]="LIMITS.fuCount.min" [max]="LIMITS.fuCount.max">
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="fu-field">
+                  <mat-label>{{ t('SETTINGS.SUPERSCALAR.FU_FP_ADD') }}</mat-label>
+                  <input matInput type="number" formControlName="fpAddUnits" [min]="LIMITS.fuCount.min" [max]="LIMITS.fuCount.max">
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="fu-field">
+                  <mat-label>{{ t('SETTINGS.SUPERSCALAR.FU_FP_MUL') }}</mat-label>
+                  <input matInput type="number" formControlName="fpMulUnits" [min]="LIMITS.fuCount.min" [max]="LIMITS.fuCount.max">
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="fu-field">
+                  <mat-label>{{ t('SETTINGS.SUPERSCALAR.FU_FP_DIV') }}</mat-label>
+                  <input matInput type="number" formControlName="fpDivUnits" [min]="LIMITS.fuCount.min" [max]="LIMITS.fuCount.max">
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="fu-field">
+                  <mat-label>{{ t('SETTINGS.SUPERSCALAR.FU_MEM') }}</mat-label>
+                  <input matInput type="number" formControlName="memUnits" [min]="LIMITS.fuCount.min" [max]="LIMITS.fuCount.max">
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="fu-field">
+                  <mat-label>{{ t('SETTINGS.SUPERSCALAR.FU_BRANCH') }}</mat-label>
+                  <input matInput type="number" formControlName="branchUnits" [min]="LIMITS.fuCount.min" [max]="LIMITS.fuCount.max">
+                </mat-form-field>
+                <!-- vectoriales -->
+                <mat-form-field appearance="outline" class="fu-field">
+                  <mat-label>{{ t('SETTINGS.SUPERSCALAR.FU_VEC_MEM') }}</mat-label>
+                  <input matInput type="number" formControlName="vecMemUnits" [min]="LIMITS.fuCount.min" [max]="LIMITS.fuCount.max">
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="fu-field">
+                  <mat-label>{{ t('SETTINGS.SUPERSCALAR.FU_VEC_INT') }}</mat-label>
+                  <input matInput type="number" formControlName="vecIntUnits" [min]="LIMITS.fuCount.min" [max]="LIMITS.fuCount.max">
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="fu-field">
+                  <mat-label>{{ t('SETTINGS.SUPERSCALAR.FU_VECT_MUL') }}</mat-label>
+                  <input matInput type="number" formControlName="vecMulUnits" [min]="LIMITS.fuCount.min" [max]="LIMITS.fuCount.max">
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="fu-field">
+                  <mat-label>{{ t('SETTINGS.SUPERSCALAR.FU_VEC_DIV') }}</mat-label>
+                  <input matInput type="number" formControlName="vecDivUnits" [min]="LIMITS.fuCount.min" [max]="LIMITS.fuCount.max">
+                </mat-form-field>
+              </div>
+            </div>
+
+            <!-- Optimizaciones vectoriales -->
+            <div class="toggle-container">
+              <span>{{ t('SETTINGS.SUPERSCALAR.VECTOR_INIT_OVERLAP') }}</span>
+              <mat-slide-toggle formControlName="enableVectorInitOverlap" color="primary"></mat-slide-toggle>
+            </div>
+            <small class="help-text" style="margin-top: -8px; margin-bottom: 12px;">
+              {{ t('SETTINGS.SUPERSCALAR.VECTOR_INIT_OVERLAP_HINT') }}
+            </small>
+          </div>
+        </div>
+      }
+
+      <div class="category-section">
+        <div class="category-title">
+          <mat-icon>view_column</mat-icon>
+          <span>{{ t('SETTINGS.VECTORIAL') }}</span>
+        </div>
+        <div class="category-content">
+          <div class="slider-container">
+            <label>{{ t('SETTINGS.MVL') }}: <b>{{ settingsForm.get('mvl')?.value }} elementos</b></label>
+            <mat-slider [min]="LIMITS.mvl.min" [max]="LIMITS.mvl.max" step="8" showTickMarks discrete>
+              <input matSliderThumb formControlName="mvl">
+            </mat-slider>
+            <small class="help-text">
+              {{ t('SETTINGS.MVL_HINT') }}
+            </small>
+          </div>
+
+          <div class="toggle-container" [class.disabled]="settingsForm.get('enableVectorChaining')?.disabled">
+            <span class="label">{{ t('SETTINGS.CHAINING') }}</span>
+            <mat-slide-toggle formControlName="enableVectorChaining" color="primary"></mat-slide-toggle>
+          </div>
+
+          <div class="slider-container">
+            <label>{{ t('SETTINGS.ALU_LANES') }}: {{ settingsForm.get('aluLanes')?.value }}</label>
+            <mat-slider [min]="LIMITS.aluLanes.min" [max]="LIMITS.aluLanes.max" step="1" showTickMarks discrete>
+              <input matSliderThumb formControlName="aluLanes">
+            </mat-slider>
+          </div>
+
+          <div class="slider-container">
+            <label>{{ t('SETTINGS.MEM_LANES') }}: {{ settingsForm.get('memLanes')?.value }}</label>
+            <mat-slider [min]="LIMITS.memLanes.min" [max]="LIMITS.memLanes.max" step="1" showTickMarks discrete>
+              <input matSliderThumb formControlName="memLanes">
+            </mat-slider>
+          </div>
+        </div>
+      </div>
+
+      <div class="category-section">
+        <div class="section-header">
+          <span>
+            <mat-icon>timer</mat-icon>
+            {{ t('SETTINGS.LATENCIES') }}
+          </span>
+          <button mat-flat-button type="button" (click)="resetLatencies()" class="reset-btn">
+            <mat-icon>refresh</mat-icon>
+            {{ t('SETTINGS.RESET_LATENCIES') }}
+          </button>
+        </div>
+        <small class="help-text" style="margin-top: -8px; display: block;">
+          {{ t('SETTINGS.LATENCIES_HINT') }}
+        </small>
+
+        <div formGroupName="latencies">
+          <!-- Operaciones Enteras -->
+          <div class="latency-subsection">
+            <h4 class="subsection-title">{{ t('SETTINGS.LATENCY_INT') }}</h4>
+            <div class="latency-grid">
+              <mat-form-field appearance="outline" class="latency-field">
+                <mat-label>{{ t('SETTINGS.LATENCY_INT_MUL') }}</mat-label>
+                <input matInput type="number" formControlName="intMul" [min]="LIMITS.latency.min" [max]="LIMITS.latency.max">
+                <mat-hint>{{ t('SETTINGS.LATENCY_DEFAULT') }}: {{ DEFAULT_LATENCIES.intMul }}</mat-hint>
+                @if (latenciesGroup.get('intMul')?.invalid) {
+                  <mat-error>{{ t('SETTINGS.LATENCY_VALUE_BETWEEN') }} {{ LIMITS.latency.min }} y {{ LIMITS.latency.max }}</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="latency-field">
+                <mat-label>{{ t('SETTINGS.LATENCY_INT_DIV') }}</mat-label>
+                <input matInput type="number" formControlName="intDiv" [min]="LIMITS.latency.min" [max]="LIMITS.latency.max">
+                <mat-hint>{{ t('SETTINGS.LATENCY_DEFAULT') }}: {{ DEFAULT_LATENCIES.intDiv }}</mat-hint>
+                @if (latenciesGroup.get('intDiv')?.invalid) {
+                  <mat-error>{{ t('SETTINGS.LATENCY_VALUE_BETWEEN') }} {{ LIMITS.latency.min }} y {{ LIMITS.latency.max }}</mat-error>
+                }
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Punto Flotante -->
+          <div class="latency-subsection">
+            <h4 class="subsection-title">{{ t('SETTINGS.LATENCY_FP') }}</h4>
+            <div class="latency-grid">
+              <mat-form-field appearance="outline" class="latency-field">
+                <mat-label>{{ t('SETTINGS.LATENCY_FP_ADD') }}</mat-label>
+                <input matInput type="number" formControlName="fpAdd" [min]="LIMITS.latency.min" [max]="LIMITS.latency.max">
+                <mat-hint>{{ t('SETTINGS.LATENCY_DEFAULT') }}: {{ DEFAULT_LATENCIES.fpAdd }}</mat-hint>
+                @if (latenciesGroup.get('fpAdd')?.invalid) {
+                  <mat-error>{{ t('SETTINGS.LATENCY_VALUE_BETWEEN') }} {{ LIMITS.latency.min }} y {{ LIMITS.latency.max }}</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="latency-field">
+                <mat-label>{{ t('SETTINGS.LATENCY_FP_MUL') }}</mat-label>
+                <input matInput type="number" formControlName="fpMul" [min]="LIMITS.latency.min" [max]="LIMITS.latency.max">
+                <mat-hint>{{ t('SETTINGS.LATENCY_DEFAULT') }}: {{ DEFAULT_LATENCIES.fpMul }}</mat-hint>
+                @if (latenciesGroup.get('fpMul')?.invalid) {
+                  <mat-error>{{ t('SETTINGS.LATENCY_VALUE_BETWEEN') }} {{ LIMITS.latency.min }} y {{ LIMITS.latency.max }}</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="latency-field">
+                <mat-label>{{ t('SETTINGS.LATENCY_FP_DIV') }}</mat-label>
+                <input matInput type="number" formControlName="fpDiv" [min]="LIMITS.latency.min" [max]="LIMITS.latency.max">
+                <mat-hint>{{ t('SETTINGS.LATENCY_DEFAULT') }}: {{ DEFAULT_LATENCIES.fpDiv }}</mat-hint>
+                @if (latenciesGroup.get('fpDiv')?.invalid) {
+                  <mat-error>{{ t('SETTINGS.LATENCY_VALUE_BETWEEN') }} {{ LIMITS.latency.min }} y {{ LIMITS.latency.max }}</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="latency-field">
+                <mat-label>{{ t('SETTINGS.LATENCY_FP_ADDD') }}</mat-label>
+                <input matInput type="number" formControlName="fpAddD" [min]="LIMITS.latency.min" [max]="LIMITS.latency.max">
+                <mat-hint>{{ t('SETTINGS.LATENCY_DEFAULT') }}: {{ DEFAULT_LATENCIES.fpAddD }}</mat-hint>
+                @if (latenciesGroup.get('fpAddD')?.invalid) {
+                  <mat-error>{{ t('SETTINGS.LATENCY_VALUE_BETWEEN') }} {{ LIMITS.latency.min }} y {{ LIMITS.latency.max }}</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="latency-field">
+                <mat-label>{{ t('SETTINGS.LATENCY_FP_MULD') }}</mat-label>
+                <input matInput type="number" formControlName="fpMulD" [min]="LIMITS.latency.min" [max]="LIMITS.latency.max">
+                <mat-hint>{{ t('SETTINGS.LATENCY_DEFAULT') }}: {{ DEFAULT_LATENCIES.fpMulD }}</mat-hint>
+                @if (latenciesGroup.get('fpMulD')?.invalid) {
+                  <mat-error>{{ t('SETTINGS.LATENCY_VALUE_BETWEEN') }} {{ LIMITS.latency.min }} y {{ LIMITS.latency.max }}</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="latency-field">
+                <mat-label>{{ t('SETTINGS.LATENCY_FP_DIVD') }}</mat-label>
+                <input matInput type="number" formControlName="fpDivD" [min]="LIMITS.latency.min" [max]="LIMITS.latency.max">
+                <mat-hint>{{ t('SETTINGS.LATENCY_DEFAULT') }}: {{ DEFAULT_LATENCIES.fpDivD }}</mat-hint>
+                @if (latenciesGroup.get('fpDivD')?.invalid) {
+                  <mat-error>{{ t('SETTINGS.LATENCY_VALUE_BETWEEN') }} {{ LIMITS.latency.min }} y {{ LIMITS.latency.max }}</mat-error>
+                }
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Operaciones Vectoriales -->
+          <div class="latency-subsection">
+            <h4 class="subsection-title">{{ t('SETTINGS.LATENCY_VEC') }}</h4>
+            <div class="latency-grid">
+              <mat-form-field appearance="outline" class="latency-field">
+                <mat-label>{{ t('SETTINGS.LATENCY_VEC_MEM') }}</mat-label>
+                <input matInput type="number" formControlName="vecMem" [min]="LIMITS.latency.min" [max]="LIMITS.latency.max">
+                <mat-hint>{{ t('SETTINGS.LATENCY_DEFAULT') }}: {{ DEFAULT_LATENCIES.vecMem }}</mat-hint>
+                @if (latenciesGroup.get('vecMem')?.invalid) {
+                  <mat-error>{{ t('SETTINGS.LATENCY_VALUE_BETWEEN') }} {{ LIMITS.latency.min }} y {{ LIMITS.latency.max }}</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="latency-field">
+                <mat-label>{{ t('SETTINGS.LATENCY_VEC_ADD') }}</mat-label>
+                <input matInput type="number" formControlName="vecAdd" [min]="LIMITS.latency.min" [max]="LIMITS.latency.max">
+                <mat-hint>{{ t('SETTINGS.LATENCY_DEFAULT') }}: {{ DEFAULT_LATENCIES.vecAdd }}</mat-hint>
+                @if (latenciesGroup.get('vecAdd')?.invalid) {
+                  <mat-error>{{ t('SETTINGS.LATENCY_VALUE_BETWEEN') }} {{ LIMITS.latency.min }} y {{ LIMITS.latency.max }}</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="latency-field">
+                <mat-label>{{ t('SETTINGS.LATENCY_VEC_MUL') }}</mat-label>
+                <input matInput type="number" formControlName="vecMul" [min]="LIMITS.latency.min" [max]="LIMITS.latency.max">
+                <mat-hint>{{ t('SETTINGS.LATENCY_DEFAULT') }}: {{ DEFAULT_LATENCIES.vecMul }}</mat-hint>
+                @if (latenciesGroup.get('vecMul')?.invalid) {
+                  <mat-error>{{ t('SETTINGS.LATENCY_VALUE_BETWEEN') }} {{ LIMITS.latency.min }} y {{ LIMITS.latency.max }}</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="latency-field">
+                <mat-label>{{ t('SETTINGS.LATENCY_VEC_DIV') }}</mat-label>
+                <input matInput type="number" formControlName="vecDiv" [min]="LIMITS.latency.min" [max]="LIMITS.latency.max">
+                <mat-hint>{{ t('SETTINGS.LATENCY_DEFAULT') }}: {{ DEFAULT_LATENCIES.vecDiv }}</mat-hint>
+                @if (latenciesGroup.get('vecDiv')?.invalid) {
+                  <mat-error>{{ t('SETTINGS.LATENCY_VALUE_BETWEEN') }} {{ LIMITS.latency.min }} y {{ LIMITS.latency.max }}</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="latency-field">
+                <mat-label>{{ t('SETTINGS.LATENCY_VEC_CMP') }}</mat-label>
+                <input matInput type="number" formControlName="vecCmp" [min]="LIMITS.latency.min" [max]="LIMITS.latency.max">
+                <mat-hint>{{ t('SETTINGS.LATENCY_DEFAULT') }}: {{ DEFAULT_LATENCIES.vecCmp }}</mat-hint>
+                @if (latenciesGroup.get('vecCmp')?.invalid) {
+                  <mat-error>{{ t('SETTINGS.LATENCY_VALUE_BETWEEN') }} {{ LIMITS.latency.min }} y {{ LIMITS.latency.max }}</mat-error>
+                }
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="category-section">
+        <div class="category-title">
+          <mat-icon>monitor</mat-icon>
+          <span>{{ t('SETTINGS.LOGGING') }}</span>
+        </div>
+        <div class="category-content">
+          <div class="toggle-container">
+            <span class="label">{{ t('SETTINGS.LOG_ENABLED') }}</span>
+            <mat-slide-toggle formControlName="loggingEnabled" color="primary"></mat-slide-toggle>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ t('SETTINGS.LOG_LEVEL') }}</mat-label>
+            <mat-select formControlName="logLevel">
+              <mat-option value="debug">{{ t('SETTINGS.LOG_LEVEL_DEBUG') }}</mat-option>
+              <mat-option value="relevant">{{ t('SETTINGS.LOG_LEVEL_RELEVANT') }}</mat-option>
+              <mat-option value="warning">{{ t('SETTINGS.LOG_LEVEL_WARNING') }}</mat-option>
+              <mat-option value="error">{{ t('SETTINGS.LOG_LEVEL_ERROR') }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ t('SETTINGS.TIMELINE_MODE') }}</mat-label>
+            <mat-select formControlName="timelineMode">
+              <mat-option value="live">{{ t('SETTINGS.TIMELINE_LIVE') }}</mat-option>
+              <mat-option value="on-finish">{{ t('SETTINGS.TIMELINE_ON_FINISH') }}</mat-option>
+              <mat-option value="disabled">{{ t('SETTINGS.TIMELINE_DISABLED') }}</mat-option>
+            </mat-select>
+            <mat-hint>{{ t('SETTINGS.TIMELINE_MODE_HINT') }}</mat-hint>
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="onCancel()">{{ t('COMMON.CANCEL') }}</button>
+
+    <button mat-raised-button
+            color="primary"
+            (click)="save()"
+            [disabled]="settingsForm.invalid">
+      {{ t('COMMON.SAVE') }}
+    </button>
+  </mat-dialog-actions>
+</ng-container>

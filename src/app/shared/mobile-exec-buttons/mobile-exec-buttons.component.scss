@@ -1,0 +1,73 @@
+:host {
+  display: contents;
+}
+
+.exec-buttons {
+  position: fixed;
+  right: 8px;
+  bottom: calc(64px + env(safe-area-inset-bottom, 0px) + 8px);
+  z-index: 20;
+
+  width: fit-content;
+  max-width: calc(100vw - 16px);
+
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 2px 6px;
+  border-radius: 18px;
+
+  background: color-mix(in srgb, var(--mat-sys-surface-container-high) 92%, transparent);
+  border: 1px solid var(--mat-sys-outline-variant);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--mat-sys-shadow, #000) 15%, transparent);
+}
+
+.speed-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 2px 0;
+
+  mat-icon {
+    font-size: 15px;
+    width: 15px;
+    height: 15px;
+    color: var(--mat-sys-on-surface-variant);
+    flex: 0 0 auto;
+  }
+
+// hago mas pequeño el slider para que quepa en este contenedor, hay que usar las clases propias del componente mat-slider para sobreescribir sus valores
+  mat-slider {
+    flex: 1 1 auto;
+    width: 100%;
+    --mdc-slider-state-layer-size: 20px;
+    --mdc-slider-handle-height: 12px;
+    --mdc-slider-handle-width: 12px;
+    --mdc-slider-active-track-height: 3px;
+    --mdc-slider-inactive-track-height: 3px;
+  }
+}
+
+.controls-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  ::ng-deep .mat-mdc-icon-button {
+    --mdc-icon-button-state-layer-size: 40px;
+    width: 40px;
+    height: 40px;
+    padding: 8px;
+
+    mat-icon {
+      font-size: 22px;
+      width: 22px;
+      height: 22px;
+      line-height: 22px;
+    }
+  }
+
+  button.performance-active mat-icon {
+    color: var(--mat-sys-primary);
+  }
+}

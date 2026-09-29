@@ -1,0 +1,50 @@
+<ng-container *transloco="let t">
+  <div class="rob-container shadow-sm">
+    <div class="rob-header">
+      <div class="title">
+        <mat-icon>reorder</mat-icon>
+        <h3>{{ t('SUPERSCALAR.ROB.TITLE') }}</h3>
+      </div>
+      <div class="occupancy">
+        Ocupación: {{ occupancy().occupied }} / {{ occupancy().total }}
+      </div>
+    </div>
+
+    <div class="viewport">
+      <div class="rob-table">
+        <div class="rob-row header-row">
+          <div class="cell col-tag">Tag</div>
+          <div class="cell col-state">{{ t('SUPERSCALAR.ROB.STATE') }}</div>
+          <div class="cell col-opcode">{{ t('SUPERSCALAR.ROB.OPCODE') }}</div>
+          <div class="cell col-dest">{{ t('SUPERSCALAR.ROB.DEST') }}</div>
+          <div class="cell col-value">{{ t('SUPERSCALAR.ROB.VALUE') }}</div>
+          <div class="cell col-pc">PC</div>
+          <div class="cell col-spec">{{ t('SUPERSCALAR.ROB.SPEC') }}</div>
+        </div>
+
+        @for (entry of entries(); track entry.tag) {
+          <div class="rob-row" [class]="getStateClass(entry)" [class.is-branch]="isBranch(entry)">
+            <div class="cell col-tag">{{ entry.tag }}</div>
+            <div class="cell col-state">
+              <span class="state-badge" [class]="getStateClass(entry)">
+                {{ getStateText(entry) }}
+              </span>
+            </div>
+            <div class="cell col-opcode">{{ entry.opcode || '-' }}</div>
+            <div class="cell col-dest">{{ getRegName(entry) }}</div>
+            <div class="cell col-value">{{ formatValue(entry.valor) }}</div>
+            <div class="cell col-pc">{{ formatHex(entry.pc) }}</div>
+            <div class="cell col-spec">
+              @if (entry.especulativa) {
+                <span class="spec-badge">S</span>
+              }
+              @if (isBranch(entry)) {
+                <span class="branch-badge" [class]="getBranchStatus(entry)">B</span>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</ng-container>

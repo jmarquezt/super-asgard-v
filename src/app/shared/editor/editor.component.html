@@ -1,0 +1,129 @@
+@if (!hideControls) {
+  <mat-toolbar class="modern-toolbar shadow-lg">
+    <ng-container *transloco="let t">
+      <div class="toolbar-section center">
+        <div class="glass-pill">
+          <button mat-flat-button color="primary" class="run-btn"
+                  (click)="onRun()" [disabled]="processor.isRunning()"
+                  [matTooltip]="t('EDITOR.RUN')">
+            <mat-icon>play_arrow</mat-icon>
+          </button>
+
+          <button mat-icon-button (click)="processor.pause()"
+                  [disabled]="!processor.isRunning()"
+                  [matTooltip]="t('EDITOR.PAUSE')">
+            <mat-icon>pause</mat-icon>
+          </button>
+
+          <button mat-icon-button (click)="onStop()"
+                  [disabled]="processor.cycle() === 0 || processor.isStopped()"
+                  [matTooltip]="t('EDITOR.STOP')">
+            <mat-icon>stop</mat-icon>
+          </button>
+
+          <mat-divider vertical></mat-divider>
+
+          <button mat-icon-button (click)="onStep()" [matTooltip]="t('EDITOR.STEP')"
+                  [disabled]="processor.isRunning() || processor.finished()">
+            <mat-icon>skip_next</mat-icon>
+          </button>
+
+          <button mat-icon-button (click)="onRunToBreakpoint()" [matTooltip]="t('EDITOR.RUN_TO_BP')"
+                  [disabled]="processor.isRunning() || processor.finished() || !hasBreakpoints">
+            <mat-icon>fast_forward</mat-icon>
+          </button>
+
+          <mat-divider vertical></mat-divider>
+
+          <button mat-icon-button
+                  [class.performance-active]="performanceMode()"
+                  [matTooltip]="t(performanceMode() ? 'EDITOR.PERFORMANCE_ON' : 'EDITOR.PERFORMANCE_OFF')"
+                  (click)="togglePerformanceMode()">
+            <mat-icon>{{ performanceMode() ? 'flash_on' : 'flash_off' }}</mat-icon>
+          </button>
+
+          <button mat-icon-button (click)="processor.reset()"
+                  [matTooltip]="t('EDITOR.RESET')">
+            <mat-icon>refresh</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <div class="toolbar-section end">
+        <div class="speed-control-container">
+          <div class="speed-label">
+            <mat-icon>speed</mat-icon>
+            <span>{{ t('EDITOR.SPEED') }}: <strong>{{ velocidadHz() }}</strong></span>
+          </div>
+
+          <mat-slider min="4" max="2000" discrete [displayWith]="formatLabel">
+            <input matSliderThumb
+                   [value]="currentSpeed()"
+                   (valueChange)="onSpeedChange($event)">
+          </mat-slider>
+        </div>
+      </div>
+    </ng-container>
+  </mat-toolbar>
+
+}
+
+<div class="editor-window shadow-lg" [class.no-toolbar]="hideControls">
+  <ng-container *transloco="let t">
+    <div class="editor-header">
+      <div class="tabs-scroll">
+        @for (tab of tabs(); track tab.id; let i = $index) {
+          <div class="tab"
+               [class.active]="activeTabIndex() === i"
+               (click)="activateTab(i)">
+            <mat-icon>article</mat-icon>
+            <span class="file-name">{{ tab.name }}</span>
+            @if (tabs().length > 1) {
+              <button class="tab-close-btn"
+                      (click)="closeTab(i, $event)"
+                      [title]="t('EDITOR.CLOSE') + ' ' + tab.name">
+                <mat-icon>close</mat-icon>
+              </button>
+            }
+          </div>
+        }
+
+        <button mat-icon-button class="add-tab-btn" (click)="addTab()" [matTooltip]="t('EDITOR.ADD_MODULE')">
+          <mat-icon>add</mat-icon>
+        </button>
+      </div>
+
+      <div class="editor-actions">
+
+        <button mat-icon-button (click)="openStaticSchedulingDialog()"
+                [matTooltip]="t('STATIC_SCHEDULER.TITLE')">
+          <mat-icon>bolt</mat-icon>
+        </button>
+
+        <mat-divider vertical></mat-divider>
+
+        <button mat-icon-button [matTooltip]="t('EDITOR.CLEAR_TAB')" (click)="clearEditor()">
+          <mat-icon>delete_outline</mat-icon>
+        </button>
+      </div>
+    </div>
+  </ng-container>
+
+  <div class="monaco-container">
+    <div #editorContainer class="full-height-editor"></div>
+  </div>
+
+  <ng-container *transloco="let t">
+    <div class="editor-status-bar">
+      <div class="status-item">UTF-8</div>
+      <div class="status-item">ASG-RISC Syntax</div>
+      <div class="status-item module-count">
+        {{ tabs().length }} {{ tabs().length !== 1 ? t('EDITOR.MODULES') : t('EDITOR.MODULE') }}
+      </div>
+      <div class="spacer"></div>
+      <div class="status-item pc-info">
+        PC: 0x{{ currentPC().toString(16).padStart(4, '0') }}
+      </div>
+    </div>
+  </ng-container>
+</div>

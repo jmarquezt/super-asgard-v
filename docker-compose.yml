@@ -1,0 +1,7 @@
+version: '3.8'
+services:
+  super-asgard-v:
+    image: super-asgard-v:latest  #imagen generada con Dockerfile
+    ports:
+      - "4815:80"                      # Mapea el puerto 8080 del servidor al 80 del contenedor
+    restart: always

@@ -1,0 +1,279 @@
+::ng-deep .timeline-card.mat-mdc-card {
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  // Mismo aspecto visual que registros/memoria
+  background: var(--mat-sys-surface-container) !important;
+  border-radius: 12px !important;
+  border: 1px solid var(--mat-sys-outline-variant) !important;
+  box-shadow: none !important;
+
+  .mat-mdc-card-header {
+    flex: 0 0 auto;
+    padding: 4px 8px !important;
+    background: var(--mat-sys-surface-container-high);
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+    border-radius: 12px 12px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    min-height: 0;
+
+    .mat-mdc-card-header-text { flex: 1; margin: 0; }
+    .mat-mdc-card-title { font-size: 0.75rem !important; font-weight: 600; margin: 0; }
+  }
+
+  .mat-mdc-card-content {
+    flex: 1;
+    overflow: hidden;
+    padding: 0 8px 6px !important;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+}
+
+.export-btn {
+  flex-shrink: 0;
+  width: 28px !important;
+  height: 28px !important;
+  padding: 0 !important;
+  line-height: 28px !important;
+
+  ::ng-deep .mat-icon {
+    font-size: 17px;
+    width: 17px;
+    height: 17px;
+  }
+}
+
+.timeline-viewport {
+  flex: 1;
+  overflow: auto;
+  border: 1px solid var(--mat-sys-outline);
+  border-radius: 4px;
+  min-height: 0;
+}
+
+// IMPORTANTE: border-collapse:separate es necesario para que position:sticky funcione correctamente en celdas de tabla en navegadores Chromium.
+.pipeline-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  font-family: "Segoe UI", Roboto, sans-serif;
+  font-size: 11px;
+  user-select: none;
+}
+
+.pipeline-table th,
+.pipeline-table td {
+  width: 44px;
+  min-width: 44px;
+  height: 28px;
+  border-right: 0.5px solid #e2e8f0;
+  border-bottom: 0.5px solid #e2e8f0;
+  text-align: center;
+  vertical-align: middle;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+thead th {
+  position: sticky;
+  top: 0;
+  background-color: #1e293b;
+  color: #f8fafc;
+  border-right-color: #334155;
+  border-bottom: 1px solid #334155;
+  font-size: 11px;
+  z-index: 5;
+}
+
+thead th.sticky-corner {
+  z-index: 30;
+}
+
+.sticky-instr {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  min-width: 220px;
+  text-align: left !important;
+  padding-left: 8px !important;
+  font-family: "Consolas", "Monaco", monospace;
+  font-weight: normal;
+  color: #0f172a;
+  border-right: 1.5px solid #94a3b8 !important;
+}
+
+// Alternancia de fondo en la columna de instrucciones
+tbody tr:nth-child(odd)  .sticky-instr { background-color: #f1f5f9; }
+tbody tr:nth-child(even) .sticky-instr { background-color: #e8eef4; }
+
+
+.sticky-corner {
+  position: sticky;
+  top: 0;
+  left: 0;
+  z-index: 30;
+  min-width: 220px;
+  text-align: left !important;
+  padding-left: 10px !important;
+  background-color: #1e293b !important;
+  border-right: 1.5px solid #94a3b8 !important;
+}
+
+// position:relative + z-index:0 fija el orden de apilado por debajo de las sticky (z-index 10+)
+.pipeline-table tbody td:not(.sticky-instr) {
+  position: relative;
+  z-index: 0;
+}
+
+.cell { background-color: #f8fafc; color: transparent; }
+
+// Pipeline escalar
+.IF  { background-color: #dbeafe; color: #1e40af; }
+.ID  { background-color: #fef9c3; color: #92400e; }
+.EX  { background-color: #dcfce7; color: #166534; }
+.MEM { background-color: #fef3c7; color: #b45309; }
+.WB  { background-color: #fee2e2; color: #991b1b; }
+
+// Pipeline superescalar (Tomasulo)
+.II     { background-color: #e0e7ff; color: #3730a3; }  // Issue - indigo
+.II-D   { background-color: #e0e7ff; color: #3730a3; }  // Issue Dispatch
+.II-S   { background-color: #c7d2fe; color: #3730a3; }  // Issue Supervisión (waiting)
+.II-E   { background-color: #a5b4fc; color: #1e1b4b; }  // Issue Emit
+.WR     { background-color: #fce7f3; color: #9d174d; }  // Write Result - pink
+.RI     { background-color: #d1fae5; color: #065f46; }  // Retire - emerald
+.FL     { background-color: #fecaca; color: #991b1b; }  // Flush - red
+
+.EX.vector  { background-color: #16a34a; color: #ffffff; }
+.MEM.vector { background-color: #d97706; color: #ffffff; }
+
+// Fases vectoriales diferenciadas
+.EX.vector-init       { background-color: #fbbf24; color: #78350f; font-size: 9px; }  // Init: amarillo/amber
+.EX.vector-processing { background-color: #10b981; color: #ffffff; font-size: 9px; }  // Processing: verde/emerald
+.EX.vector-wait       { background-color: #8b5cf6; color: #ffffff; font-size: 9px; }  // Wait: violeta (esperando datos)
+.EX.vector-wait-fu    { background-color: #ec4899; color: #ffffff; font-size: 9px; }  // WaitFU: rosa (esperando FU)
+.EX.vector-end        { background-color: #f97316; color: #ffffff; font-size: 9px; }  // End: naranja
+
+// Latencia inicial: patrón rayado diagonal
+.EX.latency {
+  background: repeating-linear-gradient(
+    -45deg,
+    #86efac,
+    #86efac 3px,
+    #dcfce7 3px,
+    #dcfce7 6px
+  );
+  color: #166534;
+}
+.MEM.latency {
+  background: repeating-linear-gradient(
+    -45deg,
+    #fcd34d,
+    #fcd34d 3px,
+    #fef3c7 3px,
+    #fef3c7 6px
+  );
+  color: #b45309;
+}
+
+// Stall: instrucción bloqueada en ID por RAW hazard
+.ST { background-color: #fecaca; color: #dc2626; font-size: 9px; }
+
+// Instrucción descartada por misprediction
+tr.flushed {
+  opacity: 0.5;
+  text-decoration: line-through;
+
+  .sticky-instr {
+    color: #dc2626;
+    font-style: italic;
+  }
+}
+
+:host-context(.dark-theme) {
+  .pipeline-table th,
+  .pipeline-table td       { border-right-color: #334155; border-bottom-color: #334155; }
+
+  thead th                 { background-color: #0f172a; border-right-color: #1e293b; border-bottom-color: #1e293b; }
+
+  .sticky-corner           { background-color: #0f172a !important; border-right-color: #475569 !important; }
+  .sticky-instr            { color: #e2e8f0; border-right-color: #475569 !important; }
+
+  tbody tr:nth-child(odd)  .sticky-instr { background-color: #1e293b; }
+  tbody tr:nth-child(even) .sticky-instr { background-color: #162032; }
+
+  .cell { background-color: #0f172a; }
+
+  // Pipeline escalar
+  .IF  { background-color: #1e3a5f; color: #93c5fd; }
+  .ID  { background-color: #3b2e00; color: #fde68a; }
+  .EX  { background-color: #14301f; color: #86efac; }
+  .MEM { background-color: #3b2500; color: #fcd34d; }
+  .WB  { background-color: #3b1a1a; color: #fca5a5; }
+
+  // Pipeline superescalar (Tomasulo)
+  .II     { background-color: #1e1b4b; color: #a5b4fc; }  // Issue - indigo
+  .II-D   { background-color: #1e1b4b; color: #a5b4fc; }  // Issue Dispatch
+  .II-S   { background-color: #312e81; color: #c7d2fe; }  // Issue Supervisión
+  .II-E   { background-color: #3730a3; color: #e0e7ff; }  // Issue Emit
+  .WR     { background-color: #500724; color: #fbcfe8; }  // Write Result - pink
+  .RI     { background-color: #022c22; color: #6ee7b7; }  // Retire - emerald
+  .FL     { background-color: #450a0a; color: #fecaca; }  // Flush - red
+
+  .EX.vector  { background-color: #15803d; color: #ffffff; }
+  .MEM.vector { background-color: #b45309; color: #ffffff; }
+
+  // Fases vectoriales diferenciadas (tema oscuro)
+  .EX.vector-init       { background-color: #92400e; color: #fcd34d; font-size: 9px; }  // Init: amber oscuro
+  .EX.vector-processing { background-color: #047857; color: #d1fae5; font-size: 9px; }  // Processing: emerald oscuro
+  .EX.vector-wait       { background-color: #6d28d9; color: #e9d5ff; font-size: 9px; }  // Wait: violeta oscuro
+  .EX.vector-wait-fu    { background-color: #9d174d; color: #fce7f3; font-size: 9px; }  // WaitFU: rosa oscuro
+  .EX.vector-end        { background-color: #c2410c; color: #fed7aa; font-size: 9px; }  // End: naranja oscuro
+
+  .EX.latency {
+    background: repeating-linear-gradient(
+      -45deg,
+      #22c55e,
+      #22c55e 3px,
+      #14301f 3px,
+      #14301f 6px
+    );
+    color: #86efac;
+  }
+  .MEM.latency {
+    background: repeating-linear-gradient(
+      -45deg,
+      #d97706,
+      #d97706 3px,
+      #3b2500 3px,
+      #3b2500 6px
+    );
+    color: #fcd34d;
+  }
+
+  .ST { background-color: #450a0a; color: #fca5a5; }
+
+  tr.flushed {
+    .sticky-instr {
+      color: #ef4444;
+    }
+  }
+}
+
+.center-msg {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  min-height: 100px;
+  gap: 10px;
+  color: var(--mat-sys-on-surface-variant);
+
+  mat-icon { font-size: 36px; width: 36px; height: 36px; opacity: 0.4; }
+  span { font-size: 0.85rem; }
+}

@@ -1,0 +1,353 @@
+// No usamos :host flex — evita conflicto con `display: block` del componente padre.
+// En su lugar, usamos calc() explícito con la altura conocida de la toolbar.
+
+.modern-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px !important;
+  min-height: 56px !important;
+  max-height: 56px !important;
+  width: 100%;
+  background: var(--mat-sys-surface-container) !important;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+  padding: 0;
+  box-sizing: border-box;
+  border-radius: 8px 8px 0 0;
+  overflow: visible;
+}
+
+.toolbar-section {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  overflow: visible;
+
+  &.center { justify-content: flex-start; gap: 12px; }
+  &.end    { justify-content: flex-end; }
+}
+
+.glass-pill {
+  display: flex;
+  align-items: center;
+  background: color-mix(in srgb, var(--mat-sys-on-surface) 8%, transparent);
+  padding: 4px 10px;
+  border-radius: 50px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  gap: 2px;
+
+  mat-divider { height: 20px; margin: 0 6px; }
+}
+
+.speed-control-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0;
+  overflow: visible;
+  position: relative;
+  z-index: 10;
+
+  .speed-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    color: var(--mat-sys-on-surface-variant);
+    margin-bottom: -8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+
+    mat-icon { font-size: 14px; width: 14px; height: 14px; }
+    strong   { color: var(--mat-sys-primary); font-family: 'Roboto Mono', monospace; }
+  }
+
+  mat-slider {
+    width: 100%;
+    max-width: 90px;
+    min-width: 90px;
+    position: relative;
+    z-index: 10;
+  }
+}
+
+.run-btn {
+  border-radius: 50% !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  mat-icon {
+    margin: 0 !important;
+  }
+}
+
+.reset-btn { display: none; }
+
+/*** EDITOR VS Code — la toolbar ocupa 56px, el resto es el editor ***/
+.editor-window {
+  height: calc(100% - 56px);
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  border-radius: 0 0 8px 8px;
+  overflow: hidden;
+  border: 1px solid #e5e5e5;
+  border-top: none;
+}
+
+// Barra de pestañas
+.editor-header {
+  flex: 0 0 33px;
+  height: 33px;
+  background: #f3f3f3;
+  display: flex;
+  align-items: stretch;
+
+  .tabs-scroll {
+    display: flex;
+    align-items: stretch;
+    overflow-x: auto;
+    flex: 1;
+    min-width: 0;
+
+    // Ocultar scrollbar pero mantener funcionalidad
+    scrollbar-width: thin;
+    scrollbar-color: #ccc transparent;
+    &::-webkit-scrollbar { height: 3px; }
+    &::-webkit-scrollbar-thumb { background: #ccc; border-radius: 2px; }
+  }
+
+  .tab {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 0 10px 0 12px;
+    height: 100%;
+    font-size: 12px;
+    color: #888888;
+    cursor: pointer;
+    user-select: none;
+    white-space: nowrap;
+    flex-shrink: 0;
+    border-right: 1px solid #ddd;
+    transition: background 0.15s;
+
+    &:hover {
+      background: color-mix(in srgb, #000 5%, transparent);
+      color: #555555;
+    }
+
+    &.active {
+      background: #ffffff;
+      color: #333333;
+      border-top: 2px solid var(--mat-sys-primary);
+    }
+
+    mat-icon {
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
+    }
+
+    .tab-close-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 16px;
+      height: 16px;
+      border: none;
+      background: transparent;
+      border-radius: 3px;
+      padding: 0;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.15s, background 0.15s;
+
+      mat-icon {
+        font-size: 12px;
+        width: 12px;
+        height: 12px;
+        color: #888;
+      }
+
+      &:hover {
+        background: color-mix(in srgb, #000 12%, transparent);
+        mat-icon { color: #333; }
+      }
+    }
+
+    &:hover .tab-close-btn,
+    &.active .tab-close-btn {
+      opacity: 1;
+    }
+  }
+
+  .add-tab-btn {
+    flex-shrink: 0;
+    width: 32px;
+    height: 33px;
+    border-radius: 0;
+    color: #888;
+
+    mat-icon { font-size: 18px; }
+
+    &:hover { color: #333; }
+  }
+
+  .editor-actions {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    padding: 0 4px;
+    border-left: 1px solid #ddd;
+  }
+}
+
+//Tema oscuro
+:host-context(.dark-theme) {
+  .editor-window {
+    background: #1e1e1e;
+    border-color: #333333;
+  }
+
+  .editor-header {
+    background: #252526;
+
+    .tabs-scroll {
+      scrollbar-color: #555 transparent;
+      &::-webkit-scrollbar-thumb { background: #555; }
+    }
+
+    .tab {
+      color: #969696;
+      border-right-color: #333;
+
+      &:hover { background: color-mix(in srgb, #fff 5%, transparent); color: #bbb; }
+
+      &.active {
+        background: #1e1e1e;
+        color: #ffffff;
+      }
+
+      .tab-close-btn {
+        mat-icon { color: #888; }
+        &:hover {
+          background: color-mix(in srgb, #fff 12%, transparent);
+          mat-icon { color: #ccc; }
+        }
+      }
+    }
+
+    .add-tab-btn { color: #888; &:hover { color: #ccc; } }
+    .editor-actions { border-left-color: #333; }
+  }
+}
+
+// Monaco ocupa todo el espacio restante del editor-window
+.monaco-container {
+  flex: 1 1 0;
+  position: relative;
+  overflow: hidden;
+}
+
+// El div que Monaco mide — rellena el contenedor posicionado
+.full-height-editor {
+  position: absolute;
+  inset: 0;
+}
+
+.editor-status-bar {
+  flex: 0 0 20px;
+  height: 20px;
+  background: #007acc;
+  color: white;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+  font-size: 11px;
+
+  .status-item { margin-right: 12px; opacity: 0.9; }
+  .module-count { opacity: 0.75; font-style: italic; }
+  .spacer { flex: 1; }
+}
+
+// Cuando se oculta la barra de herramientas (layout móvil), el editor ocupa todo el alto disponible.
+.editor-window.no-toolbar {
+  height: 100% !important;
+}
+
+// Performance mode button
+.performance-active {
+  color: var(--mat-sys-primary) !important;
+  background: color-mix(in srgb, var(--mat-sys-primary) 15%, transparent) !important;
+}
+
+@media (max-width: 1600px) {
+  .modern-toolbar {
+    height: 48px !important;
+    min-height: 48px !important;
+    max-height: 48px !important;
+  }
+
+  .editor-window {
+    height: calc(100% - 48px);
+  }
+
+  .toolbar-section {
+    &.center { gap: 8px; }
+  }
+
+  .glass-pill {
+    padding: 3px 5px;
+    gap: 0px;
+
+    mat-divider { height: 18px; margin: 0 4px; }
+  }
+
+  .speed-control-container {
+    .speed-label {
+      font-size: 8px;
+      gap: 3px;
+      margin-bottom: -17px;
+
+      mat-icon { font-size: 12px; width: 12px; height: 12px; }
+    }
+
+    mat-slider {
+      max-width: 60px;
+      min-width: 60px;
+    }
+  }
+
+  .run-btn {
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  ::ng-deep .mat-mdc-icon-button {
+    --mdc-icon-button-state-layer-size: 36px;
+    width: 36px;
+    height: 36px;
+    padding: 6px;
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+}

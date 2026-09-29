@@ -1,0 +1,126 @@
+
+// Include theming for Angular Material with `mat.theme()`.
+// This Sass mixin will define CSS variables that are used for styling Angular Material
+// components according to the Material 3 design spec.
+// Learn more about theming and how to use it for your application's
+// custom components at https://material.angular.dev/guide/theming
+@use '@angular/material' as mat;
+
+html {
+  height: 100%;
+  @include mat.theme((
+    color: (
+      primary: mat.$azure-palette,
+      tertiary: mat.$blue-palette,
+    ),
+    typography: Roboto,
+    density: 0,
+  ));
+}
+
+body {
+  // Default the application to a light color theme. This can be changed to
+  // `dark` to enable the dark color theme, or to `light dark` to defer to the
+  // user's system settings.
+  color-scheme: light;
+
+  // Set a default background, font and text colors for the application using
+  // Angular Material's system-level CSS variables. Learn more about these
+  // variables at https://material.angular.dev/guide/system-variables
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+
+  // Reset the user agent margin.
+  margin: 0;
+  height: 100%;
+}
+
+
+// Tema claro de angular material por defecto
+html {
+  height: 100%;
+  @include mat.theme((
+    color: (
+      primary: mat.$azure-palette,
+      theme-type: light,
+    ),
+    typography: Roboto,
+    density: 0,
+  ));
+}
+
+// Tema oscuro — se activa desde la interfaz
+.dark-theme {
+  @include mat.theme((
+    color: (
+      primary: mat.$azure-palette,
+      theme-type: dark,
+    ),
+  ));
+}
+
+body {
+  color-scheme: light;
+  background-color: var(--mat-sys-surface-container-low);
+  color: var(--mat-sys-on-surface);
+  font: var(--mat-sys-body-medium);
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+
+  &.dark-theme {
+    color-scheme: dark;
+  }
+}
+
+// Monaco Editor, tengo que ponerlo aqui porque monaco inyecta su codigo fuera del arbol de angular y no coge los estilos desde el componente
+// breakpoints
+.monaco-editor .glyph-margin {
+  cursor: pointer;
+}
+
+.breakpoint-glyph {
+  background-color: #e51400;
+  border-radius: 50%;
+  width: 14px !important;
+  height: 14px !important;
+  margin-top: 2px;
+  margin-left: 5px;
+  cursor: pointer;
+}
+
+.breakpoint-glyph-hover {
+  background-color: #e51400;
+  border-radius: 50%;
+  width: 14px !important;
+  height: 14px !important;
+  margin-top: 2px;
+  margin-left: 5px;
+  opacity: 0.35;
+  cursor: pointer;
+}
+
+// fondo de la linea con error de compilacion
+.error-line-highlight {
+  background: rgba(255, 50, 50, 0.18) !important;
+  border-left: 2px solid rgba(255, 50, 50, 0.8) !important;
+}
+
+// fondo de la linea actualmente en ejecucion
+.current-line-highlight {
+  background: rgba(255, 215, 0, 0.12) !important;
+  border-left: 2px solid rgba(255, 215, 0, 0.75) !important;
+}
+// flecha indicadora de la fila en ejecucion
+.current-line-margin {
+  color: rgba(255, 215, 0, 0.9);
+  font-size: 14px;
+  line-height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  &::before { content: '▶'; }
+}

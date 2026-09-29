@@ -1,0 +1,53 @@
+{
+  "name": "super-asgard-v",
+  "version": "1.0.0",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test",
+    "coverage": "ng test -- --coverage",
+    "test:unit": "ng test --include='../tests/unit/**/*.spec.ts' --coverage --watch=false",
+    "test:integration": "ng test --include='../tests/integration/**/*.spec.ts' --coverage --watch=false",
+    "test:functional": "ng test --include='../tests/functional/**/*.spec.ts' --coverage --watch=false"
+  },
+  "prettier": {
+    "printWidth": 100,
+    "singleQuote": true,
+    "overrides": [
+      {
+        "files": "*.html",
+        "options": {
+          "parser": "angular"
+        }
+      }
+    ]
+  },
+  "private": true,
+  "packageManager": "npm@11.10.0",
+  "dependencies": {
+    "@angular/cdk": "^21.2.10",
+    "@angular/common": "^21.1.0",
+    "@angular/compiler": "^21.1.0",
+    "@angular/core": "^21.1.0",
+    "@angular/forms": "^21.1.0",
+    "@angular/material": "^21.2.10",
+    "@angular/platform-browser": "^21.1.0",
+    "@angular/router": "^21.1.0",
+    "@jsverse/transloco": "^8.3.0",
+    "monaco-editor": "^0.55.1",
+    "rxjs": "~7.8.0",
+    "tslib": "^2.3.0",
+    "uuid": "^14.0.0"
+  },
+  "devDependencies": {
+    "@angular/build": "^21.1.0",
+    "@angular/cli": "^21.1.0",
+    "@angular/compiler-cli": "^21.1.0",
+    "@vitest/coverage-v8": "^4.1.11",
+    "jsdom": "^27.1.0",
+    "typescript": "~5.9.2",
+    "vitest": "^4.0.8"
+  }
+}

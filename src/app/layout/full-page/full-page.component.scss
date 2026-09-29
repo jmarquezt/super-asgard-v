@@ -1,0 +1,104 @@
+.custom-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: color-mix(in srgb, var(--mat-sys-surface-container-high) 85%, transparent) !important;
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+  height: 50px !important;
+  padding: 0 24px;
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--mat-sys-shadow, #000) 6%, transparent);
+  color: var(--mat-sys-on-surface);
+}
+
+.toolbar-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 700;
+  font-size: 1.2rem;
+  letter-spacing: -0.5px;
+  color: var(--mat-sys-primary);
+
+  mat-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+  }
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.menu-options {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  .nav-link {
+    font-weight: 500;
+    color: var(--mat-sys-on-surface-variant);
+    transition: color 0.2s ease, background-color 0.2s ease;
+    border-radius: 8px;
+
+    &:hover {
+      color: var(--mat-sys-primary);
+    }
+
+    &.active {
+      color: var(--mat-sys-primary);
+      background-color: color-mix(in srgb, var(--mat-sys-primary) 12%, transparent);
+      font-weight: 600;
+    }
+  }
+}
+
+.divider {
+  width: 1px;
+  height: 24px;
+  background-color: var(--mat-sys-outline-variant);
+  margin: 0 12px;
+}
+
+.cta-button {
+  border-radius: 12px !important;
+  padding: 0 20px !important;
+  font-weight: 600;
+}
+
+.icon-btn {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+// El contenido principal no debe añadir padding extra
+main {
+  overflow: hidden;
+}
+
+// En móvil en la cabecera se oculta el titulo y se queda solo el icono para que quepan todas las opciones
+@media (max-width: 600px) {
+  .custom-toolbar {
+    padding: 0 8px;
+  }
+
+  .brand > span {
+    display: none;
+  }
+
+  .menu-options {
+    gap: 2px;
+  }
+
+  .lang-selector .lang-text {
+    display: none;
+  }
+}
