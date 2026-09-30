@@ -485,7 +485,7 @@ const CAT_MEMORY: DocCategory = {
         { name: 'Rs2',      description: 'DOCS.OPERANDS.RS_SRC' },
       ],
       example: 'DOCS.MEMORY.SH.EXAMPLE',
-      notes: 'DOCS.MEMORY.ALIGN_2',
+      notes: 'DOCS.MEMORY.SH.NOTES',
     },
     {
       id: 'sw', name: 'SW',
@@ -498,30 +498,30 @@ const CAT_MEMORY: DocCategory = {
         { name: 'Rs2',      description: 'DOCS.OPERANDS.RS_SRC' },
       ],
       example: 'DOCS.MEMORY.SW.EXAMPLE',
-      notes: 'DOCS.MEMORY.ALIGN_4',
+      notes: 'DOCS.MEMORY.SW.NOTES',
     },
     {
       id: 'sf', name: 'SF',
-      syntax: 'SF LABEL, Fd\nSF offset(Rs), Fd',
+      syntax: 'SF LABEL, Fs\nSF offset(Rs), Fs',
       description: 'DOCS.MEMORY.SF.DESCRIPTION',
       operands: [
         { name: 'LABEL', description: 'DOCS.OPERANDS.LABEL_DATA_SHORT' },
         { name: 'offset',   description: 'DOCS.OPERANDS.OFFSET_INDIRECT' },
         { name: 'Rs',       description: 'DOCS.OPERANDS.RS_BASE' },
-        { name: 'Fd',       description: 'DOCS.OPERANDS.FD_SRC_ANY' },
+        { name: 'Fs',       description: 'DOCS.OPERANDS.FD_SRC_ANY' },
       ],
       example: 'DOCS.MEMORY.SF.EXAMPLE',
-      notes: 'DOCS.MEMORY.ALIGN_4',
+      notes: 'DOCS.MEMORY.SF.NOTES',
     },
     {
       id: 'sd', name: 'SD',
-      syntax: 'SD LABEL, Fd\nSD offset(Rs), Fd',
+      syntax: 'SD LABEL, Fs\nSD offset(Rs), Fs',
       description: 'DOCS.MEMORY.SD.DESCRIPTION',
       operands: [
         { name: 'LABEL', description: 'DOCS.OPERANDS.LABEL_DATA_SHORT' },
         { name: 'offset',   description: 'DOCS.OPERANDS.OFFSET_INDIRECT' },
         { name: 'Rs',       description: 'DOCS.OPERANDS.RS_BASE' },
-        { name: 'Fd',       description: 'DOCS.OPERANDS.FD_EVEN_SRC' },
+        { name: 'Fs',       description: 'DOCS.OPERANDS.FD_EVEN_SRC' },
       ],
       example: 'DOCS.MEMORY.SD.EXAMPLE',
       notes: 'DOCS.MEMORY.SD.NOTES',
@@ -630,10 +630,9 @@ const CAT_BRANCHES: DocCategory = {
     },
     {
       id: 'jalr', name: 'JALR',
-      syntax: 'JALR Rd, Rs',
+      syntax: 'JALR Rs',
       description: 'DOCS.BRANCHES.JALR.DESCRIPTION',
       operands: [
-        { name: 'Rd', description: 'DOCS.OPERANDS.RD_RETURN' },
         { name: 'Rs', description: 'DOCS.OPERANDS.RS_TARGET_ADDR' },
       ],
       example: 'DOCS.BRANCHES.JALR.EXAMPLE',
@@ -720,7 +719,7 @@ const CAT_COMPARE: DocCategory = {
       operands: [
         { name: 'Rd', description: 'DOCS.OPERANDS.RD' },
         { name: 'Rs1', description: 'DOCS.OPERANDS.RS_SRC' },
-        { name: '#imm', description: 'DOCS.OPERANDS.IMM_SIGNED_BASIC' },
+        { name: '#imm', description: 'DOCS.OPERANDS.IMM_SEQI' },
       ],
       example: 'DOCS.COMPARE.SEQI.EXAMPLE',
     },
@@ -731,7 +730,7 @@ const CAT_COMPARE: DocCategory = {
       operands: [
         { name: 'Rd', description: 'DOCS.OPERANDS.RD' },
         { name: 'Rs1', description: 'DOCS.OPERANDS.RS_SRC' },
-        { name: '#imm', description: 'DOCS.OPERANDS.IMM_SIGNED_BASIC' },
+        { name: '#imm', description: 'DOCS.OPERANDS.IMM_SLTI' },
       ],
       example: 'DOCS.COMPARE.SLTI.EXAMPLE',
     },
@@ -753,6 +752,7 @@ const CAT_FLOAT: DocCategory = {
         { name: 'Fs2', description: 'DOCS.OPERANDS.FS2_SP' },
       ],
       example: 'DOCS.FLOAT.ADDF.EXAMPLE',
+      notes: 'DOCS.FLOAT.ADDF.NOTES',
     },
     {
       id: 'addd', name: 'ADDD / SUBD / MULTD / DIVD',
@@ -797,6 +797,7 @@ const CAT_FLOAT: DocCategory = {
         { name: 'Fs', description: 'DOCS.OPERANDS.FS_SRC' },
       ],
       example: 'DOCS.FLOAT.CVTF2D.EXAMPLE',
+      notes: 'DOCS.FLOAT.CVTF2D.NOTES',
     },
     {
       id: 'cvti2d', name: 'CVTI2D / CVTI2F / CVTD2I / CVTF2I',
@@ -815,7 +816,7 @@ const CAT_FLOAT: DocCategory = {
       description: 'DOCS.FLOAT.MOVF.DESCRIPTION',
       operands: [
         { name: 'Fd', description: 'DOCS.OPERANDS.FD_MOV_DEST' },
-        { name: 'Fs', description: 'DOCS.OPERANDS.FS_SRC' },
+        { name: 'Fs', description: 'DOCS.OPERANDS.FS_MOV_SRC' },
       ],
       example: 'DOCS.FLOAT.MOVF.EXAMPLE',
     },
@@ -840,6 +841,7 @@ const CAT_FLOAT: DocCategory = {
         { name: 'Rd',  description: 'DOCS.OPERANDS.RD_INT_DEST' },
       ],
       example: 'DOCS.FLOAT.MOVI2S.EXAMPLE',
+      notes: 'DOCS.FLOAT.MOVI2S.NOTES',
     },
     {
       id: 'movf2s', name: 'MOVF2S / MOVS2F',
@@ -873,13 +875,17 @@ const CAT_VECTOR: DocCategory = {
   entries: [
     {
       id: 'lv', name: 'LV / SV',
-      syntax: 'LV Vd, Rs\nSV Rs, Vd',
+      syntax: 'LV Vd, LABEL\nLV Vd, offset(Rs)\nSV LABEL, Vs\nSV offset(Rs), Vs',
       description: 'DOCS.VECTOR.LV.DESCRIPTION',
       operands: [
-        { name: 'Vd', description: 'DOCS.OPERANDS.VD' },
-        { name: 'Rs', description: 'DOCS.OPERANDS.RS_BASE_ADDR' },
+        { name: 'Vd',     description: 'DOCS.OPERANDS.VD' },
+        { name: 'Vs',     description: 'DOCS.OPERANDS.VS_SRC' },
+        { name: 'LABEL',  description: 'DOCS.OPERANDS.LABEL_DATA_SHORT' },
+        { name: 'offset', description: 'DOCS.OPERANDS.OFFSET_INDIRECT' },
+        { name: 'Rs',     description: 'DOCS.OPERANDS.RS_BASE' },
       ],
       example: 'DOCS.VECTOR.LV.EXAMPLE',
+      notes: 'DOCS.VECTOR.LV.NOTES',
     },
     {
       id: 'lvws', name: 'LVWS / SVWS',
@@ -902,6 +908,7 @@ const CAT_VECTOR: DocCategory = {
         { name: 'Vi', description: 'DOCS.OPERANDS.VI_INDEX' },
       ],
       example: 'DOCS.VECTOR.LVI.EXAMPLE',
+      notes: 'DOCS.VECTOR.LVI.NOTES',
     },
     {
       id: 'addv', name: 'ADDV / SUBV / MULTV / DIVV',
@@ -997,13 +1004,13 @@ const CAT_DIRECTIVES: DocCategory = {
   entries: [
     {
       id: 'dir-data', name: '.data',
-      syntax: '.data',
+      syntax: 'DOCS.DIRECTIVES.DATA.SYNTAX',
       description: 'DOCS.DIRECTIVES.DATA.DESCRIPTION',
       example: 'DOCS.DIRECTIVES.DATA.EXAMPLE',
     },
     {
       id: 'dir-text', name: '.text',
-      syntax: '.text',
+      syntax: 'DOCS.DIRECTIVES.TEXT.SYNTAX',
       description: 'DOCS.DIRECTIVES.TEXT.DESCRIPTION',
       example: 'DOCS.DIRECTIVES.TEXT.EXAMPLE',
     },
@@ -1028,13 +1035,13 @@ const CAT_DIRECTIVES: DocCategory = {
     },
     {
       id: 'dir-float', name: '.float',
-      syntax: '.float value',
+      syntax: '.float value [, value2, ...]',
       description: 'DOCS.DIRECTIVES.FLOAT.DESCRIPTION',
       example: 'DOCS.DIRECTIVES.FLOAT.EXAMPLE',
     },
     {
       id: 'dir-double', name: '.double',
-      syntax: '.double value',
+      syntax: '.double value [, value2, ...]',
       description: 'DOCS.DIRECTIVES.DOUBLE.DESCRIPTION',
       example: 'DOCS.DIRECTIVES.DOUBLE.EXAMPLE',
     },
@@ -1132,6 +1139,13 @@ const CAT_TRAPS: DocCategory = {
       ],
       example: 'DOCS.TRAPS.TRAP5.EXAMPLE',
       notes: 'DOCS.TRAPS.TRAP5.NOTES',
+    },
+    {
+      id: 'trap6', name: 'TRAP 6 — stop',
+      syntax: 'TRAP 6',
+      description: 'DOCS.TRAPS.TRAP6.DESCRIPTION',
+      example: 'DOCS.TRAPS.TRAP6.EXAMPLE',
+      notes: 'DOCS.TRAPS.TRAP6.NOTES',
     },
   ],
 };

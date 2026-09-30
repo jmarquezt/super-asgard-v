@@ -138,14 +138,16 @@
       "SUBTRAHEND": "Subtrahend",
       "RS_SRC": "Source register",
       "IMM_SIGNED": "16-bit signed immediate. The # prefix is mandatory for numeric literals. Accepts decimal (#10, #-5) or hexadecimal (#0xFF). A label (without #) can also be specified, which the assembler resolves to its address (must be defined in .data, not .text).",
-      "IMM_UNSIGNED": "16-bit unsigned immediate. The # prefix is mandatory for numeric literals. Accepts decimal (#10) or hexadecimal (#0xFF). A label (without #) can also be specified.",
+      "IMM_UNSIGNED": "16-bit unsigned immediate. The # prefix is mandatory for numeric literals. Accepts decimal (#10) or hexadecimal (#0x100). A .data label (without #) can also be specified.",
       "IMM_SIGNED_ALT": "16-bit signed immediate. The # prefix is mandatory for numeric literals. Accepts decimal (#4, #-1) or hexadecimal (#0x10). A label (without #) can also be specified.",
       "IMM_SIGNED_BASIC": "16-bit signed immediate. The # prefix is mandatory for numeric literals.",
       "IMM_16BIT": "16-bit immediate. The # prefix is mandatory for numeric literals. Accepts decimal (#255) or hexadecimal (#0xFF). A label (without #) can also be specified.",
       "IMM_16BIT_HEX": "16-bit immediate. The # prefix is mandatory for numeric literals. Accepts decimal or hexadecimal (#0x80). A label (without #) can also be specified.",
       "IMM_16BIT_ALT": "16-bit immediate. The # prefix is mandatory for numeric literals. Accepts decimal or hexadecimal (#0x01). A label (without #) can also be specified.",
-      "SHIFT_AMOUNT": "Number of positions to shift (0-63). The # prefix is mandatory. Only accepts decimal or hexadecimal literal; labels are not allowed in shift instructions.",
-      "SHIFT_AMOUNT_BASIC": "Number of positions to shift (0-63). The # prefix is mandatory. Only accepts decimal or hexadecimal literal.",
+      "SHIFT_AMOUNT": "Number of positions to shift (0-63). The # prefix is mandatory for numeric literals, in decimal or hexadecimal. Like the other immediate instructions, it also accepts a .data label (without #), although it rarely makes sense in a shift.",
+      "SHIFT_AMOUNT_BASIC": "Number of positions to shift (0-63). The # prefix is mandatory for numeric literals, in decimal or hexadecimal. A .data label (without #) is also accepted.",
+      "IMM_SEQI": "16-bit immediate (signed in SEQI, unsigned in SEQUI). The # prefix is mandatory for numeric literals.",
+      "IMM_SLTI": "16-bit immediate. In SLTI, SGTI, SLEI, SGEI and SNEI it is sign-extended and the comparison is signed; in the variants ending in UI it is zero-extended and the comparison is unsigned.",
       "IMM_HIGH": "16-bit value to place in the high part of the register. The # prefix is mandatory for numeric literals. Accepts decimal (#0x1234) or hexadecimal. A label (without #) can also be specified.",
       "LABEL_DATA": "Symbol defined in the .data section (direct mode)",
       "OFFSET_NUMERIC": "Signed numeric offset in decimal or hex (indirect mode)",
@@ -173,7 +175,8 @@
       "FS2_DP_EVEN": "Second DP operand - must be even register",
       "FD_DEST_DP": "Destination register (even for DP)",
       "FS_SRC": "Source register",
-      "VLR": "Special vector length register (0-64)",
+      "FS_MOV_SRC": "Source register (even for MOVD)",
+      "VLR": "Special vector length register (0-MVL; MVL is configurable, 64 by default)",
       "RS_INT_SRC": "Integer source register (MOVI2S)",
       "RD_INT_DEST": "Integer destination register",
       "VM": "Special vector mask register",
@@ -194,7 +197,7 @@
       "FD_MOV_DEST": "Destination float register (even for MOVD)",
       "FD_RD_RAW_DEST": "Destination register: Fd (float) in MOVI2FP, Rd (integer) in MOVFP2I",
       "RS_FS_RAW_SRC": "Source register: Rs (integer) in MOVI2FP, Fs (float) in MOVFP2I",
-      "VI_INDEX": "Index vector; each element supplies its own offset"
+      "VI_INDEX": "Index vector; each element supplies its own byte offset from the base address"
     },
     "INT_ALU": {
       "ADD": {
@@ -206,7 +209,7 @@
         "EXAMPLE": "ADDU R3, R1, R2  ; Addition without exception risk"
       },
       "SUB": {
-        "DESCRIPTION": "Signed integer subtraction. Rd = Rs1 - Rs2. Generas an ARITHMETIC_OVERFLOW exception if the result exceeds the 32-bit range.",
+        "DESCRIPTION": "Signed integer subtraction. Rd = Rs1 - Rs2. Generates an ARITHMETIC_OVERFLOW exception if the result exceeds the 32-bit range.",
         "EXAMPLE": "SUB R3, R5, R2   ; R3 = R5 - R2"
       },
       "MULT": {
@@ -215,7 +218,7 @@
         "NOTES": "Unlike ADD/SUB, MULT does not check for arithmetic overflow: the result never triggers an exception."
       },
       "DIV": {
-        "DESCRIPTION": "Signed integer division. Rd = Rs1 / Rs2. It is the slowest scalar operation in the system.",
+        "DESCRIPTION": "Signed integer division. Rd = Rs1 / Rs2. It is the slowest integer operation, with a default latency of 24 cycles.",
         "EXAMPLE": "DIV R4, R6, R2   ; R4 <- R6 / R2",
         "NOTES": "If the divisor (Rs2) is zero, the processor immediately triggers a DIVISION_BY_ZERO exception."
       },
@@ -246,7 +249,7 @@
         "NOTES": "Like MULT, it does not check for arithmetic overflow: the result never triggers an exception."
       },
       "DIVU": {
-        "DESCRIPTION": "Unsigned integer division. Rd <- (Rs1 / Rs2) treating both operands as 32-bit unsigned values.",
+        "DESCRIPTION": "Unsigned integer division. Rd <- (Rs1 / Rs2) treating both operands as 32-bit unsigned values. It is the slowest integer operation, with a default latency of 24 cycles.",
         "EXAMPLE": "DIVU R4, R6, R2",
         "NOTES": "If the divisor (Rs2) is zero, a DIVISION_BY_ZERO exception is raised."
       },
@@ -267,17 +270,17 @@
       "ADDI": {
         "DESCRIPTION": "Adds Rs1 with a 16-bit sign-extended immediate and stores the result in Rd.",
         "EXAMPLE": "ADDI R3, R1, #10       ; R3 <- R1 + 10 (decimal)\nADDI R3, R1, #0xFF     ; R3 <- R1 + 255 (hexadecimal)\nADDI R3, R1, MyVar     ; R3 <- R1 + address of MyVar",
-        "NOTES": "Commonly used to load small constants or calculate offsets. The immediate is sign-extended to 64 bits before adding."
+        "NOTES": "Commonly used to load small constants or calculate offsets. The immediate is sign-extended to 32 bits before adding. Like ADD, it raises an ARITHMETIC_OVERFLOW exception if the result exceeds the signed 32-bit range."
       },
       "ADDUI": {
         "DESCRIPTION": "Adds Rs1 with a 16-bit unsigned immediate (zero-extended) and stores the result in Rd.",
         "EXAMPLE": "ADDUI R3, R1, #10      ; R3 <- R1 + 10\nADDUI R3, R1, #0x100   ; R3 <- R1 + 256",
-        "NOTES": "Unlike ADDI, the immediate is zero-extended (unsigned), so negative values are not allowed."
+        "NOTES": "Unlike ADDI, the immediate is zero-extended and always treated as positive (unsigned). The assembler accepts values between -32768 and 65535, but a negative value is reinterpreted as its unsigned 16-bit equivalent: for example, #-5 is added as 65531."
       },
       "SUBI": {
         "DESCRIPTION": "Subtracts a 16-bit signed immediate from Rs1 and stores the result in Rd.",
         "EXAMPLE": "SUBI R3, R1, #4        ; R3 <- R1 - 4\nSUBI R3, R1, #0x10     ; R3 <- R1 - 16",
-        "NOTES": "Commonly used to subtract small constants or adjust computed addresses. The immediate is sign-extended to 64 bits before subtracting."
+        "NOTES": "Commonly used to subtract small constants or adjust computed addresses. The immediate is sign-extended to 32 bits before subtracting. Like SUB, it raises an ARITHMETIC_OVERFLOW exception if the result exceeds the signed 32-bit range."
       },
       "SUBUI": {
         "DESCRIPTION": "Subtracts a 16-bit unsigned immediate from Rs1, treating both operands as 32-bit unsigned values. Rd <- (Rs1 - imm) mod 2³².",
@@ -297,7 +300,7 @@
       "ANDI": {
         "DESCRIPTION": "Bitwise logical AND between Rs1 and a 16-bit immediate (zero-extended).",
         "EXAMPLE": "ANDI R4, R1, #0xFF     ; R4 <- R1 & 0xFF  (mask low 8 bits)\nANDI R4, R1, #0xF0     ; R4 <- R1 & 0xF0  (mask high nibble)",
-        "NOTES": "Useful for masking bits. The immediate is zero-extended to 64 bits."
+        "NOTES": "Useful for masking bits. The immediate is zero-extended to 32 bits."
       },
       "ORI": {
         "DESCRIPTION": "Bitwise logical OR between Rs1 and a 16-bit immediate (zero-extended).",
@@ -310,7 +313,7 @@
         "NOTES": "Useful for flipping specific bits without affecting the rest (XOR mask)."
       },
       "SLLI": {
-        "DESCRIPTION": "Logical left shift of Rs1 by #imm positions.",
+        "DESCRIPTION": "Logical left shift of Rs1 by #imm positions. The # prefix is mandatory for numeric literals, in decimal or hexadecimal. Like the other immediate instructions, it also accepts a .data label, although it rarely makes sense in a shift.",
         "EXAMPLE": "SLLI R4, R1, #2        ; R4 <- R1 << 2  (multiply by 4)\nSLLI R4, R1, #0x3      ; R4 <- R1 << 3  (multiply by 8)",
         "NOTES": "Bits shifted out of the register are lost. Fills with zeros on the right."
       },
@@ -374,22 +377,22 @@
       "SH": {
         "DESCRIPTION": "Stores the low 16 bits of Rs2 to memory.\n\n- Direct mode: address = .data symbol, implicit base R0.\n- Indirect mode: address = Rs1 + numeric offset.",
         "EXAMPLE": "SH MyHalf, R5\nSH 2(R2), R5",
-        "NOTES": "Requires 2-byte alignment."
+        "NOTES": "The simulator does not check alignment on stores, but addresses that are multiples of 2 are recommended so the data can be read back later with LH/LHU, which do require it."
       },
       "SW": {
         "DESCRIPTION": "Stores a word (32 bits) to memory.\n\n- Direct mode: address = .data symbol, implicit base R0.\n- Indirect mode: address = Rs1 + numeric offset.",
         "EXAMPLE": "SW MyVar, R3          ; MEM[addr(MyVar)] <- R3\nSW 4(R1), R3          ; MEM[R1+4] <- R3",
-        "NOTES": "Requires 4-byte alignment."
+        "NOTES": "The simulator does not check alignment on stores, but addresses that are multiples of 4 are recommended so the data can be read back later with LW, which does require it."
       },
       "SF": {
         "DESCRIPTION": "Stores a single precision float from a float register.\n\n- Direct mode: address = .data symbol, implicit base R0.\n- Indirect mode: address = Rs + numeric offset.",
         "EXAMPLE": "SF MyFloat, F2\nSF 8(R1), F2",
-        "NOTES": "Requires 4-byte alignment."
+        "NOTES": "The simulator does not check alignment on stores, but addresses that are multiples of 4 are recommended so the data can be read back later with LF, which does require it."
       },
       "SD": {
-        "DESCRIPTION": "Stores a double precision double (64 bits).\n\n- Direct mode: address = .data symbol, implicit base R0.\n- Indirect mode: address = Rs + numeric offset.",
+        "DESCRIPTION": "Stores a 64-bit value (double) from registers Fs:Fs+1 to memory.\n\n- Direct mode: address = .data symbol, implicit base R0.\n- Indirect mode: address = Rs + numeric offset.",
         "EXAMPLE": "SD MyDouble, F0\nSD 0(R1), F0",
-        "NOTES": "Fd must be even. Unlike LD (requires 8-byte alignment), SD accepts 4-byte alignment."
+        "NOTES": "Fs must be an even register. The simulator does not check alignment on stores, which allows, for example, storing a double in a 4-byte-aligned TRAP 5 parameter block. If the data will later be read with LD, the address must be a multiple of 8, since LD does require that alignment."
       },
       "ALIGN_2": "Mandatory alignment: Address must be a multiple of 2 (Halfword).",
       "ALIGN_4": "Mandatory alignment: Address must be a multiple of 4 (Word)."
@@ -398,7 +401,7 @@
       "BEQZ": {
         "DESCRIPTION": "Branches to the label if Rs == 0 (Branch if Equal to Zero).",
         "EXAMPLE": "BEQZ R1, end     ; if R1 == 0, jump to \"end\"",
-        "NOTES": "The label must be defined in the .text section of the program. The assembler resolves it to a 16-bit PC-relative offset."
+        "NOTES": "The label must be defined in the .text section. The assembler resolves it to the absolute address of the target instruction, encoded as a word number (address / 4) in the 16-bit field; it is not a PC-relative offset. The same applies to the other conditional branches."
       },
       "BNEZ": {
         "DESCRIPTION": "Branches if Rs != 0.",
@@ -424,7 +427,7 @@
       "J": {
         "DESCRIPTION": "Unconditional jump. The PC is updated to the label address.",
         "EXAMPLE": "J loop",
-        "NOTES": "Only code labels (.text) are allowed. The jump is encoded as a 26-bit PC-relative offset."
+        "NOTES": "Only code labels (.text) are allowed. The target is encoded as an absolute word address (address / 4) in the 26-bit field; it is not a PC-relative offset. The same applies to JAL."
       },
       "JAL": {
         "DESCRIPTION": "Jump and Link. Saves the return address (PC+4) in R31 and jumps to the label.",
@@ -437,9 +440,9 @@
         "NOTES": "Does not use a label - the address is taken from the register. Typically used for function return (JR R31)."
       },
       "JALR": {
-        "DESCRIPTION": "Jump and Link Register. Saves PC+4 in Rd and jumps to the address in Rs.",
-        "EXAMPLE": "JALR R31, R2",
-        "NOTES": "Does not use a label - the target address comes from register Rs."
+        "DESCRIPTION": "Jump and Link Register. Saves PC+4 in R31 and jumps to the address contained in Rs.",
+        "EXAMPLE": "JALR R2          ; R31 <- PC+4, jumps to the address in R2",
+        "NOTES": "Does not use a label: the target address comes from register Rs. The link is always stored in R31 (same as JAL); no other destination register can be specified."
       },
       "TEXT_ONLY": "Only code labels (.text) are allowed."
     },
@@ -473,38 +476,40 @@
         "EXAMPLE": "SEQI R5, R1, #10  ; R5 <- (R1 == 10) ? 1 : 0"
       },
       "SLTI": {
-        "DESCRIPTION": "Comparisons with immediate in all variants (less than, greater than, less than or equal, greater than or equal, not equal). Names ending in U/UI use unsigned operands.",
+        "DESCRIPTION": "Comparisons with immediate in all variants (less than, greater than, less than or equal, greater than or equal, not equal). Names ending in UI use unsigned operands.",
         "EXAMPLE": "SLTI R5, R1, #100 ; R5 <- (R1 < 100) ? 1 : 0"
       }
     },
     "FLOAT": {
       "ADDF": {
         "DESCRIPTION": "Single precision arithmetic (32-bit IEEE 754). The result is stored in Fd. Any float register F0-F31 is valid.",
-        "EXAMPLE": "ADDF F1, F3, F5  ; F1 <- F3 + F5 (single precision)"
+        "EXAMPLE": "ADDF F1, F3, F5  ; F1 <- F3 + F5 (single precision)",
+        "NOTES": "Default latencies: ADDF/SUBF 2 cycles, MULTF 7 cycles and DIVF 24 cycles."
       },
       "ADDD": {
         "DESCRIPTION": "Double precision arithmetic (64-bit IEEE 754). Registers must be even (F0, F2, F4...).",
         "EXAMPLE": "MULTD F0, F2, F4 ; F0 <- F2 * F4 (double precision)",
-        "NOTES": "A double occupies the register pair Fn and Fn+1. Only Fn (the even one) is specified in the instruction."
+        "NOTES": "A double occupies the register pair Fn and Fn+1. Only Fn (the even one) is specified in the instruction. Default latencies: ADDD/SUBD 4 cycles, MULTD 14 cycles and DIVD 48 cycles."
       },
       "EQF": {
         "DESCRIPTION": "Single precision comparisons (32 bits). No destination register: the boolean result is written to the floating point condition bit (fpConditionBit). Use BFPT/BFPF to branch based on the result.\n\nAvailable mnemonics:\n- EQF - equal (==)\n- NEF - not equal (!=)\n- LTF - less than (<)\n- GTF - greater than (>)\n- LEF - less than or equal (<=)\n- GEF - greater than or equal (>=)\n- SLTF / SGTF / SLEF / SGEF - \"Set\" variants equivalent to LTF/GTF/LEF/GEF",
         "EXAMPLE": "LTF F1, F3       ; fpConditionBit <- (F1 < F3)\nBFPT less        ; jump if fpConditionBit = 1",
-        "NOTES": "No register is written. The BFPT instruction jumps if fpConditionBit=1; BFPF jumps if fpConditionBit=0."
+        "NOTES": "No register is written. The BFPT instruction jumps if fpConditionBit=1; BFPF jumps if fpConditionBit=0. Default latency: 2 cycles."
       },
       "EQD": {
         "DESCRIPTION": "Double precision comparisons (64 bits). No destination register: the result is written to fpConditionBit.\n\nAvailable mnemonics:\n- EQD - equal (==)\n- NED - not equal (!=)\n- LTD - less than (<)\n- GTD - greater than (>)\n- LED - less than or equal (<=)\n- GED - greater than or equal (>=)\n- SLTD / SGTD / SLED / SGED - \"Set\" variants equivalent to LTD/GTD/LED/GED",
         "EXAMPLE": "LED F0, F2       ; fpConditionBit <- (F0:F1 <= F2:F3)\nBFPT end",
-        "NOTES": "Registers must be even; each represents a 64-bit double together with the next register (Fn:Fn+1)."
+        "NOTES": "Registers must be even; each represents a 64-bit double together with the next register (Fn:Fn+1). Default latency: 4 cycles."
       },
       "CVTF2D": {
         "DESCRIPTION": "Conversion between single and double precision. CVTF2D converts SP->DP; CVTD2F converts DP->SP.",
-        "EXAMPLE": "CVTF2D F0, F5    ; converts F5 (SP) to DP in F0:F1"
+        "EXAMPLE": "CVTF2D F0, F5    ; converts F5 (SP) to DP in F0:F1",
+        "NOTES": "The double precision register (destination in CVTF2D, source in CVTD2F) must be even. Default latency of all conversions: 4 cycles."
       },
       "CVTI2D": {
         "DESCRIPTION": "Conversion between integer and float.\n- CVTI2D: integer (in F register) -> double in Fd:Fd+1\n- CVTI2F: integer (in F register) -> single in Fd\n- CVTD2I: double -> truncated 32-bit integer, destination in a float register Fd (the integer value is stored numerically in the float bank, not the integer bank)\n- CVTF2I: single -> truncated 32-bit integer, destination in a float register Fd (same as CVTD2I)",
         "EXAMPLE": "CVTI2D F0, F10   ; F0:F1 <- double(integer in F10)\nCVTD2I F3, F0    ; F3 <- trunc(F0:F1 as double)",
-        "NOTES": "CVTD2I and CVTF2I write their result to a float register (Fd), not an integer one, even though the result is a truncated integer value: the assembler requires the syntax 'CVTD2I Fd, Fs'. To move that value into an integer register (Rd) a subsequent MOVFP2I is needed. The DP destination of CVTI2D must be an even register."
+        "NOTES": "CVTD2I and CVTF2I write their result to a float register (Fd), not an integer one, even though the result is a truncated integer value: the assembler requires the syntax 'CVTD2I Fd, Fs'. To move that value into an integer register (Rd) a subsequent MOVFP2I is needed. The DP destination of CVTI2D and the DP source of CVTD2I must be even registers."
       },
       "MOVF": {
         "DESCRIPTION": "Copies a float register. MOVF copies single precision; MOVD copies a DP pair (Fd and Fd+1 <- Fs and Fs+1).",
@@ -517,12 +522,13 @@
       },
       "MOVI2S": {
         "DESCRIPTION": "Transfers the contents of the vector length register (VLR).\n- MOVI2S VLR, Rs: loads Rs into VLR (sets the number of active elements in vector operations).\n- MOVS2I Rd, VLR: copies the current VLR value to integer register Rd.",
-        "EXAMPLE": "ADDI R1, R0, #16\nMOVI2S VLR, R1   ; VLR <- 16 (process 16 elements)\nMOVS2I R2, VLR   ; R2 <- current VLR"
+        "EXAMPLE": "ADDI R1, R0, #16\nMOVI2S VLR, R1   ; VLR <- 16 (process 16 elements)\nMOVS2I R2, VLR   ; R2 <- current VLR",
+        "NOTES": "MOVI2S clamps the written value to the range [0, MVL]: if Rs is greater than MVL, VLR takes the value of MVL."
       },
       "MOVF2S": {
-        "DESCRIPTION": "Transfers the contents of the vector mask register (VM) to/from a float register treated as a 32-bit bitmask.\n- MOVF2S VM, Fs: the raw bits of Fs are interpreted as bitmask; VM[i] <- bit i of Fs (i=0..31); VM[32..63] <- 0.\n- MOVS2F Fd, VM: packs VM[0..31] into a 32-bit integer (bit i = VM[i]) and stores it as raw bits in Fd.",
+        "DESCRIPTION": "Transfers the contents of the vector mask register (VM) to/from a float register treated as a 32-bit bitmask.\n- MOVF2S VM, Fs: the raw bits of Fs are interpreted as bitmask; VM[i] <- bit i of Fs (i=0..31); VM[32..MVL-1] <- 0.\n- MOVS2F Fd, VM: packs VM[0..31] into a 32-bit integer (bit i = VM[i]) and stores it as raw bits in Fd.",
         "EXAMPLE": "MOVF2S VM, F0    ; VM <- bitmask(bits of F0)\nMOVS2F F1, VM    ; F1 <- packed bitmask of VM",
-        "NOTES": "Only 32 elements are represented in the float (32 bits). VM[32..63] are set to 0 in MOVF2S. Use CVM to reset VM to all-1s."
+        "NOTES": "Only 32 elements are represented in the float (32 bits). VM[32..MVL-1] are set to 0 in MOVF2S. Use CVM to reset VM to all-1s."
       },
       "POP": {
         "DESCRIPTION": "Population count of the vector mask. Counts the number of bits set to 1 in the vector mask register (VM) and stores the result in integer register Rd.",
@@ -532,8 +538,9 @@
     },
     "VECTOR": {
       "LV": {
-        "DESCRIPTION": "Loads (LV) or stores (SV) a complete vector. Elements are loaded/stored sequentially from base address Rs. The number of active elements is controlled by the vector length register (VLR).",
-        "EXAMPLE": "LV V0, R1        ; loads VLR elements from MEM[R1]"
+        "DESCRIPTION": "Loads (LV) or stores (SV) a vector, element by element, in consecutive memory positions starting at the base address.\n\n- Direct addressing (2 operands): the base address is the .data symbol indicated.\n- Indirect addressing (3 operands): the base address is Rs + offset.\n\nThe number of elements transferred is controlled by the vector length register (VLR).",
+        "EXAMPLE": "LV V0, vector_x  ; loads VLR elements from label vector_x\nLV V1, 0(R1)     ; loads VLR elements from MEM[R1]\nSV 0(R2), V1     ; stores VLR elements to MEM[R2]",
+        "NOTES": "Each element takes 8 bytes (double), so element i is read or written at base address + 8·i. Data is declared with .double. The base address must be 8-byte aligned: otherwise LV raises a misaligned address exception. With only two operands, the second one is always interpreted as a .data label, so LV V0, R1 is not valid: to use a register as base, write LV V0, 0(R1). Default latency of all vector memory accesses (LV, SV, LVWS, SVWS, LVI, SVI): 12 cycles."
       },
       "LVWS": {
         "DESCRIPTION": "Loads/stores a vector with stride. Rs2 contains the step in bytes between consecutive elements.",
@@ -541,12 +548,13 @@
       },
       "LVI": {
         "DESCRIPTION": "Indexed vector load/store. Each element uses its own offset stored in the index vector Vi.",
-        "EXAMPLE": "LVI V0, R1, V1   ; V0[i] <- MEM[R1 + V1[i]]"
+        "EXAMPLE": "LVI V0, R1, V1   ; V0[i] <- MEM[R1 + V1[i]]",
+        "NOTES": "Since each element takes 8 bytes, indices must be multiples of 8 so that the resulting addresses are aligned."
       },
       "ADDV": {
         "DESCRIPTION": "Vector-vector arithmetic. The operation is applied element by element over the VLR active elements.",
         "EXAMPLE": "ADDV V0, V1, V2  ; V0[i] <- V1[i] + V2[i]",
-        "NOTES": "With vector chaining enabled, these instructions can overlap when there are no data dependencies."
+        "NOTES": "With vector chaining enabled, an instruction that depends on the result of another (RAW dependency) can start consuming its elements as they are produced, without waiting for the full vector. Default latencies: ADDV/SUBV 6 cycles, MULTV 7 cycles and DIVV 20 cycles (the same for the scalar-vector and vector-scalar variants)."
       },
       "ADDSV": {
         "DESCRIPTION": "Scalar-vector arithmetic. The scalar (float register Fs) operates with each element of vector Vs.",
@@ -558,8 +566,8 @@
       },
       "CVI": {
         "DESCRIPTION": "Creates a vector of scaled indices in Vd. Each element i receives the value i x Rs, where Rs is the stride stored in an integer register.",
-        "EXAMPLE": "ADDI R1, R0, #4\nCVI V0, R1       ; V0 = [0, 4, 8, 12, ...]  (V0[i] <- i*4)",
-        "NOTES": "With Rs=1 generates the sequence 0,1,2,3,... useful as index vector for indirect accesses (LVI/SVI)."
+        "EXAMPLE": "ADDI R1, R0, #8\nCVI V0, R1       ; V0 = [0, 8, 16, 24, ...]  (V0[i] <- i*8)",
+        "NOTES": "With Rs=8 it generates the sequence 0, 8, 16, 24..., which serves as an index vector for indirect accesses (LVI/SVI) to consecutive elements, since indices are byte offsets and each element takes 8 bytes. With Rs=16 every other element would be accessed, and so on."
       },
       "CVM": {
         "DESCRIPTION": "Resets the vector mask to all 1s (all elements active).",
@@ -568,7 +576,7 @@
       "SEQV": {
         "DESCRIPTION": "Vector-vector comparison. The element-by-element boolean result is written directly to the vector mask register (VM): VM[i] <- condition(Vs1[i], Vs2[i]).",
         "EXAMPLE": "SLTV V1, V2      ; VM[i] <- (V1[i] < V2[i])",
-        "NOTES": "No explicit destination register; the result always goes to VM. Use CVM to reset the mask."
+        "NOTES": "No explicit destination register; the result always goes to VM. Use CVM to reset the mask. Default latency of all vector comparisons: 1 cycle."
       },
       "SEQSV": {
         "DESCRIPTION": "Scalar-vector comparison. VM[i] <- condition(Fs, Vs[i]).",
@@ -583,11 +591,13 @@
     },
     "DIRECTIVES": {
       "DATA": {
-        "DESCRIPTION": "Marks the beginning of the data segment. Following directives (.word, .space, .asciiz, etc.) reserve space in data memory.",
-        "EXAMPLE": ".data\nMyVar: .word 42"
+        "SYNTAX": ".data [address]",
+        "DESCRIPTION": "Marks the beginning of the data segment. Following directives (.word, .space, .asciiz, etc.) reserve space in data memory. Optionally accepts a start address: the following data is placed starting at that data memory address.",
+        "EXAMPLE": ".data\nMyVar: .word 42\n.data 0x1000     ; the following data starts at 0x1000\nX:     .double 1.0, 2.0"
       },
       "TEXT": {
-        "DESCRIPTION": "Marks the beginning of the code segment. Following instructions are assembled into instruction memory.",
+        "SYNTAX": ".text [offset]",
+        "DESCRIPTION": "Marks the beginning of the code segment. Following instructions are assembled into instruction memory. It is mandatory: every program must contain at least one .text directive. Optionally accepts an offset, relative to the start of user code (0x64, right after the vector table).",
         "EXAMPLE": ".text\nADDI R1, R0, #5"
       },
       "GLOBAL": {
@@ -604,15 +614,15 @@
         "EXAMPLE": "MyByte: .byte 0xFF"
       },
       "FLOAT": {
-        "DESCRIPTION": "Reserves 4 bytes and initializes with a single precision floating point value.",
+        "DESCRIPTION": "Reserves 4 bytes per value and initializes them with single precision floating point values.",
         "EXAMPLE": "Pi: .float 3.14159"
       },
       "DOUBLE": {
-        "DESCRIPTION": "Reserves 8 bytes and initializes with a double precision floating point value.",
+        "DESCRIPTION": "Reserves 8 bytes per value and initializes them with double precision floating point values. It is the element format of the vector registers (LV/SV).",
         "EXAMPLE": "E: .double 2.718281828"
       },
       "SPACE": {
-        "DESCRIPTION": "Reserves n uninitialized bytes (undefined content, generally 0).",
+        "DESCRIPTION": "Reserves n bytes in data memory. Their initial content is 0, since data memory is cleared before each program is loaded.",
         "EXAMPLE": "Buffer: .space 80"
       },
       "ASCII": {
@@ -625,21 +635,21 @@
         "NOTES": "Supports escape sequences: \\n (0x0A), \\t (0x09), \\r (0x0D), \\\\ (0x5C), \\\" (0x22), \\0 (0x00)."
       },
       "ALIGN": {
-        "DESCRIPTION": "Aligns the data pointer to the next multiple of 2^n bytes. Useful before .word or .double to meet alignment requirements.",
+        "DESCRIPTION": "Aligns the pointer of the current segment (data or code) to the next multiple of 2^n bytes. Useful before .word or .double to meet alignment requirements.",
         "EXAMPLE": ".align 2  ; aligns to 4 bytes (2^2)\n.word 0"
       }
     },
     "TRAPS": {
       "IAR": {
-        "SYNTAX": "(special implicit read-only register)",
-        "DESCRIPTION": "The IAR (Interrupt Address Register) is a special 32-bit register that automatically stores the return address (PC + 4 of the TRAP instruction) every time a TRAP instruction is executed. It is the hardware mechanism that allows returning to the interrupted program via RFE.",
-        "EXAMPLE": "TRAP 3           ; IAR <- PC(TRAP)+4 automatically\n; ... call handling ...\nRFE              ; PC <- IAR (returns)",
-        "NOTES": "The IAR is shown in the registers panel (integer bank, at the end). It resets to 0 when the processor restarts."
+        "SYNTAX": "(special implicit register, written by the processor)",
+        "DESCRIPTION": "The IAR (Interrupt Address Register) is a special 32-bit register written automatically by the processor:\n\n- When an exception occurs: IAR <- PC of the instruction that caused it. This is the address RFE uses to resume execution.\n- When a TRAP is executed: IAR <- PC + 4 (instruction following the TRAP).",
+        "EXAMPLE": "DIV R3, R1, R2   ; if R2 = 0: IAR <- PC of this DIV\n                 ; and jumps to the __divzero_handler handler",
+        "NOTES": "The IAR is shown in the registers panel (integer bank, at the end). No user instruction can write it. It resets to 0 when the processor restarts."
       },
       "RFE": {
-        "DESCRIPTION": "Returns from an interrupt or system call by restoring PC from IAR (Interrupt Address Register). Equivalent to an unconditional jump to the address stored in IAR and flushes incorrectly fetched instructions after the TRAP.",
-        "EXAMPLE": "TRAP 3           ; invokes system call, IAR <- PC+4\n; ... handling code ...\nRFE              ; PC <- IAR, continues after TRAP",
-        "NOTES": "RFE is a J-type instruction without operands. The destination is always IAR; it does not accept arguments."
+        "DESCRIPTION": "Returns from an exception handler. Loads PC with the address stored in IAR plus 4 (PC <- IAR + 4), clears the CAUSE register and flushes the instructions speculatively fetched after RFE. Since IAR holds the address of the instruction that caused the exception, execution resumes at the instruction following it.",
+        "EXAMPLE": "__divzero_handler:   ; reached when a DIV divides by 0\n  ADDI R3, R0, #0    ; handling: set the result to 0\n  RFE                ; PC <- IAR+4: resumes after the DIV",
+        "NOTES": "RFE is a J-type instruction without operands. The instruction that caused the exception is not executed again. TRAPs do not go through any handler (the simulator executes them directly), so there is no need to use RFE after a TRAP."
       },
       "TRAP0": {
         "DESCRIPTION": "Terminates program execution. The simulator stops the pipeline and marks execution as finished.",
@@ -651,22 +661,27 @@
         "NOTES": "Not implemented. Returns -1 to indicate error."
       },
       "TRAP2": {
-        "DESCRIPTION": "File close (NOP in this simulator). Returns 0 in R1.",
+        "DESCRIPTION": "File close (not supported in this simulator). Always returns -1 in R1.",
         "EXAMPLE": "TRAP 2"
       },
       "TRAP3": {
-        "DESCRIPTION": "Reads a line of text from standard input (stdin). R14 must point to a parameter block in data memory with the following structure:\n\n- MEM[R14+0] (word): file descriptor (0 = stdin)\n- MEM[R14+4] (word): destination buffer address\n- MEM[R14+8] (word): maximum number of bytes to read\n\nThe string ends with \\n (included) and a null byte.",
+        "DESCRIPTION": "Reads a line of text from standard input (stdin). R14 must point to a parameter block in data memory with the following structure:\n\n- MEM[R14+0] (word): file descriptor (0 = stdin)\n- MEM[R14+4] (word): destination buffer address\n- MEM[R14+8] (word): buffer size in bytes\n\nThe line read includes the trailing newline and is terminated with a null byte, so at most (size - 1) characters are stored; if the line is longer, it is truncated. On return, R1 holds the number of characters stored (not counting the null). Only descriptor 0 (stdin) is supported; with any other value, R1 receives -1.",
         "EXAMPLE": ".data\n  ReadBuffer: .space 80\n  ReadPar:    .word 0, ReadBuffer, 80\n.text\n  ADDI R14, R0, ReadPar\n  TRAP 3",
-        "NOTES": "Execution pauses until the user enters text in the stdout console. The simulator will show an inline prompt in the terminal."
+        "NOTES": "Execution pauses until the user enters text in the console. The simulator shows an inline prompt in the terminal."
       },
       "TRAP4": {
-        "DESCRIPTION": "Writes bytes to stdout or stderr. R14 points to a parameter block:\n\n- MEM[R14+0] (word): file descriptor (1 = stdout, 2 = stderr)\n- MEM[R14+4] (word): source buffer address\n- MEM[R14+8] (word): number of bytes to write",
-        "EXAMPLE": ".data\n  Msg:      .asciiz \"Hello\\n\"\n  WritePar: .word 1, Msg, 6\n.text\n  ADDI R14, R0, WritePar\n  TRAP 4"
+        "DESCRIPTION": "Writes bytes to stdout or stderr. R14 points to a parameter block:\n\n- MEM[R14+0] (word): file descriptor (1 = stdout, 2 = stderr)\n- MEM[R14+4] (word): source buffer address\n- MEM[R14+8] (word): number of bytes to write\n\nWrites exactly that number of bytes, without stopping at a null byte, so for an .asciiz string you must give its length without counting the null. On return, R1 holds the number of bytes written (-1 if the descriptor is not valid).",
+        "EXAMPLE": ".data\n  Msg:      .asciiz \"Hello\\n\"\n  .align 2\n  WritePar: .word 1, Msg, 6   ; 6 = length of \"Hello\\n\"\n.text\n  ADDI R14, R0, WritePar\n  TRAP 4"
       },
       "TRAP5": {
-        "DESCRIPTION": "Prints to stdout with printf-style formatting. R14 points to a block:\n\n- MEM[R14+0] (word): format string address (.asciiz)\n- MEM[R14+4], MEM[R14+8], ... : arguments according to string specifiers\n\nSupported specifiers:\n- %d - signed integer\n- %u - unsigned integer\n- %x - hexadecimal\n- %f / %g / %e - precision double\n- %s - text string\n- %c - character",
-        "EXAMPLE": ".data\n  Fmt:  .asciiz \"Factorial = %g\\n\"\n  Par:  .word Fmt\n  Val:  .space 8\n.text\n  SD Val(R0), F2\n  ADDI R14, R0, Par\n  TRAP 5",
+        "DESCRIPTION": "Prints to stdout with printf-style formatting. R14 points to a block:\n\n- MEM[R14+0] (word): format string address (.asciiz)\n- MEM[R14+4], MEM[R14+8], ... : arguments according to string specifiers\n\nSupported specifiers:\n- %d / %i - signed integer\n- %u - unsigned integer\n- %x / %X - hexadecimal\n- %f / %g / %e - double\n- %s - text string\n- %c - character\n- %% - writes the % symbol\n\nOn return, R1 holds the number of characters written.",
+        "EXAMPLE": ".data\n  Fmt:  .asciiz \"Factorial = %g\\n\"\n  .align 2\n  Par:  .word Fmt\n  Val:  .space 8\n.text\n  SD Val, F2\n  ADDI R14, R0, Par\n  TRAP 5",
         "NOTES": "Float/double arguments (%f, %g, %e) must be stored as double (8 bytes, 4-byte aligned) in the parameter block. Integers as word (4 bytes). Strings as word address."
+      },
+      "TRAP6": {
+        "DESCRIPTION": "Immediately stops program execution, discarding the following instructions and without modifying R1 or any other register, so the machine state stays exactly as it was when the TRAP was reached. It is the instruction held by the default handler (__default_handler, at address 0x60), which every exception jumps to when the user has not defined its own handler.",
+        "EXAMPLE": "TRAP 6           ; stops the processor immediately",
+        "NOTES": "Unlike TRAP 0, which ends the program in an orderly way, TRAP 6 is an emergency stop. It does not write anything to the console: the reason for the stop is shown in the Event log. Valid TRAP codes are 0 to 6."
       }
     },
     "CONFIG": {
@@ -833,42 +848,42 @@
       "OVERVIEW": {
         "NAME": "Exception System",
         "SYNTAX": "(hardware mechanism)",
-        "DESCRIPTION": "The simulator implements an exception system that handles abnormal conditions during program execution. When an exception occurs:\n\n1. The return address is saved in IAR (Interrupt Address Register)\n2. The exception code is stored in the CAUSE register\n3. The PC jumps to the corresponding handler address in the vector table\n4. The handler can use RFE to return to the interrupt point\n\nSupported exception types:\n- Arithmetic overflow\n- Division by zero\n- Misaligned memory address\n- Illegal instruction\n- System calls (TRAP)",
+        "DESCRIPTION": "The simulator implements an exception system that handles abnormal conditions during program execution. When an exception occurs:\n\n1. When the instruction reaches the write-back stage (WB, or RI in the superscalar), IAR stores the address of the instruction that caused it and CAUSE stores the exception code\n2. The following instructions in the pipeline are discarded\n3. The PC jumps to the corresponding vector table entry, which holds a J instruction to the handler\n4. The handler can end with RFE, which resumes at the instruction following the one that caused the exception\n\nSupported exception types:\n- Arithmetic overflow\n- Integer division by zero\n- Floating-point division by zero\n- Floating-point overflow\n- Floating-point underflow\n- Floating-point invalid operation (e.g. a NaN result)\n- Misaligned memory address\n- Memory address out of bounds\n- Illegal instruction\n\nSystem calls (TRAP) are not exceptions: the simulator executes them directly, without going through the vector table.",
         "NOTES": "Exceptions are precise: the processor state reflects exactly the point where the exception occurred."
       },
       "VECTORS": {
         "NAME": "Vector Table",
         "SYNTAX": "Addresses 0x00 - 0x5F",
-        "DESCRIPTION": "The exception vector table occupies low memory addresses (0x00 to 0x5F). Each entry is a 4-byte address pointing to the corresponding handler.\n\nTable addresses:\n- 0x00: Reset / Start\n- 0x04: Arithmetic overflow\n- 0x08: Division by zero\n- 0x0C: Misaligned address\n- 0x10: Illegal instruction\n- 0x14: External interrupt\n- 0x18-0x5F: Reserved for extensions\n\nWhen an exception occurs, the processor reads the handler address from the table and jumps to it.",
-        "EXAMPLE": "; Example vector table in .data\n.data\n.word __reset_handler\n.word __overflow_handler\n.word __divzero_handler\n.word __align_handler\n.word __illegal_handler"
+        "DESCRIPTION": "The exception vector table occupies the first addresses of instruction memory (0x00 to 0x5F). It is generated automatically by the assembler: each entry takes 4 bytes and holds a jump instruction (J) to the corresponding handler.\n\nTable addresses:\n- 0x00: Reset\n- 0x04: Arithmetic overflow\n- 0x08: Division by zero\n- 0x0C: Floating-point division by zero\n- 0x10: Floating-point overflow\n- 0x14: Floating-point underflow\n- 0x18: Floating-point invalid operation\n- 0x1C: Misaligned address\n- 0x20: Address out of bounds\n- 0x24: Illegal instruction\n- 0x28-0x3C: TRAP 0 to TRAP 5 (reserved: TRAPs are executed directly and never jump to them)\n- 0x40-0x5C: Reserved for extensions\n\nRight after the table, at 0x60, is the default handler (a TRAP 6 instruction), and user code starts at 0x64.\n\nWhen an exception occurs, the processor jumps to the corresponding table entry and the J instruction it holds takes it to the handler.",
+        "EXAMPLE": "; Contents generated automatically by the assembler\n; (you do not write it in your program)\n0x00:  J __reset_handler\n0x04:  J __overflow_handler\n0x08:  J __divzero_handler\n...\n0x60:  TRAP 6        ; __default_handler\n0x64:  ...           ; first user instruction"
       },
       "HANDLERS": {
         "NAME": "Predefined Handlers",
-        "DESCRIPTION": "The simulator recognizes special labels for exception handlers. If these labels are defined in the program, they will be used automatically when the corresponding exception occurs.\n\nPredefined labels:\n- __overflow_handler: Arithmetic overflow handler\n- __divzero_handler: Division by zero handler\n- __align_handler: Misaligned access handler\n- __illegal_handler: Illegal instruction handler\n- __default_handler: Default handler for uncovered exceptions\n\nIf no specific handler is defined, __default_handler is used. If it doesn't exist either, TRAP 6 (error termination) is executed.",
-        "EXAMPLE": ".text\n__overflow_handler:\n  ; save context if needed\n  ; handle the overflow\n  RFE              ; return to program",
-        "NOTES": "Handler names must start with double underscore (__) to be recognized by the assembler."
+        "DESCRIPTION": "The simulator recognizes special labels for exception handlers. If one of these labels is defined in the program, the corresponding vector table entry jumps to it when that exception occurs.\n\nRecognized labels:\n- __reset_handler: reset\n- __overflow_handler: arithmetic overflow\n- __divzero_handler: integer division by zero\n- __fp_divzero_handler: floating-point division by zero\n- __fp_overflow_handler: floating-point overflow\n- __fp_underflow_handler: floating-point underflow\n- __fp_invalid_handler: floating-point invalid operation\n- __mem_align_handler: misaligned address\n- __mem_bounds_handler: address out of bounds\n- __illegal_instr_handler: illegal instruction\n\nExceptions without a defined handler jump to the default handler (__default_handler, at 0x60), which executes TRAP 6.\n\n__trap_exit_handler, __trap_open_handler, __trap_close_handler, __trap_read_handler, __trap_write_handler and __trap_printf_handler are also recognized, but currently have no effect, since TRAPs do not go through the vector table.",
+        "EXAMPLE": ".text\n__overflow_handler:\n  ; handle the overflow\n  RFE              ; resumes after the faulting instruction",
+        "NOTES": "Handler names must match the ones in the list exactly, including the leading double underscore (__)."
       },
       "DEFAULT": {
-        "DESCRIPTION": "When an exception occurs and no handler is defined (neither specific nor __default_handler), the processor executes TRAP 6, which terminates the program with an error code.\n\nTRAP 6 behavior:\n- Stops program execution\n- Marks state as \"terminated with error\"\n- Shows an error message in console indicating the exception type\n- The CAUSE register contains the original exception code",
-        "EXAMPLE": "; If you don't define handlers, a division by zero\n; will automatically cause TRAP 6:\nDIV R1, R2, R0     ; R0=0 -> TRAP 6",
-        "NOTES": "It's recommended to define at least __default_handler to have control over unhandled exceptions."
+        "DESCRIPTION": "When an exception occurs and the program does not define its specific handler, the vector table jumps to the default handler (__default_handler, at address 0x60), which executes TRAP 6.\n\nTRAP 6 behavior:\n- Immediately stops program execution\n- Discards the following instructions and does not modify any register\n- Does not write anything to the console: the exception type appears in the Event log with the message \"EXCEPCIÓN PRECISA\", the instruction address and the exception code",
+        "EXAMPLE": "; If you don't define __divzero_handler, a division by zero\n; jumps to the default handler and executes TRAP 6:\nDIV R1, R2, R0     ; R0=0 -> stop with TRAP 6",
+        "NOTES": "To handle an exception you must define its specific handler (for example, __divzero_handler). The default handler is generated by the assembler and always stops the program."
       },
       "IAR": {
-        "SYNTAX": "(special read-only register)",
-        "DESCRIPTION": "The IAR (Interrupt Address Register) is a special 32-bit register that automatically stores the return address when an exception occurs or a TRAP instruction is executed.\n\nBehavior:\n- On exception: IAR <- PC of the instruction that caused the exception\n- On TRAP execution: IAR <- PC + 4 (next instruction)\n- The RFE instruction restores PC <- IAR\n\nThe IAR is hardware write-only; the program cannot modify it directly.",
-        "EXAMPLE": "ADD R1, R2, R3   ; address 0x100\n; if overflow, IAR = 0x100\n; the handler can use RFE to retry or\n; modify R1 and continue",
+        "SYNTAX": "(special register, written by the processor)",
+        "DESCRIPTION": "The IAR (Interrupt Address Register) is a special 32-bit register written automatically by the processor.\n\nBehavior:\n- On exception: IAR <- PC of the instruction that caused the exception\n- On TRAP execution: IAR <- PC + 4 (next instruction)\n- The RFE instruction does PC <- IAR + 4, that is, it resumes at the instruction following the one that caused the exception\n\nOnly the processor itself can write it: the program cannot modify it.",
+        "EXAMPLE": "ADD R1, R2, R3   ; address 0x100\n; if overflow, IAR = 0x100\n; when the handler ends, RFE resumes at 0x104\n; (the ADD is not executed again)",
         "NOTES": "The IAR is shown in the simulator's register panel, at the end of the integer register bank."
       },
       "CAUSE": {
-        "SYNTAX": "(special register)",
-        "DESCRIPTION": "The CAUSE register stores the numeric code identifying the type of exception that occurred. It is automatically updated by hardware when an exception occurs.\n\nCause codes:\n- 0: Reset\n- 1: Arithmetic overflow\n- 2: Division by zero\n- 3: Misaligned address\n- 4: Illegal instruction\n- 5: External interrupt\n- 6-15: Reserved\n\nThe exception handler can read CAUSE to determine what type of exception occurred and act accordingly.",
-        "EXAMPLE": "__default_handler:\n  ; CAUSE contains the exception code\n  ; the handler can use it to decide\n  ; how to proceed\n  RFE",
-        "NOTES": "CAUSE can be read with MOVS2I to load it into an integer register and make decisions based on the exception type."
+        "SYNTAX": "(internal special register)",
+        "DESCRIPTION": "The CAUSE register stores the code identifying the type of exception that occurred. It is updated by the processor when the exception occurs and cleared when RFE is executed.\n\nPossible values:\n- ARITHMETIC_OVERFLOW\n- DIVISION_BY_ZERO\n- FP_DIVISION_BY_ZERO\n- FP_OVERFLOW\n- FP_UNDERFLOW\n- FP_INVALID_OPERATION\n- MEMORY_ALIGNMENT_ERROR\n- MEMORY_OUT_OF_BOUNDS\n- ILLEGAL_INSTRUCTION\n- UNKNOWN",
+        "EXAMPLE": "; CAUSE cannot be read from the program.\n; Each exception type has its own handler,\n; so the handler already knows what happened:\n__mem_align_handler:\n  ; here CAUSE = MEMORY_ALIGNMENT_ERROR\n  RFE",
+        "NOTES": "CAUSE is an internal register: it is not shown in the registers panel and cannot be read by any instruction. The exception code can be checked in the Event log."
       },
       "RFE": {
-        "DESCRIPTION": "Instruction that returns from an exception handler by restoring PC from IAR. It is equivalent to an unconditional jump to the address stored in IAR.\n\nRFE effects:\n1. PC <- IAR (restores execution flow)\n2. Flushes incorrectly fetched pipeline instructions\n3. Restores normal execution mode\n\nRFE is a J-type instruction without operands.",
-        "EXAMPLE": "__overflow_handler:\n  ; The overflow already occurred, the result is\n  ; undefined. We can:\n  ; 1. Saturate the result\n  ; 2. Log the error and continue\n  ; 3. Terminate the program\n  \n  ; Option 2: continue after error\n  RFE              ; returns to PC saved in IAR",
-        "NOTES": "If RFE is used without a previous exception, the behavior depends on the current IAR value (which may be 0 or garbage)."
+        "DESCRIPTION": "Instruction that returns from an exception handler.\n\nRFE effects:\n1. PC <- IAR + 4: execution resumes at the instruction following the one that caused the exception (which is not executed again)\n2. Clears the CAUSE register\n3. Flushes the instructions speculatively fetched after RFE\n\nRFE is a J-type instruction without operands.",
+        "EXAMPLE": "__overflow_handler:\n  ; The overflow already occurred, the result is\n  ; undefined. We can:\n  ; 1. Saturate the result\n  ; 2. Log the error and continue\n  ; 3. Terminate the program (TRAP 0)\n  \n  ; Option 2: continue after error\n  RFE              ; PC <- IAR+4",
+        "NOTES": "If RFE is used without a previous exception, it jumps to IAR + 4 with whatever value IAR holds at that moment (0 after restarting the processor, or the address following the last executed TRAP)."
       }
     },
     "EXAMPLES": {
