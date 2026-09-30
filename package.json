@@ -1,6 +1,7 @@
 {
   "name": "super-asgard-v",
   "version": "1.0.0",
+  "license": "EUPL-1.2",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
