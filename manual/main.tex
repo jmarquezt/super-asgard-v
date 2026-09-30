@@ -1,0 +1,234 @@
+% MANUAL DE USUARIO - Super Asgard-V
+%
+% Documento principal: portada + control de versiones + índices.
+% Compilar con pdflatex DOS veces: la portada usa "remember picture" y el índice se genera a partir del .toc de la pasada anterior.
+\documentclass[12pt,a4paper,oneside,openany]{book}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish,es-tabla]{babel}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[papersize={210mm,297mm},tmargin=25mm,bmargin=25mm,lmargin=20mm,rmargin=20mm]{geometry}
+\setlength{\headheight}{16pt}
+
+% No indentar los párrafos y separarlos 1em
+\setlength\parindent{0cm}
+\setlength\parskip{1em}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+
+% --- Paquetes que necesita manual.tex
+\usepackage{subfiles}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{hyperref}
+
+% Títulos de capítulo sin el espacio enorme por defecto
+\titleformat{\chapter}[display]
+{\normalfont\huge\bfseries}{\chaptertitlename\ \thechapter}{20pt}{\Huge}
+\titlespacing*{\chapter}{0pt}{-50pt}{40pt}
+
+% \paragraph como título de bloque: el contenido empieza en la línea siguiente
+\setcounter{secnumdepth}{4}
+\titleformat{\paragraph}{\normalfont\normalsize\bfseries}{\theparagraph}{1em}{}
+\titlespacing*{\paragraph}{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+
+% Los espacios sobrantes van al final de página, no entre el texto
+\raggedbottom
+
+% Rutas donde buscar las capturas del manual
+\graphicspath{{./}{./img/}{./imagenes/}{./figuras/}}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  urlcolor=blue,
+  pdftitle={Super Asgard-V: Manual de Usuario},
+  pdfauthor={Jorge Márquez Torres}
+}
+
+% Listados de código
+\addto\captionsspanish{
+  \renewcommand{\lstlistingname}{Listado}
+  \renewcommand{\lstlistlistingname}{Índice de listados}
+}
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\lstdefinestyle{asgardstyle}{
+  commentstyle=\color{codegreen},
+  keywordstyle=\color{blue},
+  stringstyle=\color{codepurple},
+  backgroundcolor=\color{backcolour},
+  basicstyle=\footnotesize\ttfamily\color{black},
+  belowcaptionskip=1\baselineskip,
+  breakatwhitespace=false,
+  breaklines=true,
+  captionpos=b,
+  escapeinside={\%*}{*)},
+  firstnumber=1,
+  frame=single,
+  keepspaces=true,
+  numbers=left,
+  numbersep=10pt,
+  numberstyle=\tiny\color{gray},
+  rulecolor=\color{black},
+  showspaces=false,
+  showstringspaces=false,
+  showtabs=false,
+  stepnumber=1,
+  tabsize=2,
+  title=\lstname,
+  xleftmargin=1.5cm,
+  % Tildes y eñes en los listados (listings no soporta UTF-8 directamente)
+  literate={á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+           {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+           {ñ}{{\~n}}1 {Ñ}{{\~N}}1
+}
+\lstset{style=asgardstyle}
+
+% Cabeceras: número de página y capítulo actual
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\leftmark}
+\fancyfoot[C]{\thepage}
+
+% Páginas de inicio de capítulo: sin cabecera, número abajo centrado
+\fancypagestyle{plain}{%
+  \fancyhf{}%
+  \fancyfoot[C]{\thepage}%
+  \renewcommand{\headrulewidth}{0pt}%
+}
+
+% --- Datos de la portada
+\newcommand{\portadaTitulo}{Super Asgard-V}
+\newcommand{\portadaSubtitulo}{Un simulador moderno para aprender arquitectura de computadores, \\directamente en el navegador}
+\newcommand{\portadaDocumento}{Manual de Usuario}
+\newcommand{\portadaAutor}{Jorge Márquez Torres}
+\newcommand{\portadaDirector}{José Sánchez Moreno}
+\newcommand{\portadaFecha}{2026}
+
+% --- Colores (los mismos que usa la aplicación)
+\definecolor{asgNavy}{HTML}{0F172A}
+\definecolor{asgNavyLight}{HTML}{1E3A5F}
+\definecolor{asgAccent}{HTML}{3B82F6}
+\definecolor{asgSlate}{HTML}{94A3B8}
+\definecolor{asgFlame}{HTML}{F97316}
+\definecolor{asgFlameCore}{HTML}{FACC15}
+
+% --- Logo: cohete (inspirado en el icono "rocket_launch" de la app)
+\newcommand{\asgRocket}{%
+  % Llama
+  \fill[asgFlame] (-0.45,-1.55) .. controls (-0.55,-2.3) and (-0.1,-2.8) .. (0,-3.3)
+                  .. controls (0.1,-2.8) and (0.55,-2.3) .. (0.45,-1.55) -- cycle;
+  \fill[asgFlameCore] (-0.25,-1.55) .. controls (-0.3,-2.0) and (-0.05,-2.35) .. (0,-2.6)
+                      .. controls (0.05,-2.35) and (0.3,-2.0) .. (0.25,-1.55) -- cycle;
+  % Aletas
+  \fill[asgAccent] (-0.8,-0.1) -- (-1.65,-0.95) -- (-1.65,-1.85) -- (-0.8,-1.2) -- cycle;
+  \fill[asgAccent] ( 0.8,-0.1) -- ( 1.65,-0.95) -- ( 1.65,-1.85) -- ( 0.8,-1.2) -- cycle;
+  % Tobera
+  \fill[asgSlate] (-0.55,-1.2) rectangle (0.55,-1.55);
+  % Cuerpo
+  \fill[white] (-0.8,-1.2) -- (-0.8,1.0)
+               .. controls (-0.8,2.2) and (-0.3,3.0) .. (0,3.45)
+               .. controls (0.3,3.0) and (0.8,2.2) .. (0.8,1.0)
+               -- (0.8,-1.2) -- cycle;
+  % Aleta central
+  \fill[asgAccent] (-0.12,-0.4) rectangle (0.12,-1.2);
+  % Ventana
+  \fill[asgAccent] (0,1.3) circle (0.42);
+  \fill[asgNavy]   (0,1.3) circle (0.28);
+  \fill[white, opacity=0.8] (-0.08,1.4) circle (0.07);
+}
+
+\begin{document}
+
+\begin{titlepage}
+\begin{tikzpicture}[remember picture, overlay]
+  % Coordenadas relativas a la página
+  \coordinate (NO) at (current page.north west);
+  \coordinate (SE) at (current page.south east);
+  \coordinate (corte) at ($(current page.north)!0.62!(current page.south)$);
+
+  % Zona superior oscura
+  \shade[top color=asgNavy, bottom color=asgNavyLight]
+    (NO) rectangle (SE |- corte);
+
+  % Estrellas
+  \foreach \x/\y/\r in {
+      1.6/-2.1/0.035, 3.4/-4.3/0.025, 5.2/-1.5/0.03, 2.3/-7.8/0.03,
+      4.1/-10.9/0.025, 1.3/-12.6/0.035, 6.6/-6.2/0.02, 7.9/-2.8/0.03,
+      13.4/-1.9/0.025, 15.2/-4.6/0.035, 17.8/-2.4/0.03, 19.4/-5.8/0.025,
+      18.6/-9.4/0.035, 16.3/-11.8/0.025, 19.8/-13.1/0.03, 12.2/-12.9/0.02,
+      9.4/-1.1/0.02, 11.1/-3.6/0.025, 14.6/-8.1/0.02, 3.0/-15.4/0.025,
+      18.1/-16.2/0.03, 7.2/-14.8/0.02} {
+    \fill[white, opacity=0.7] ($(NO)+(\x,\y)$) circle (\r);
+  }
+
+  % Halo y logo
+  \coordinate (logo) at ($(current page.north)+(0,-6.6)$);
+  \fill[asgAccent, opacity=0.10] (logo) circle (3.9);
+  \fill[asgAccent, opacity=0.14] (logo) circle (2.9);
+  \begin{scope}[shift={(logo)}, rotate=-40, scale=1.05]
+    \asgRocket
+  \end{scope}
+
+  % Título y subtítulo
+  \node[anchor=north, text=white, font=\sffamily\bfseries\fontsize{46}{50}\selectfont]
+    at ($(current page.north)+(0,-11.4)$) {\portadaTitulo};
+  \node[anchor=north, text=asgSlate, align=center, font=\sffamily\large]
+    at ($(current page.north)+(0,-13.5)$) {\portadaSubtitulo};
+
+  % Línea de acento
+  \fill[asgAccent] ($(NO |- corte)+(0,0.12)$) rectangle ($(SE |- corte)+(0,-0.12)$);
+
+  % Zona inferior clara
+  \node[anchor=north, text=asgNavy, font=\sffamily\bfseries\fontsize{30}{34}\selectfont]
+    at ($(corte)+(0,-2.3)$) {\portadaDocumento};
+  \fill[asgAccent] ($(corte)+(-1.5,-4.0)$) rectangle ($(corte)+(1.5,-4.08)$);
+
+  \node[anchor=north, align=center, font=\sffamily]
+    at ($(corte)+(0,-5.2)$) {%
+      \begin{tabular}{r@{\hspace{0.6cm}}l}
+        {\color{asgSlate}\small AUTOR}    & {\color{asgNavy}\Large \portadaAutor} \\[0.45cm]
+        {\color{asgSlate}\small DIRECTOR} & {\color{asgNavy}\Large \portadaDirector} \\
+      \end{tabular}};
+
+  \node[anchor=south, text=asgSlate, font=\sffamily]
+    at ($(current page.south)+(0,1.6)$) {\portadaFecha};
+\end{tikzpicture}
+\end{titlepage}
+
+% ÍNDICE
+\frontmatter
+
+% CONTROL DE VERSIONES
+% Para una nueva versión, añadir una fila al final de la tabla.
+\chapter*{Control de versiones}
+
+\begin{tabularx}{\textwidth}{@{}l l l X@{}}
+  \toprule
+  \textbf{Versión} & \textbf{Fecha} & \textbf{Autor} & \textbf{Descripción} \\
+  \midrule
+  1.0 & 30/09/2026 & \portadaAutor & Versión inicial del manual de usuario. \\
+  \bottomrule
+\end{tabularx}
+
+\tableofcontents
+\listoffigures
+\lstlistoflistings
+
+% CONTENIDO
+\mainmatter
+\subfile{instalacion}
+\subfile{manual}
+\subfile{catalogo}
+
+\end{document}

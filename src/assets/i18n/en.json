@@ -18,6 +18,8 @@
   "DOCS": {
     "SEARCH_PLACEHOLDER": "Search...",
     "BACK": "Back to index",
+    "MANUAL_PDF": "User manual (PDF)",
+    "MANUAL_PDF_DOWNLOAD": "Download user manual (PDF)",
     "DESCRIPTION": "Description",
     "OPERAND": "Operand",
     "EXAMPLE": "Example",

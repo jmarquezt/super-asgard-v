@@ -1,0 +1,134 @@
+\documentclass[../main.tex]{subfiles}
+
+\begin{document}
+\chapter{Manual de instalación}
+\label{C:instalacion}
+\lstset{style=asgardstyle, gobble=1}
+
+Este capítulo describe cómo iniciar la aplicación desarrollada ``Super Asgard-V''. La aplicación está disponible en \url{https://jmarquezt.github.io/super-asgard-v/}. Si se desea hacer una instalación local, se proporcionan dos posibilidades: instalación nativa en el servidor o equipo elegidos e instalación utilizando un contenedor Docker. Ambos caminos producen el mismo resultado, la aplicación servida a través de un servidor web y accesible por el navegador.
+
+\section{Requisitos previos}
+
+\begin{itemize}
+	\item \textbf{Git}, para clonar el repositorio.
+	\item \textbf{Node.js 22} y \textbf{npm} (incluido en Node.js); necesarios para la instalación nativa.
+	\item \textbf{Docker Engine} y el plugin \textbf{Docker Compose} (\texttt{docker compose}); necesarios para la instalación con contenedores. No hace falta tener Node.js instalado en el sistema anfitrión en este caso: la imagen de Docker proporcionada ya lo incluye.
+	\item Un navegador web moderno (Chrome, Firefox, Edge) con JavaScript habilitado.
+\end{itemize}
+
+\section{Instalación nativa en Linux}
+
+Se exponen los pasos necesarios para realizar la instalación en un sistema Linux o en Windows usando el subsistema de Windows para Linux (WSL).
+
+\subsection{Obtener el código fuente}
+
+El Listado~\ref{lst:obtener-codigo} presenta los comandos necesarios para descargar el código fuente de la aplicación en la carpeta deseada.
+
+\begin{lstlisting}[caption={Comandos para obtener el código fuente.},label={lst:obtener-codigo}]
+	cd /carpeta-deseada
+	git clone https://github.com/jmarquezt/super-asgard-v.git super-asgard-v
+	cd super-asgard-v
+\end{lstlisting}
+
+\subsection{Instalar dependencias}
+
+Se recomienda utilizar \texttt{npm ci} en lugar de \texttt{npm install}: instala exactamente las versiones fijadas en \texttt{package-lock.json}, garantizando una instalación reproducible (es el mismo comando que usan el despliegue automático con GitHub Actions y el desarrollo). El Listado~\ref{lst:generar-dependencias} presenta el comando necesario para descargar e instalar las dependencias del proyecto.
+
+\begin{lstlisting}[caption={Comando para instalar las dependencias.},label={lst:generar-dependencias}]
+	npm ci
+\end{lstlisting}
+
+\subsection{Ejecutar en modo desarrollo}
+
+El comando \texttt{npm start} levanta un servidor de desarrollo con recarga automática al modificar el código fuente. El Listado~\ref{lst:servidor-desarrollo} presenta el comando necesario para ejecutar la aplicación en modo desarrollo.
+
+\begin{lstlisting}[caption={Comando para levantar el servidor de desarrollo.},label={lst:servidor-desarrollo}]
+	npm start
+\end{lstlisting}
+
+La aplicación es accesible desde el navegador en \url{http://localhost:4200}.
+
+\subsection{Generar la build de producción}
+
+\begin{lstlisting}[caption={Comando para compilar la aplicación en modo producción.},label={lst:compilar-produccion}]
+	npm run build
+\end{lstlisting}
+
+El comando del Listado~\ref{lst:compilar-produccion} genera los ficheros estáticos compilados y optimizados en \path{dist/super-asgard-v/browser/}. Al tratarse de una aplicación estática (sin backend), cualquier servidor web puede publicarlos; por ejemplo, \texttt{http-server} (paquete de npm, se instala una sola vez con \texttt{npm install -g http-server}) o servidores como Nginx o Apache:
+
+\begin{lstlisting}[caption={Comando para iniciar un servidor web.},label={lst:servidor-web}]
+	http-server dist/super-asgard-v/browser -p 8080
+\end{lstlisting}
+
+Usando \texttt{http-server} como se muestra en el Listado~\ref{lst:servidor-web}, la aplicación es accesible desde el navegador en \url{http://localhost:8080}.
+
+\subsection{Ejecutar la suite de pruebas (opcional)}
+
+El Listado~\ref{lst:ejecutar-pruebas} presenta los comandos que hay que ejecutar para lanzar la suite de pruebas deseada.
+
+\begin{lstlisting}[caption={Comandos para ejecutar la suite de pruebas.},label={lst:ejecutar-pruebas}]
+	npm test               # suite completa
+	npm run coverage       # suite completa + informe de cobertura
+	npm run test:unit      # solo pruebas unitarias
+	npm run test:integration  # solo pruebas de integración de componentes
+	npm run test:functional   # solo pruebas funcionales (programas ASG completos)
+\end{lstlisting}
+
+\section{Instalación con Docker}
+
+El repositorio incluye un \texttt{Dockerfile} multi-etapa y un \texttt{docker-compose.yml} en su raíz, pensados para desplegar la aplicación sin necesidad de tener instaladas las dependencias en la máquina anfitriona.
+
+\subsection{Cómo está construida la imagen}
+
+El \texttt{Dockerfile} define dos etapas:
+
+\begin{enumerate}
+	\item \textbf{Compilación}: la imagen (\texttt{node:22-alpine}) copia el código fuente, ejecuta \texttt{npm ci} y compila la aplicación en modo producción con \texttt{ng build --configuration production}, generando \path{dist/super-asgard-v/browser}.
+	\item \textbf{Servidor}: la imagen (\texttt{nginx:alpine}) copia únicamente los ficheros estáticos generados en la etapa anterior a \path{/usr/share/nginx/html} y expone el puerto 80. La imagen final no contiene Node.js ni el código fuente, solo un servidor Nginx sirviendo los ficheros compilados.
+\end{enumerate}
+
+El fichero \texttt{docker-compose.yml} define un único servicio (\texttt{super-asgard-v}) que arranca esta última imagen y mapea el puerto 80 del contenedor al puerto \textbf{4815} de la máquina anfitriona, con reinicio automático (\texttt{restart: always}).
+
+\subsection{Construir y levantar el contenedor}
+
+Como \texttt{docker-compose.yml} referencia la imagen por nombre (\texttt{super-asgard-v:latest}) sin una sección \texttt{build:}, hay que construirla explícitamente con \texttt{docker build} antes de levantar el servicio la primera vez (y cada vez que el código fuente cambie) tal y como se muestra en el Listado~\ref{lst:compilar-imagen}.
+
+\begin{lstlisting}[caption={Comandos para construir la imagen de la aplicación.},label={lst:compilar-imagen}]
+	# 1. Construir la imagen a partir del Dockerfile del repositorio
+	docker build -t super-asgard-v:latest .
+	
+	# 2. Levantar el contenedor en segundo plano
+	docker compose up -d
+\end{lstlisting}
+
+La aplicación queda disponible en \url{http://localhost:4815}.
+
+\subsection{Otras operaciones habituales}
+
+El Listado~\ref{lst:comandos-docker} presenta una serie de comandos habituales para trabajar con Docker.
+
+\begin{lstlisting}[caption={Comandos para realizar operaciones habituales con Docker.},label={lst:comandos-docker}]
+	docker compose logs -f      # ver los logs de Nginx en tiempo real
+	docker compose down         # parar y eliminar el contenedor
+	docker compose up -d --force-recreate   # reiniciar tras reconstruir la imagen
+\end{lstlisting}
+
+\subsection{Cambiar el puerto publicado}
+
+Si el puerto 4815 ya está en uso en la máquina anfitriona, basta con editar el mapeo de puertos en \texttt{docker-compose.yml} (el número de la izquierda es el del anfitrión; el de la derecha, 80, es interno del contenedor y no debe cambiarse) como se muestra en el Listado~\ref{lst:codigo-docker}.
+
+\begin{lstlisting}[caption={Código modificado con otro puerto.},label={lst:codigo-docker}]
+	ports:
+	- "8080:80"   # la aplicación pasaría a estar en http://localhost:8080
+\end{lstlisting}
+
+\subsection{Solución de problemas}
+
+\begin{itemize}
+	\item \textbf{\texttt{npm ci} falla con un error de versión de Node}: comprobar con \texttt{node -v} que la versión instalada es 22.x. Herramientas como \texttt{nvm} permiten tener varias versiones de Node conviviendo en el mismo sistema.
+	\item \textbf{El puerto 4200, 4815 u 8080 ya está en uso}: liberar el puerto (\texttt{lsof -i :4200} en Linux para ver qué proceso lo ocupa) o publicar la aplicación en otro puerto siguiendo las instrucciones de la sección anterior.
+	\item \textbf{Docker no encuentra la imagen \texttt{super-asgard-v:latest}}: falta ejecutar \texttt{docker build} antes de \texttt{docker compose up}: \texttt{docker-compose.yml} no construye la imagen automáticamente, solo la referencia por nombre.
+	\item \textbf{Cambios en el código no se reflejan tras reconstruir la imagen}: Docker puede reutilizar capas en caché; para forzar una reconstrucción completa se puede utilizar \texttt{docker build --no-cache -t super-asgard-v:latest .}
+\end{itemize}
+	
+\end{document}
