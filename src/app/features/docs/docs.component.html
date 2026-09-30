@@ -14,6 +14,11 @@
         />
       </div>
 
+      <a class="sidebar-manual-link" [href]="manualPdfUrl" download="manual-usuario.pdf">
+        <mat-icon>download</mat-icon>
+        <span>{{ t('DOCS.MANUAL_PDF') }}</span>
+      </a>
+
       <nav class="sidebar-nav">
         @for (section of filteredSections(); track section.id) {
           <div class="section-group">
@@ -131,6 +136,10 @@
             </div>
             <h2>{{ t('DOCS.WELCOME_TITLE') }}</h2>
             <p>{{ t('DOCS.WELCOME_TEXT') }}</p>
+            <a class="welcome-manual-btn" [href]="manualPdfUrl" download="manual-usuario.pdf">
+              <mat-icon>download</mat-icon>
+              <span>{{ t('DOCS.MANUAL_PDF_DOWNLOAD') }}</span>
+            </a>
           </div>
 
           <div class="welcome-grid">

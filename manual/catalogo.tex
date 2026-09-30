@@ -1,0 +1,1143 @@
+\documentclass[../main.tex]{subfiles}
+
+\begin{document}
+\chapter{Catálogo de instrucciones}
+\label{C:catalogo}
+\lstset{style=asgardstyle}
+
+Este capítulo contiene la ISA del simulador desarrollado. Se han agrupado las instrucciones implementadas según su tipo y sus operandos.
+
+\section{Aritmética y lógica entera}
+
+En esta sección se listan las operaciones aritméticas y lógicas que operan con registros.
+
+\paragraph*{ADD --- \texttt{ADD Rd, Rs1, Rs2}}
+Suma aritmética de enteros con signo. Realiza la operación Rd = Rs1 + Rs2. El hardware detecta desbordamiento aritmético si el resultado no puede representarse en 32 bits con signo.
+
+\textit{Operandos:} Rd: Registro destino. Rs1: Primer operando fuente. Rs2: Segundo operando fuente.
+El Listado~\ref{lst:instr-add}presenta un ejemplo de construcción de la instrucción \texttt{ADD}.
+
+\begin{lstlisting}[caption={ADD},label={lst:instr-add}]
+	ADD R3, R1, R2   ; R3 = R1 + R2
+\end{lstlisting}
+
+\paragraph*{ADDU --- \texttt{ADDU Rd, Rs1, Rs2}}
+Suma aritmética de enteros sin signo. Rd = Rs1 + Rs2. A diferencia de ADD, esta instrucción no genera excepciones por desbordamiento (overflow); el resultado simplemente se trunca a 32 bits.
+
+\textit{Operandos:} Rd: Registro destino. Rs1: Primer operando fuente. Rs2: Segundo operando fuente.
+El Listado~\ref{lst:instr-addu}presenta un ejemplo de construcción de la instrucción \texttt{ADDU}.
+
+\begin{lstlisting}[caption={ADDU},label={lst:instr-addu}]
+	ADDU R3, R1, R2  ; Suma sin riesgo de excepcion
+\end{lstlisting}
+
+\paragraph*{SUB --- \texttt{SUB Rd, Rs1, Rs2}}
+Resta aritmética de enteros con signo. Rd = Rs1 - Rs2. Genera una excepción de ARITHMETIC\_OVERFLOW si el resultado excede el rango de 32 bits.
+
+\textit{Operandos:} Rd: Registro destino. Rs1: Primer operando fuente. Rs2: Segundo operando fuente.
+El Listado~\ref{lst:instr-sub}presenta un ejemplo de construcción de la instrucción \texttt{SUB}.
+
+\begin{lstlisting}[caption={SUB},label={lst:instr-sub}]
+	SUB R3, R5, R2   ; R3 = R5 - R2
+\end{lstlisting}
+
+\paragraph*{SUBU --- \texttt{SUBU Rd, Rs1, Rs2}}
+Resta aritmética de enteros sin signo. Rd = Rs1 - Rs2. A diferencia de SUB, esta instrucción no genera excepciones por desbordamiento (overflow); el resultado simplemente se trunca a 32 bits.
+
+\textit{Operandos:} Rd: Registro destino. Rs1: Primer operando fuente. Rs2: Segundo operando fuente.
+El Listado~\ref{lst:instr-subu}presenta un ejemplo de construcción de la instrucción \texttt{SUBU}.
+
+\begin{lstlisting}[caption={SUBU},label={lst:instr-subu}]
+	SUBU R3, R5, R2   ; R3 = R5 - R2
+\end{lstlisting}
+
+\paragraph*{MULT --- \texttt{MULT Rd, Rs1, Rs2}}
+Multiplicación de enteros de 32 bits con signo. Esta operación por defecto tiene una latencia mayor, de 7 ciclos. Esta instrucción no genera excepciones por desbordamiento (overflow); el resultado simplemente se trunca a 32 bits.
+
+\textit{Operandos:} Rd: Registro destino. Rs1: Primer operando fuente. Rs2: Segundo operando fuente.
+El Listado~\ref{lst:instr-mult} presenta un ejemplo de construcción de la instrucción \texttt{MULT}.
+
+\begin{lstlisting}[caption={MULT},label={lst:instr-mult}]
+	MULT R4, R2, R3  ; R4 = R2 * R3
+\end{lstlisting}
+
+\paragraph*{MULTU --- \texttt{MULTU Rd, Rs1, Rs2}}
+Multiplicación de enteros sin signo. Esta operación por defecto tiene una latencia mayor, de 7 ciclos. Esta instrucción no genera excepciones por desbordamiento (overflow); el resultado simplemente se trunca a 32 bits.
+
+\textit{Operandos:} Rd: Registro destino. Rs1: Primer operando fuente. Rs2: Segundo operando fuente.
+El Listado~\ref{lst:instr-multu} presenta un ejemplo de construcción de la instrucción \texttt{MULTU}.
+
+\begin{lstlisting}[caption={MULTU},label={lst:instr-multu}]
+	MULTU R4, R2, R3  ; R4 = R2 * R3
+\end{lstlisting}
+
+\paragraph*{DIV --- \texttt{DIV Rd, Rs1, Rs2}}
+División entera con signo. Rd = Rs1 / Rs2. Es la operación entera más lenta, por defecto tiene una latencia de 24 ciclos.
+
+\textit{Operandos:} Rd: Registro destino. Rs1: Primer operando fuente. Rs2: Segundo operando fuente.
+El Listado~\ref{lst:instr-div} presenta un ejemplo de construcción de la instrucción \texttt{DIV}.
+
+\begin{lstlisting}[caption={DIV},label={lst:instr-div}]
+	DIV R4, R6, R2   ; R4 = R6 / R2
+\end{lstlisting}
+\textit{Notas:} Si el divisor (Rs2) es cero, se genera una excepción de DIVISION\_BY\_ZERO.
+
+\paragraph*{DIVU --- \texttt{DIVU Rd, Rs1, Rs2}}
+División entera sin signo. Rd = Rs1 / Rs2 tratando ambos operandos como valores sin signo de 32 bits. Es la operación entera más lenta, por defecto tiene una latencia de 24 ciclos.
+
+\textit{Operandos:} Rd: Registro destino. Rs1: Primer operando fuente. Rs2: Segundo operando fuente.
+El Listado~\ref{lst:instr-divu} presenta un ejemplo de construcción de la instrucción \texttt{DIVU}.
+
+\begin{lstlisting}[caption={DIVU},label={lst:instr-divu}]
+	DIVU R4, R6, R2  ; R4 = R6 / R2
+\end{lstlisting}
+\textit{Notas:} Si el divisor (Rs2) es cero, se lanza una excepción de DIVISION\_BY\_ZERO.
+
+\paragraph*{AND --- \texttt{AND Rd, Rs1, Rs2}}
+Operación lógica AND bit a bit.
+
+\textit{Operandos:} Rd: Registro destino. Rs1: Primer operando fuente. Rs2: Segundo operando fuente.
+El Listado~\ref{lst:instr-and} presenta un ejemplo de construcción de la instrucción \texttt{AND}.
+
+\begin{lstlisting}[caption={AND},label={lst:instr-and}]
+	AND R4, R1, R2   ; R4 = R1 & R2
+\end{lstlisting}
+
+\paragraph*{OR --- \texttt{OR Rd, Rs1, Rs2}}
+Operación lógica OR bit a bit.
+
+\textit{Operandos:} Rd: Registro destino. Rs1: Primer operando fuente. Rs2: Segundo operando fuente.
+El Listado~\ref{lst:instr-or} presenta un ejemplo de construcción de la instrucción \texttt{OR}.
+
+\begin{lstlisting}[caption={OR},label={lst:instr-or}]
+	OR R4, R1, R2    ; R4 = R1 | R2
+\end{lstlisting}
+
+\paragraph*{XOR --- \texttt{XOR Rd, Rs1, Rs2}}
+Operación lógica XOR (OR exclusiva) bit a bit.
+
+\textit{Operandos:} Rd: Registro destino. Rs1: Primer operando fuente. Rs2: Segundo operando fuente.
+El Listado~\ref{lst:instr-xor} presenta un ejemplo de construcción de la instrucción \texttt{XOR}.
+
+\begin{lstlisting}[caption={XOR},label={lst:instr-xor}]
+	XOR R4, R1, R2   ; R4 = R1 ^ R2
+\end{lstlisting}
+
+\paragraph*{SLL --- \texttt{SLL Rd, Rs1, Rs2}}
+Desplazamiento lógico a la izquierda (Shift Left Logical). El número de posiciones se toma de los 5 bits bajos de Rs2.
+
+\textit{Operandos:} Rd: Registro destino. Rs1: Primer operando fuente. Rs2: Registro cuyos 5 bits bajos indican el número de posiciones a desplazar.
+El Listado~\ref{lst:instr-sll} presenta un ejemplo de construcción de la instrucción \texttt{SLL}.
+
+\begin{lstlisting}[caption={SLL},label={lst:instr-sll}]
+	SLL R4, R1, R2   ; R4 = R1 << R2
+\end{lstlisting}
+
+\paragraph*{SRL --- \texttt{SRL Rd, Rs1, Rs2}}
+Desplazamiento lógico a la derecha (rellena con ceros).
+
+\textit{Operandos:} Rd: Registro destino. Rs1: Primer operando fuente. Rs2: Registro cuyos 5 bits bajos indican el número de posiciones a desplazar.
+El Listado~\ref{lst:instr-srl} presenta un ejemplo de construcción de la instrucción \texttt{SRL}.
+
+\begin{lstlisting}[caption={SRL},label={lst:instr-srl}]
+	SRL R4, R1, R2   ; R4 = R1 >> R2
+\end{lstlisting}
+
+\paragraph*{SRA --- \texttt{SRA Rd, Rs1, Rs2}}
+Desplazamiento aritmético a la derecha (mantiene el bit de signo).
+
+\textit{Operandos:} Rd: Registro destino. Rs1: Primer operando fuente. Rs2: Registro cuyos 5 bits bajos indican el número de posiciones a desplazar.
+El Listado~\ref{lst:instr-sra} presenta un ejemplo de construcción de la instrucción \texttt{SRA}.
+
+\begin{lstlisting}[caption={SRA},label={lst:instr-sra}]
+	SRA R4, R1, R2
+\end{lstlisting}
+
+\paragraph*{NOP --- \texttt{NOP}}
+No Operación. Instrucción nula que no altera el estado de los registros ni la memoria.
+El Listado~\ref{lst:instr-nop} presenta un ejemplo de construcción de la instrucción \texttt{NOP}.
+
+\begin{lstlisting}[caption={NOP},label={lst:instr-nop}]
+	NOP ; Relleno para slots de retardo o alineacion
+\end{lstlisting}
+\textit{Notas:} Es fundamental en la planificación estática para rellenar huecos que el compilador no ha podido optimizar.
+
+\section{Aritmética y lógica entera con inmediatos}
+
+En esta sección se listan las operaciones aritméticas y lógicas en las que uno de sus operandos es un entero inmediato.
+
+\paragraph*{ADDI --- \texttt{ADDI Rd, Rs1, \#imm}}
+Suma Rs1 con un inmediato de 16 bits con extensión de signo y guarda el resultado en Rd.
+
+\textit{Operandos:} Rd: Registro destino. Rs1: Registro fuente. \#imm: Inmediato de 16 bits con signo. El prefijo \# es obligatorio para literales numéricos. Acepta decimal (\#10, \#-5) o hexadecimal (\#0xFF). También se puede especificar una etiqueta (sin \#), que el ensamblador resolverá a su dirección (debe estar definida en \texttt{.data}, no en \texttt{.text}).
+El Listado~\ref{lst:instr-addi} presenta un ejemplo de construcción de la instrucción \texttt{ADDI}.
+
+\begin{lstlisting}[caption={ADDI},label={lst:instr-addi}]
+	ADDI R3, R1, #10       ; R3 = R1 + 10 (decimal)
+	ADDI R3, R1, #0xFF     ; R3 = R1 + 255 (hexadecimal)
+	ADDI R3, R1, MiVar     ; R3 = R1 + direccion de MiVar
+\end{lstlisting}
+\textit{Notas:} Comúnmente usada para cargar constantes pequeñas o calcular desplazamientos. El inmediato se extiende a 32 bits con signo antes de sumar. Igual que ADD, genera una excepción de ARITHMETIC\_OVERFLOW si el resultado excede el rango de 32 bits con signo.
+
+\paragraph*{ADDUI --- \texttt{ADDUI Rd, Rs1, \#imm}}
+Suma Rs1 con un inmediato de 16 bits sin signo (extensión de ceros) y guarda el resultado en Rd.
+
+\textit{Operandos:} Rd: Registro destino. Rs1: Registro fuente. \#imm: Inmediato de 16 bits sin signo, decimal (\#10) o hexadecimal (\#0x100), o etiqueta de \texttt{.data} sin \#.
+El Listado~\ref{lst:instr-addui} presenta un ejemplo de construcción de la instrucción \texttt{ADDUI}.
+
+\begin{lstlisting}[caption={ADDUI},label={lst:instr-addui}]
+	ADDUI R3, R1, #10      ; R3 = R1 + 10
+	ADDUI R3, R1, #0x100   ; R3 = R1 + 256
+\end{lstlisting}
+\textit{Notas:} A diferencia de ADDI, el inmediato se extiende con ceros y se trata siempre como positivo (unsigned). El ensamblador acepta valores entre $-32768$ y $65535$, pero un valor negativo se reinterpreta como su equivalente de 16 bits sin signo: por ejemplo, \texttt{\#-5} se suma como 65531.
+
+\paragraph*{SUBI --- \texttt{SUBI Rd, Rs1, \#imm}}
+Resta un inmediato de 16 bits con signo a Rs1 y guarda el resultado en Rd.
+
+\textit{Operandos:} Rd: Registro destino. Rs1: Registro fuente. \#imm: Inmediato de 16 bits con signo, decimal (\#10) o hexadecimal (\#0x10), o etiqueta de \texttt{.data} sin \#.
+El Listado~\ref{lst:instr-subi} presenta un ejemplo de construcción de la instrucción \texttt{SUBI}.
+
+\begin{lstlisting}[caption={SUBI},label={lst:instr-subi}]
+	SUBI R3, R1, #4        ; R3 = R1 - 4
+	SUBI R3, R1, #0x10     ; R3 = R1 - 16
+\end{lstlisting}
+\textit{Notas:} Habitualmente usada para restar constantes pequeñas o ajustar direcciones calculadas. El inmediato se extiende a 32 bits con signo antes de restar. Igual que SUB, genera una excepción de ARITHMETIC\_OVERFLOW si el resultado excede el rango de 32 bits con signo.
+
+\paragraph*{SUBUI --- \texttt{SUBUI Rd, Rs1, \#imm}}
+Resta un inmediato de 16 bits sin signo a Rs1, tratando ambos como valores sin signo de 32 bits. Rd = (Rs1 - imm) mod $2^{32}$.
+
+\textit{Operandos:} Rd: Registro destino. Rs1: Registro fuente. \#imm: Inmediato de 16 bits sin signo (extensión de ceros), decimal (\#10) o hexadecimal (\#0x100), o etiqueta de \texttt{.data} sin \#.
+El Listado~\ref{lst:instr-subui} presenta un ejemplo de construcción de la instrucción \texttt{SUBUI}.
+
+\begin{lstlisting}[caption={SUBUI},label={lst:instr-subui}]
+	SUBUI R3, R1, #4       ; R3 = R1 - 4 (unsigned)
+	SUBUI R3, R1, #0x10    ; R3 = R1 - 16 (unsigned)
+\end{lstlisting}
+\textit{Notas:} A diferencia de SUBI, el inmediato se extiende con ceros y no se detecta overflow; el resultado se trunca a 32 bits sin signo.
+
+\paragraph*{MULTI --- \texttt{MULTI Rd, Rs1, \#imm}}
+Multiplicación entera con inmediato de 16 bits con signo. Rd = Rs1 * imm.
+
+\textit{Operandos:} Rd: Registro destino. Rs1: Registro fuente. \#imm: Inmediato de 16 bits con signo, decimal (\#10) o hexadecimal (\#0x10), o etiqueta de \texttt{.data} sin \#.
+El Listado~\ref{lst:instr-multi} presenta un ejemplo de construcción de la instrucción \texttt{MULTI}.
+
+\begin{lstlisting}[caption={MULTI},label={lst:instr-multi}]
+	MULTI R3, R1, #10      ; R3 = R1 * 10
+\end{lstlisting}
+\textit{Notas:} Latencia de 7 ciclos. El inmediato se extiende a 32 bits con signo.
+
+\paragraph*{DIVI --- \texttt{DIVI Rd, Rs1, \#imm}}
+División entera con inmediato de 16 bits con signo. Rd = Rs1 / imm.
+
+\textit{Operandos:} Rd: Registro destino. Rs1: Registro fuente. \#imm: Inmediato de 16 bits con signo, decimal (\#10) o hexadecimal (\#0x10), o etiqueta de \texttt{.data} sin \#.
+El Listado~\ref{lst:instr-divi} presenta un ejemplo de construcción de la instrucción \texttt{DIVI}.
+
+\begin{lstlisting}[caption={DIVI},label={lst:instr-divi}]
+	DIVI R3, R6, #2        ; R3 = R6 / 2
+\end{lstlisting}
+\textit{Notas:} Latencia de 24 ciclos. Si el inmediato es 0, se lanza una excepción de DIVISION\_BY\_ZERO.
+
+\paragraph*{ANDI --- \texttt{ANDI Rd, Rs1, \#imm}}
+AND lógico bit a bit entre Rs1 y un inmediato de 16 bits (extensión de ceros).
+
+\textit{Operandos:} Rd: Registro destino. Rs1: Registro fuente. \#imm: Inmediato de 16 bits sin signo (extensión de ceros), decimal (\#10) o hexadecimal (\#0x100), o etiqueta de \texttt{.data} sin \#.
+El Listado~\ref{lst:instr-andi} presenta un ejemplo de construcción de la instrucción \texttt{ANDI}.
+
+\begin{lstlisting}[caption={ANDI},label={lst:instr-andi}]
+	ANDI R4, R1, #0xFF     ; R4 = R1 & 0xFF  (mascara 8 bits bajos)
+	ANDI R4, R1, #0xF0     ; R4 = R1 & 0xF0  (mascara nibble alto)
+\end{lstlisting}
+\textit{Notas:} Muy útil para enmascarar bits. El inmediato se extiende a 32 bits con ceros.
+
+\paragraph*{ORI --- \texttt{ORI Rd, Rs1, \#imm}}
+OR lógico bit a bit entre Rs1 y un inmediato de 16 bits (extensión de ceros).
+
+\textit{Operandos:} Rd: Registro destino. Rs1: Registro fuente. \#imm: Inmediato de 16 bits sin signo (extensión de ceros), decimal (\#10) o hexadecimal (\#0x100), o etiqueta de \texttt{.data} sin \#.
+El Listado~\ref{lst:instr-ori} presenta un ejemplo de construcción de la instrucción \texttt{ORI}.
+
+\begin{lstlisting}[caption={ORI},label={lst:instr-ori}]
+	ORI R4, R1, #0x80      ; activa el bit 7
+	ORI R1, R1, #0x5678    ; combina con LHI para construir constantes de 32 bits
+\end{lstlisting}
+\textit{Notas:} Frecuentemente combinada con LHI para cargar constantes de 32 bits: LHI carga los 16 bits altos y ORI rellena los 16 bajos.
+
+\paragraph*{XORI --- \texttt{XORI Rd, Rs1, \#imm}}
+XOR lógico bit a bit entre Rs1 y un inmediato de 16 bits (extensión de ceros).
+
+\textit{Operandos:} Rd: Registro destino. Rs1: Registro fuente. \#imm: Inmediato de 16 bits sin signo (extensión de ceros), decimal (\#10) o hexadecimal (\#0x100), o etiqueta de \texttt{.data} sin \#.
+El Listado~\ref{lst:instr-xori} presenta un ejemplo de construcción de la instrucción \texttt{XORI}.
+
+\begin{lstlisting}[caption={XORI},label={lst:instr-xori}]
+	XORI R4, R1, #0x01     ; invierte el bit 0 de R1
+	XORI R4, R1, #0xFF     ; invierte los 8 bits bajos
+\end{lstlisting}
+\textit{Notas:} Útil para invertir bits concretos sin afectar al resto (máscara XOR).
+
+\paragraph*{SLLI --- \texttt{SLLI Rd, Rs1, \#imm}}
+Desplazamiento lógico a la izquierda de Rs1 por \#imm posiciones. El prefijo \# es obligatorio para literales numéricos, en decimal o hexadecimal. Como el resto de instrucciones con inmediato, también acepta una etiqueta de \texttt{.data}, aunque en un desplazamiento rara vez tiene sentido.
+
+\textit{Operandos:} Rd: Registro destino. Rs1: Registro fuente. \#imm: Número de posiciones a desplazar, en decimal o hexadecimal.
+El Listado~\ref{lst:instr-slli} presenta un ejemplo de construcción de la instrucción \texttt{SLLI}.
+
+\begin{lstlisting}[caption={SLLI},label={lst:instr-slli}]
+	SLLI R4, R1, #2        ; R4 = R1 << 2  (multiplicar por 4)
+	SLLI R4, R1, #0x3      ; R4 = R1 << 3  (multiplicar por 8)
+\end{lstlisting}
+\textit{Notas:} Los bits que salen del registro se pierden. Rellena con ceros por la derecha.
+
+\paragraph*{SRLI --- \texttt{SRLI Rd, Rs1, \#imm}}
+Desplazamiento lógico a la derecha de Rs1 por \#imm posiciones (rellena con ceros por la izquierda).
+
+\textit{Operandos:} Rd: Registro destino. Rs1: Registro fuente. \#imm: Número de posiciones a desplazar, en decimal o hexadecimal.
+El Listado~\ref{lst:instr-srli} presenta un ejemplo de construcción de la instrucción \texttt{SRLI}.
+
+\begin{lstlisting}[caption={SRLI},label={lst:instr-srli}]
+	SRLI R4, R1, #3        ; R4 = R1 >> 3  (division entre 8 sin signo)
+\end{lstlisting}
+\textit{Notas:} Rellena con ceros independientemente del signo del operando. Para división con signo usar SRAI.
+
+\paragraph*{SRAI --- \texttt{SRAI Rd, Rs1, \#imm}}
+Desplazamiento aritmético a la derecha de Rs1 por \#imm posiciones (propaga el bit de signo).
+
+\textit{Operandos:} Rd: Registro destino. Rs1: Registro fuente. \#imm: Número de posiciones a desplazar, en decimal o hexadecimal.
+El Listado~\ref{lst:instr-srai} presenta un ejemplo de construcción de la instrucción \texttt{SRAI}.
+
+\begin{lstlisting}[caption={SRAI},label={lst:instr-srai}]
+	SRAI R4, R1, #1        ; R4 = R1 >> 1  (division entre 2 con signo)
+\end{lstlisting}
+\textit{Notas:} Mantiene el bit más significativo (signo) al desplazar a la derecha. Equivalente a división entera por $2^{\mathit{imm}}$ preservando el signo.
+
+\paragraph*{LHI --- \texttt{LHI Rd, \#imm}}
+Carga el inmediato en los 16 bits altos de Rd (bits 31-16). Los 16 bits bajos se ponen a 0. Útil para construir constantes de 32 bits junto con ORI.
+
+\textit{Operandos:} Rd: Registro destino. \#imm: Inmediato de 16 bits sin signo que se carga en los 16 bits altos de Rd, decimal o hexadecimal (\#0x1234).
+El Listado~\ref{lst:instr-lhi} presenta un ejemplo de construcción de la instrucción \texttt{LHI}.
+
+\begin{lstlisting}[caption={LHI},label={lst:instr-lhi}]
+	LHI R1, #0x1234        ; R1 = 0x12340000
+	ORI R1, R1, #0x5678    ; R1 = 0x12345678
+\end{lstlisting}
+\textit{Notas:} Patrón estándar para cargar una constante de 32 bits: usar LHI con los 16 bits altos seguido de ORI con los 16 bajos.
+
+\section{Comparaciones}
+
+En esta sección se listan todas las operaciones de comparación con enteros, tanto con registros como con inmediatos.
+
+\paragraph*{SEQ / SEQU --- \texttt{SEQ Rd, Rs1, Rs2} / \texttt{SEQU Rd, Rs1, Rs2}}
+Rd = 1 si Rs1 == Rs2, en caso contrario Rd = 0. SEQ es con signo, SEQU es sin signo.
+
+\textit{Operandos:} Rd: Registro destino. Rs1: Primer operando. Rs2: Segundo operando.
+El Listado~\ref{lst:instr-seq} presenta un ejemplo de construcción de la instrucción \texttt{SEQ}.
+
+\begin{lstlisting}[caption={SEQ},label={lst:instr-seq}]
+	SEQ R5, R1, R2   ; R5 = (R1 == R2) ? 1 : 0
+\end{lstlisting}
+
+\paragraph*{SNE / SNEU --- \texttt{SNE Rd, Rs1, Rs2}}
+Rd = 1 si Rs1 != Rs2.
+
+\textit{Operandos:} Rd: Registro destino. Rs1: Primer operando. Rs2: Segundo operando.
+El Listado~\ref{lst:instr-sne} presenta un ejemplo de construcción de la instrucción \texttt{SNE}.
+
+\begin{lstlisting}[caption={SNE},label={lst:instr-sne}]
+	SNE R5, R1, R2
+\end{lstlisting}
+
+\paragraph*{SLT / SLTU --- \texttt{SLT Rd, Rs1, Rs2}}
+Rd = 1 si Rs1 $<$ Rs2 (con signo para SLT, sin signo para SLTU).
+
+\textit{Operandos:} Rd: Registro destino. Rs1: Primer operando. Rs2: Segundo operando.
+El Listado~\ref{lst:instr-slt} presenta un ejemplo de construcción de la instrucción \texttt{SLT}.
+
+\begin{lstlisting}[caption={SLT},label={lst:instr-slt}]
+	SLT R5, R1, R2   ; R5 = (R1 < R2) ? 1 : 0
+\end{lstlisting}
+
+\paragraph*{SGT / SGTU --- \texttt{SGT Rd, Rs1, Rs2}}
+Rd = 1 si Rs1 $>$ Rs2.
+
+\textit{Operandos:} Rd: Registro destino. Rs1: Primer operando. Rs2: Segundo operando.
+El Listado~\ref{lst:instr-sgt} presenta un ejemplo de construcción de la instrucción \texttt{SGT}.
+
+\begin{lstlisting}[caption={SGT},label={lst:instr-sgt}]
+	SGT R5, R1, R2
+\end{lstlisting}
+
+\paragraph*{SLE / SLEU --- \texttt{SLE Rd, Rs1, Rs2}}
+Rd = 1 si Rs1 $\leq$ Rs2.
+
+\textit{Operandos:} Rd: Registro destino. Rs1: Primer operando. Rs2: Segundo operando.
+El Listado~\ref{lst:instr-sle} presenta un ejemplo de construcción de la instrucción \texttt{SLE}.
+
+\begin{lstlisting}[caption={SLE},label={lst:instr-sle}]
+	SLE R5, R1, R2
+\end{lstlisting}
+
+\paragraph*{SGE / SGEU --- \texttt{SGE Rd, Rs1, Rs2}}
+Rd = 1 si Rs1 $\geq$ Rs2.
+
+\textit{Operandos:} Rd: Registro destino. Rs1: Primer operando. Rs2: Segundo operando.
+El Listado~\ref{lst:instr-sge} presenta un ejemplo de construcción de la instrucción \texttt{SGE}.
+
+\begin{lstlisting}[caption={SGE},label={lst:instr-sge}]
+	SGE R5, R1, R2
+\end{lstlisting}
+
+\paragraph*{SEQI / SEQUI --- \texttt{SEQI Rd, Rs1, \#imm}}
+Comparación de igualdad con inmediato de 16 bits. SEQI usa extensión de signo; SEQUI usa extensión de ceros.
+
+\textit{Operandos:} Rd: Registro destino. Rs1: Registro fuente. \#imm: Inmediato de 16 bits (con signo en SEQI, sin signo en SEQUI).
+El Listado~\ref{lst:instr-seqi} presenta un ejemplo de construcción de la instrucción \texttt{SEQI}.
+
+\begin{lstlisting}[caption={SEQI},label={lst:instr-seqi}]
+	SEQI R5, R1, #10  ; R5 = (R1 == 10) ? 1 : 0
+\end{lstlisting}
+
+\paragraph*{SLTI / SLTUI / SGTI / SGTUI / SLEI / SLEUI / SGEI / SGEUI / SNEI / SNEUI --- \texttt{SLTI Rd, Rs1, \#imm}}
+Comparaciones con inmediato en todas sus variantes (menor, mayor, menor o igual, mayor o igual, distinto). Los nombres terminados en UI usan operandos sin signo.
+
+\textit{Operandos:} Rd: Registro destino. Rs1: Registro fuente. \#imm: Inmediato de 16 bits. En SLTI, SGTI, SLEI, SGEI y SNEI se extiende con signo y la comparación es con signo; en las variantes terminadas en UI se extiende con ceros y la comparación es sin signo.
+El Listado~\ref{lst:instr-slti} presenta un ejemplo de construcción de la instrucción \texttt{SLTI}.
+
+\begin{lstlisting}[caption={SLTI},label={lst:instr-slti}]
+	SLTI R5, R1, #100 ; R5 = (R1 < 100) ? 1 : 0
+\end{lstlisting}
+
+\section{Aritmética, comparaciones y conversiones de punto flotante}
+
+En esta sección se listan las operaciones de punto flotante que operan con registros de tipo float, tanto las operaciones aritméticas como las comparaciones y las conversiones entre registros.
+
+\paragraph*{ADDF / SUBF / MULTF / DIVF --- \texttt{ADDF Fd, Fs1, Fs2}}
+Aritmética de precisión simple (32 bits IEEE 754). El resultado se guarda en Fd. Cualquier registro float F0-F31 es válido.
+
+\textit{Operandos:} Fd: Registro flotante destino (cualquiera F0-F31). Fs1: Primer operando fuente. Fs2: Segundo operando fuente.
+El Listado~\ref{lst:instr-addf} presenta un ejemplo de construcción de la instrucción \texttt{ADDF}.
+
+\begin{lstlisting}[caption={ADDF},label={lst:instr-addf}]
+	ADDF F1, F3, F5  ; F1 = F3 + F5 (simple precision)
+\end{lstlisting}
+\textit{Notas:} Latencias por defecto: ADDF/SUBF 2 ciclos, MULTF 7 ciclos y DIVF 24 ciclos.
+
+\paragraph*{ADDD / SUBD / MULTD / DIVD --- \texttt{ADDD Fd, Fs1, Fs2}}
+Aritmética de precisión doble (64 bits IEEE 754). Los registros deben ser PARES (F0, F2, F4...).
+
+\textit{Operandos:} Fd: Registro flotante destino, debe ser PAR (F0, F2, F4\ldots). Fs1: Primer operando fuente, debe ser PAR. Fs2: Segundo operando fuente, debe ser PAR.
+El Listado~\ref{lst:instr-multd} presenta un ejemplo de construcción de la instrucción \texttt{MULTD}.
+
+\begin{lstlisting}[caption={MULTD},label={lst:instr-multd}]
+	MULTD F0, F2, F4 ; F0 = F2 * F4 (doble precision)
+\end{lstlisting}
+\textit{Notas:} Un double ocupa el par de registros Fn y Fn+1. En la instrucción solo se especifica Fn (el par). Latencias por defecto: ADDD/SUBD 4 ciclos, MULTD 14 ciclos y DIVD 48 ciclos.
+
+\paragraph*{EQF / NEF / LTF / GTF / LEF / GEF / SLTF / SGTF / SLEF / SGEF --- \texttt{EQF Fs1, Fs2}}
+Comparaciones de precisión simple (32 bits). No tiene registro destino: el resultado booleano se escribe en el bit de condición de punto flotante (\texttt{fpConditionBit}) de la máquina. Usa BFPT/BFPF para saltar según el resultado. Mnemónicos: EQF (==), NEF (!=), LTF ($<$), GTF ($>$), LEF ($\leq$), GEF ($\geq$); SLTF/SGTF/SLEF/SGEF son variantes ``Set'' equivalentes.
+
+\textit{Operandos:} Fs1: Primer operando fuente. Fs2: Segundo operando fuente.
+El Listado~\ref{lst:instr-ltf} presenta un ejemplo de construcción de la instrucción \texttt{LTF}.
+
+\begin{lstlisting}[caption={LTF},label={lst:instr-ltf}]
+	LTF F1, F3       ; fpConditionBit = (F1 < F3)
+	BFPT menor       ; salta si fpConditionBit = 1
+\end{lstlisting}
+\textit{Notas:} No se escribe ningún registro. La instrucción BFPT salta si fpConditionBit=1; BFPF salta si fpConditionBit=0. Latencia por defecto: 2 ciclos.
+
+\paragraph*{EQD / NED / LTD / GTD / LED / GED / SLTD / SGTD / SLED / SGED --- \texttt{EQD Fs1, Fs2}}
+Comparaciones de precisión doble (64 bits, registros pares). No tiene registro destino: el resultado se escribe en \texttt{fpConditionBit} de la máquina.
+
+\textit{Operandos:} Fs1: Primer operando fuente, debe ser PAR. Fs2: Segundo operando fuente, debe ser PAR.
+El Listado~\ref{lst:instr-led} presenta un ejemplo de construcción de la instrucción \texttt{LED}.
+
+\begin{lstlisting}[caption={LED},label={lst:instr-led}]
+	LED F0, F2       ; fpConditionBit = (F0:F1 <= F2:F3)
+	BFPT fin
+\end{lstlisting}
+\textit{Notas:} Los registros deben ser pares; cada uno representa un double de 64 bits junto con el siguiente registro (Fn:Fn+1). Latencia por defecto: 4 ciclos.
+
+\paragraph*{CVTF2D / CVTD2F --- \texttt{CVTF2D Fd, Fs}}
+Conversión entre precisión simple y doble. CVTF2D convierte SP$\to$DP; CVTD2F convierte DP$\to$SP.
+
+\textit{Operandos:} Fd: Registro flotante destino (par en CVTF2D). Fs: Registro flotante fuente con el valor a convertir (par en CVTD2F).
+El Listado~\ref{lst:instr-cvtf2d} presenta un ejemplo de construcción de la instrucción \texttt{CVTF2D}.
+
+\begin{lstlisting}[caption={CVTF2D},label={lst:instr-cvtf2d}]
+	CVTF2D F0, F5    ; convierte F5 (SP) a DP en F0:F1
+\end{lstlisting}
+\textit{Notas:} El registro de doble precisión (destino en CVTF2D, fuente en CVTD2F) debe ser par. Latencia por defecto de todas las conversiones: 4 ciclos.
+
+\paragraph*{CVTI2D / CVTI2F / CVTD2I / CVTF2I --- \texttt{CVTI2D Fd, Fs}}
+Conversión entre entero y flotante:
+\begin{itemize}
+	\item \texttt{CVTI2D}: entero $\to$ double.
+	\item \texttt{CVTI2F}: entero $\to$ simple.
+	\item \texttt{CVTD2I}: double $\to$ entero truncado.
+	\item \texttt{CVTF2I}: simple $\to$ entero truncado.
+\end{itemize}
+
+\textit{Operandos:} Fd: Registro flotante destino. Siempre es un registro Fd, incluso en \texttt{CVTD2I} y \texttt{CVTF2I} (el valor entero truncado se guarda en el banco de punto flotante, no en el de enteros). Fs: Registro flotante fuente con el valor a convertir.
+El Listado~\ref{lst:instr-cvti2d} presenta un ejemplo de construcción de la instrucción \texttt{CVTI2D}.
+
+\begin{lstlisting}[caption={CVTI2D},label={lst:instr-cvti2d}]
+	CVTI2D F0, F10   ; F0:F1 = double(entero en F10)
+	CVTD2I F3, F0    ; F3 = trunc(F0:F1 como double)
+\end{lstlisting}
+\textit{Notas:} CVTD2I y CVTF2I escriben su resultado en un registro flotante (Fd), no en uno entero, pese a que el resultado sea un valor entero truncado: el ensamblador exige la sintaxis \texttt{CVTD2I Fd, Fs}. Para llevar ese valor a un registro entero (Rd) hace falta un \texttt{MOVFP2I} posterior. El destino DP de CVTI2D y la fuente DP de CVTD2I deben ser registros pares.
+
+\paragraph*{MOVF / MOVD --- \texttt{MOVF Fd, Fs}}
+Copia un registro flotante. MOVF copia precisión simple; MOVD copia un par DP (Fd y Fd+1 $\leftarrow$ Fs y Fs+1).
+
+\textit{Operandos:} Fd: Registro flotante destino (par para MOVD). Fs: Registro fuente (par para MOVD).
+El Listado~\ref{lst:instr-movd} presenta un ejemplo de construcción de la instrucción \texttt{MOVD}.
+
+\begin{lstlisting}[caption={MOVD},label={lst:instr-movd}]
+	MOVD F4, F0      ; F4:F5 <- F0:F1
+\end{lstlisting}
+
+\paragraph*{MOVI2FP / MOVFP2I --- \texttt{MOVI2FP Fd, Rs}}
+Transfiere los bits brutos entre registros enteros y flotantes sin conversión de valor.
+
+\textit{Operandos:} Fd / Rd: Registro destino --- Fd (flotante) en MOVI2FP, Rd (entero) en MOVFP2I. Rs / Fs: Registro fuente --- Rs (entero) en MOVI2FP, Fs (flotante) en MOVFP2I.
+El Listado~\ref{lst:instr-movi2fp} presenta un ejemplo de construcción de la instrucción \texttt{MOVI2FP}.
+
+\begin{lstlisting}[caption={MOVI2FP},label={lst:instr-movi2fp}]
+	MOVI2FP F10, R1  ; F10 <- R1 (bits sin conversion)
+\end{lstlisting}
+\textit{Notas:} Útil para inicializar registros float con valores enteros antes de una conversión explícita (CVTI2F/CVTI2D).
+
+\paragraph*{MOVI2S / MOVS2I --- \texttt{MOVI2S VLR, Rs} / \texttt{MOVS2I Rd, VLR}}
+Transfiere el contenido del registro de longitud vectorial (VLR): MOVI2S carga Rs en VLR; MOVS2I copia VLR a Rd.
+
+\textit{Operandos:} VLR: Registro de longitud vectorial (destino en MOVI2S, fuente en MOVS2I). Rs: Registro entero fuente (MOVI2S). Rd: Registro entero destino (MOVS2I).
+El Listado~\ref{lst:instr-movi2s} presenta un ejemplo de construcción de la instrucción \texttt{MOVI2S}.
+
+\begin{lstlisting}[caption={MOVI2S},label={lst:instr-movi2s}]
+	ADDI R1, R0, #16
+	MOVI2S VLR, R1   ; VLR <- 16 (procesar 16 elementos)
+	MOVS2I R2, VLR   ; R2 <- VLR actual
+\end{lstlisting}
+\textit{Notas:} MOVI2S limita el valor escrito al rango [0, MVL]: si Rs es mayor que MVL, VLR toma el valor de MVL.
+
+\paragraph*{MOVF2S / MOVS2F --- \texttt{MOVF2S VM, Fs} / \texttt{MOVS2F Fd, VM}}
+Transfiere el contenido de la máscara vectorial (VM) desde/hacia un registro flotante tratado como \textit{bitmask} de 32 bits.
+
+\textit{Operandos:} VM: Máscara vectorial (destino en MOVF2S, fuente en MOVS2F). Fs: Registro flotante fuente (MOVF2S). Fd: Registro flotante destino (MOVS2F).
+El Listado~\ref{lst:instr-movf2s} presenta un ejemplo de construcción de la instrucción \texttt{MOVF2S}.
+
+\begin{lstlisting}[caption={MOVF2S},label={lst:instr-movf2s}]
+	MOVF2S VM, F0    ; VM <- bitmask(bits de F0)
+	MOVS2F F1, VM    ; F1 <- bitmask empaquetada de VM
+\end{lstlisting}
+\textit{Notas:} Solo se representan 32 elementos. VM[32..MVL$-$1] se ponen a 0 en MOVF2S. Usa CVM para resetear VM con todos los bits a 1.
+
+\section{Acceso a memoria}
+
+En esta sección se listan las operaciones que implican acceso a memoria (cargas y almacenamientos).
+
+\paragraph*{LB --- \texttt{LB Rd, LABEL} (directo) / \texttt{LB Rd, offset(Rs)} (indirecto)}
+Carga un byte desde la memoria y extiende el signo a 32 bits.
+
+Directo (2 operandos): la dirección es el símbolo de \texttt{.data} indicado, R0 actúa como base implícita.
+
+Indirecto (3 operandos): la dirección efectiva es Rs + desplazamiento (entero decimal o hex, no se permiten etiquetas como desplazamiento).
+
+\textit{Operandos:} Rd: Registro destino. LABEL: Símbolo de \texttt{.data} (modo directo). offset: Desplazamiento numérico con signo (modo indirecto). Rs: Registro base (modo indirecto).
+El Listado~\ref{lst:instr-lb} presenta un ejemplo de construcción de la instrucción \texttt{LB}.
+
+\begin{lstlisting}[caption={LB},label={lst:instr-lb}]
+	LB R5, MiByte         ; R5 <- MEM[addr(MiByte)]
+	LB R5, 0(R2)          ; R5 <- MEM[R2]
+\end{lstlisting}
+\textit{Notas:} No requiere alineación (acceso de 1 byte).
+
+\paragraph*{LBU --- \texttt{LBU Rd, LABEL} / \texttt{LBU Rd, offset(Rs)}}
+Carga un byte sin extensión de signo (bits altos a 0).
+
+\textit{Operandos:} Rd: Registro destino. LABEL: Símbolo de \texttt{.data} (modo directo). offset: Desplazamiento numérico con signo (modo indirecto). Rs: Registro base (modo indirecto).
+El Listado~\ref{lst:instr-lbu} presenta un ejemplo de construcción de la instrucción \texttt{LBU}.
+
+\begin{lstlisting}[caption={LBU},label={lst:instr-lbu}]
+	LBU R5, MiByte
+	LBU R5, 0(R2)
+\end{lstlisting}
+\textit{Notas:} No requiere alineación (acceso de 1 byte).
+
+\paragraph*{LH --- \texttt{LH Rd, LABEL} / \texttt{LH Rd, offset(Rs)}}
+Carga una media palabra (2 bytes) con extensión de signo.
+
+\textit{Operandos:} Rd: Registro destino. LABEL: Símbolo de \texttt{.data} (modo directo). offset: Desplazamiento numérico con signo (modo indirecto). Rs: Registro base (modo indirecto).
+El Listado~\ref{lst:instr-lh} presenta un ejemplo de construcción de la instrucción \texttt{LH}.
+
+\begin{lstlisting}[caption={LH},label={lst:instr-lh}]
+	LH R5, MiMedia
+	LH R5, 2(R2)
+\end{lstlisting}
+\textit{Notas:} Requiere alineación a 2 bytes.
+
+\paragraph*{LHU --- \texttt{LHU Rd, LABEL} / \texttt{LHU Rd, offset(Rs)}}
+Carga una media palabra sin extensión de signo (bits altos a 0).
+
+\textit{Operandos:} Rd: Registro destino. LABEL: Símbolo de \texttt{.data} (modo directo). offset: Desplazamiento numérico con signo (modo indirecto). Rs: Registro base (modo indirecto).
+El Listado~\ref{lst:instr-lhu} presenta un ejemplo de construcción de la instrucción \texttt{LHU}.
+
+\begin{lstlisting}[caption={LHU},label={lst:instr-lhu}]
+	LHU R5, MiMedia
+	LHU R5, 2(R2)
+\end{lstlisting}
+\textit{Notas:} Requiere alineación a 2 bytes.
+
+\paragraph*{LW --- \texttt{LW Rd, LABEL} / \texttt{LW Rd, offset(Rs)}}
+Carga una palabra de 32 bits desde la memoria a un registro. Soporta direccionamiento directo (etiqueta) e indirecto (offset+base). Exige que la dirección de memoria sea múltiplo de 4.
+
+\textit{Operandos:} Rd: Registro destino. LABEL: Símbolo de \texttt{.data} (modo directo). offset: Entero decimal o hex, sin etiquetas (modo indirecto). Rs: Registro base (modo indirecto).
+El Listado~\ref{lst:instr-lw} presenta un ejemplo de construcción de la instrucción \texttt{LW}.
+
+\begin{lstlisting}[caption={LW},label={lst:instr-lw}]
+	LW R5, MiVar          ; R5 <- MEM[addr(MiVar)]
+	LW R5, 4(R2)          ; R5 <- MEM[R2+4]
+\end{lstlisting}
+\textit{Notas:} Provoca un riesgo RAW de tipo \textit{Load-Use} si la siguiente instrucción intenta usar el registro Rd inmediatamente. Requiere alineación a 4 bytes.
+
+\paragraph*{LF --- \texttt{LF Fd, LABEL} / \texttt{LF Fd, offset(Rs)}}
+Carga un valor de punto flotante de precisión simple (32 bits) en un registro float.
+
+\textit{Operandos:} Fd: Registro flotante destino (cualquiera F0-F31). LABEL: Símbolo de \texttt{.data} (modo directo). offset: Desplazamiento numérico con signo (modo indirecto). Rs: Registro base (modo indirecto).
+El Listado~\ref{lst:instr-lf} presenta un ejemplo de construcción de la instrucción \texttt{LF}.
+
+\begin{lstlisting}[caption={LF},label={lst:instr-lf}]
+	LF F0, MiFloat
+	LF F2, 8(R1)
+\end{lstlisting}
+\textit{Notas:} Fd puede ser cualquier registro float (F0-F31). Requiere alineación a 4 bytes.
+
+\paragraph*{LD --- \texttt{LD Fd, LABEL} / \texttt{LD Fd, offset(Rs)}}
+Carga un valor de punto flotante de doble precisión (64 bits) en un par de registros (Fn y Fn+1). Requiere alineación de 8 bytes.
+
+\textit{Operandos:} Fd: Registro flotante destino --- debe ser PAR (F0, F2, F4...). LABEL/offset/Rs como en LW.
+El Listado~\ref{lst:instr-ld} presenta un ejemplo de construcción de la instrucción \texttt{LD}.
+
+\begin{lstlisting}[caption={LD},label={lst:instr-ld}]
+	LD F0, MiDouble
+	LD F0, 0(R1)
+\end{lstlisting}
+\textit{Notas:} El registro destino (Fd) debe ser siempre PAR. El double ocupa Fd (parte alta) y Fd+1 (parte baja). Requiere alineación de 8 bytes.
+
+\paragraph*{SB --- \texttt{SB LABEL, Rs2} / \texttt{SB offset(Rs1), Rs2}}
+Almacena el byte menos significativo de Rs2 en la memoria.
+
+\textit{Operandos:} LABEL: Símbolo de \texttt{.data} (modo directo). offset: Desplazamiento numérico con signo (modo indirecto). Rs1: Registro base (modo indirecto). Rs2: Registro fuente.
+El Listado~\ref{lst:instr-sb} presenta un ejemplo de construcción de la instrucción \texttt{SB}.
+
+\begin{lstlisting}[caption={SB},label={lst:instr-sb}]
+	SB MiByte, R5
+	SB 0(R2), R5
+\end{lstlisting}
+\textit{Notas:} No requiere alineación (acceso de 1 byte).
+
+\paragraph*{SH --- \texttt{SH LABEL, Rs2} / \texttt{SH offset(Rs1), Rs2}}
+Almacena los 16 bits bajos de Rs2 en la memoria.
+
+\textit{Operandos:} LABEL: Símbolo de \texttt{.data} (modo directo). offset: Desplazamiento numérico con signo (modo indirecto). Rs1: Registro base (modo indirecto). Rs2: Registro fuente.
+El Listado~\ref{lst:instr-sh} presenta un ejemplo de construcción de la instrucción \texttt{SH}.
+
+\begin{lstlisting}[caption={SH},label={lst:instr-sh}]
+	SH MiMedia, R5
+	SH 2(R2), R5
+\end{lstlisting}
+\textit{Notas:} El simulador no comprueba la alineación en los almacenamientos, pero se recomienda usar direcciones múltiplo de 2 para poder leer el dato después con LH/LHU, que sí la exigen.
+
+\paragraph*{SW --- \texttt{SW LABEL, Rs2} / \texttt{SW offset(Rs1), Rs2}}
+Almacena una palabra (32 bits) en la memoria.
+
+\textit{Operandos:} LABEL: Símbolo de \texttt{.data} (modo directo). offset: Desplazamiento numérico con signo (modo indirecto). Rs1: Registro base (modo indirecto). Rs2: Registro fuente.
+El Listado~\ref{lst:instr-sw} presenta un ejemplo de construcción de la instrucción \texttt{SW}.
+
+\begin{lstlisting}[caption={SW},label={lst:instr-sw}]
+	SW MiVar, R3          ; MEM[addr(MiVar)] <- R3
+	SW 4(R1), R3          ; MEM[R1+4] <- R3
+\end{lstlisting}
+\textit{Notas:} El simulador no comprueba la alineación en los almacenamientos, pero se recomienda usar direcciones múltiplo de 4 para poder leer el dato después con LW, que sí la exige.
+
+\paragraph*{SF --- \texttt{SF LABEL, Fs} / \texttt{SF offset(Rs), Fs}}
+Almacena un float de precisión simple desde un registro flotante.
+
+\textit{Operandos:} LABEL: Símbolo de \texttt{.data} (modo directo). offset: Desplazamiento numérico (modo indirecto). Rs: Registro base (modo indirecto). Fs: Registro flotante fuente (cualquiera F0-F31).
+El Listado~\ref{lst:instr-sf} presenta un ejemplo de construcción de la instrucción \texttt{SF}.
+
+\begin{lstlisting}[caption={SF},label={lst:instr-sf}]
+	SF MiFloat, F2
+	SF 8(R1), F2
+\end{lstlisting}
+\textit{Notas:} El simulador no comprueba la alineación en los almacenamientos, pero se recomienda usar direcciones múltiplo de 4 para poder leer el dato después con LF, que sí la exige.
+
+\paragraph*{SD --- \texttt{SD LABEL, Fs} / \texttt{SD offset(Rs), Fs}}
+Almacena un valor de 64 bits (Double) de los registros Fs:Fs+1 en la memoria.
+
+\textit{Operandos:} LABEL: Símbolo de \texttt{.data} (modo directo). offset: Desplazamiento numérico (modo indirecto). Rs: Registro base (modo indirecto). Fs: Registro flotante fuente, debe ser PAR (F0, F2, F4\ldots).
+El Listado~\ref{lst:instr-sd} presenta un ejemplo de construcción de la instrucción \texttt{SD}.
+
+\begin{lstlisting}[caption={SD},label={lst:instr-sd}]
+	SD MiDouble, F0
+	SD 0(R1), F0
+\end{lstlisting}
+\textit{Notas:} Fs debe ser un registro par. El simulador no comprueba la alineación en los almacenamientos, lo que permite, por ejemplo, guardar un double en un bloque de parámetros de TRAP 5 alineado a 4 bytes. Si el dato se va a leer después con LD, la dirección debe ser múltiplo de 8, ya que LD sí exige esa alineación.
+
+\section{Saltos y bifurcaciones}
+
+En esta sección se listan las operaciones de salto condicionales (bifurcaciones) e incondicionales.
+
+\paragraph*{BEQZ --- \texttt{BEQZ Rs, label}}
+Salta a la etiqueta si Rs es igual a 0 (Branch if Equal to Zero).
+
+\textit{Operandos:} Rs: Registro a comparar con 0. label: etiqueta destino, solo de \texttt{.text} (no se permiten etiquetas de \texttt{.data}).
+El Listado~\ref{lst:instr-beqz} presenta un ejemplo de construcción de la instrucción \texttt{BEQZ}.
+
+\begin{lstlisting}[caption={BEQZ},label={lst:instr-beqz}]
+	BEQZ R1, fin     ; si R1 == 0, salta a la etiqueta "fin"
+\end{lstlisting}
+\textit{Notas:} La etiqueta debe estar definida en la sección \texttt{.text}. El ensamblador la resuelve a la dirección absoluta de la instrucción destino, codificada como número de palabra (dirección / 4) en el campo de 16 bits; no es un desplazamiento relativo al PC. Lo mismo se aplica al resto de saltos condicionales.
+
+\paragraph*{BNEZ --- \texttt{BNEZ Rs, label}}
+Salta si Rs es distinto de 0 (Branch if Not Equal to Zero).
+
+\textit{Operandos:} Rs: Registro a comparar con 0. label: Etiqueta destino, solo de \texttt{.text}.
+El Listado~\ref{lst:instr-bnez} presenta un ejemplo de construcción de la instrucción \texttt{BNEZ}.
+
+\begin{lstlisting}[caption={BNEZ},label={lst:instr-bnez}]
+	BNEZ R1, bucle
+\end{lstlisting}
+\textit{Notas:} Solo se permiten etiquetas de la sección de código (\texttt{.text}).
+
+\paragraph*{BGTZ --- \texttt{BGTZ Rs, label}}
+Salta si Rs es mayor que 0, con signo (Branch if Greater Than Zero).
+
+\textit{Operandos:} Rs: Registro a comparar con 0. label: Etiqueta destino, solo de \texttt{.text}.
+El Listado~\ref{lst:instr-bgtz} presenta un ejemplo de construcción de la instrucción \texttt{BGTZ}.
+
+\begin{lstlisting}[caption={BGTZ},label={lst:instr-bgtz}]
+	BGTZ R2, positivo
+\end{lstlisting}
+\textit{Notas:} Solo se permiten etiquetas de \texttt{.text}.
+
+\paragraph*{BLTZ --- \texttt{BLTZ Rs, label}}
+Salta si Rs es menor que 0, con signo (Branch if Less Than Zero).
+
+\textit{Operandos:} Rs: Registro a comparar con 0. label: Etiqueta destino, solo de \texttt{.text}.
+El Listado~\ref{lst:instr-bltz} presenta un ejemplo de construcción de la instrucción \texttt{BLTZ}.
+
+\begin{lstlisting}[caption={BLTZ},label={lst:instr-bltz}]
+	BLTZ R2, negativo
+\end{lstlisting}
+\textit{Notas:} Solo se permiten etiquetas de \texttt{.text}.
+
+\paragraph*{BFPT --- \texttt{BFPT label}}
+Salta si el bit de condición de punto flotante (\texttt{fpConditionBit}) es 1. El bit lo fijan las instrucciones de comparación float (EQF, LTD, etc.).
+
+\textit{Operandos:} label: Etiqueta destino, solo de \texttt{.text}.
+El Listado~\ref{lst:instr-bfpt} presenta un ejemplo de construcción de la instrucción \texttt{BFPT}.
+
+\begin{lstlisting}[caption={BFPT},label={lst:instr-bfpt}]
+	LED F0, F2
+	BFPT menor_igual
+\end{lstlisting}
+\textit{Notas:} Solo se permiten etiquetas de código (\texttt{.text}). El bit de condición es compartido con BFPF.
+
+\paragraph*{BFPF --- \texttt{BFPF label}}
+Salta si el bit de condición de punto flotante es 0. El bit lo fijan las instrucciones de comparación float (EQF, LTD, etc.).
+
+\textit{Operandos:} label: Etiqueta destino, solo de \texttt{.text}.
+El Listado~\ref{lst:instr-bfpf} presenta un ejemplo de construcción de la instrucción \texttt{BFPF}.
+
+\begin{lstlisting}[caption={BFPF},label={lst:instr-bfpf}]
+	EQF F0, F2
+	BFPF no_igual
+\end{lstlisting}
+\textit{Notas:} Solo se permiten etiquetas de \texttt{.text}.
+
+\paragraph*{J --- \texttt{J label}}
+Salto incondicional. El PC se actualiza a la dirección de la etiqueta.
+
+\textit{Operandos:} label: Etiqueta destino, solo de \texttt{.text}.
+El Listado~\ref{lst:instr-j} presenta un ejemplo de construcción de la instrucción \texttt{J}.
+
+\begin{lstlisting}[caption={J},label={lst:instr-j}]
+	J bucle
+\end{lstlisting}
+\textit{Notas:} Solo se permiten etiquetas de código (\texttt{.text}). El destino se codifica como dirección absoluta de palabra (dirección / 4) en el campo de 26 bits; no es un desplazamiento relativo al PC. Lo mismo se aplica a JAL.
+
+\paragraph*{JAL --- \texttt{JAL label}}
+Salto con enlace (Jump and Link). Guarda la dirección de retorno (PC+4) en R31 y salta a la etiqueta.
+
+\textit{Operandos:} label: Etiqueta destino, solo de \texttt{.text}.
+El Listado~\ref{lst:instr-jal} presenta un ejemplo de construcción de la instrucción \texttt{JAL}.
+
+\begin{lstlisting}[caption={JAL},label={lst:instr-jal}]
+	JAL miFuncion   ; R31 = PC+4; PC = miFuncion
+\end{lstlisting}
+\textit{Notas:} R31 es el registro de retorno por convención en ASG. Solo se permiten etiquetas de código (\texttt{.text}).
+
+\paragraph*{JR --- \texttt{JR Rs}}
+Salto incondicional a la dirección contenida en el registro Rs.
+
+\textit{Operandos:} Rs: Registro entero con la dirección destino.
+El Listado~\ref{lst:instr-jr} presenta un ejemplo de construcción de la instrucción \texttt{JR}.
+
+\begin{lstlisting}[caption={JR},label={lst:instr-jr}]
+	JR R31           ; retorno de funcion
+\end{lstlisting}
+\textit{Notas:} No usa etiqueta: la dirección se toma del registro. Se usa típicamente para el retorno de subrutinas (JR R31).
+
+\paragraph*{JALR --- \texttt{JALR Rs}}
+Salto con enlace por registro. Guarda PC+4 en R31 y salta a la dirección contenida en Rs.
+
+\textit{Operandos:} Rs: Registro entero con la dirección destino.
+El Listado~\ref{lst:instr-jalr} presenta un ejemplo de construcción de la instrucción \texttt{JALR}.
+
+\begin{lstlisting}[caption={JALR},label={lst:instr-jalr}]
+	JALR R2          ; R31 <- PC+4, salta a la direccion de R2
+\end{lstlisting}
+\textit{Notas:} No usa etiqueta: la dirección destino viene del registro Rs. El enlace se guarda siempre en R31 (igual que en \texttt{JAL}); no se puede indicar otro registro destino.
+
+\section{Instrucciones vectoriales}
+
+En esta sección se listan las diferentes operaciones vectoriales implementadas en el sistema: aritméticas, comparaciones, accesos a memoria y operaciones especiales.
+
+\paragraph*{ADDV / SUBV / MULTV / DIVV --- \texttt{ADDV Vd, Vs1, Vs2}}
+Aritmética vector-vector, elemento a elemento, sobre los VLR elementos activos.
+
+\textit{Operandos:} Vd: Registro vectorial destino. Vs1: Primer vector fuente. Vs2: Segundo vector fuente.
+El Listado~\ref{lst:instr-addv} presenta un ejemplo de construcción de la instrucción \texttt{ADDV}.
+
+\begin{lstlisting}[caption={ADDV},label={lst:instr-addv}]
+	ADDV V0, V1, V2  ; V0[i] = V1[i] + V2[i]
+\end{lstlisting}
+\textit{Notas:} Con el encadenamiento vectorial (chaining) activado, una instrucción que depende del resultado de otra (dependencia RAW) puede empezar a consumir sus elementos a medida que se producen, sin esperar al vector completo. Latencias por defecto: ADDV/SUBV 6 ciclos, MULTV 7 ciclos y DIVV 20 ciclos (las mismas para las variantes escalar-vector y vector-escalar).
+
+\paragraph*{ADDSV / SUBSV / MULTSV / DIVSV --- \texttt{ADDSV Vd, Fs, Vs}}
+Aritmética escalar-vector: el escalar (registro flotante Fs) opera con cada elemento del vector Vs.
+
+\textit{Operandos:} Vd: Registro vectorial destino. Fs: Fuente escalar flotante. Vs: Vector fuente.
+El Listado~\ref{lst:instr-multsv} presenta un ejemplo de construcción de la instrucción \texttt{MULTSV}.
+
+\begin{lstlisting}[caption={MULTSV},label={lst:instr-multsv}]
+	MULTSV V0, F2, V1 ; V0[i] = F2 * V1[i]
+\end{lstlisting}
+
+\paragraph*{ADDVS / SUBVS / MULTVS / DIVVS --- \texttt{ADDVS Vd, Vs, Fs}}
+Aritmética vector-escalar: cada elemento del vector Vs opera con el escalar Fs.
+
+\textit{Operandos:} Vd: Registro vectorial destino. Vs: Vector fuente. Fs: Fuente escalar flotante.
+El Listado~\ref{lst:instr-addvs} presenta un ejemplo de construcción de la instrucción \texttt{ADDVS}.
+
+\begin{lstlisting}[caption={ADDVS},label={lst:instr-addvs}]
+	ADDVS V0, V1, F2  ; V0[i] = V1[i] + F2
+\end{lstlisting}
+
+\paragraph*{SEQV / SNEV / SGTV / SLTV / SGEV / SLEV --- \texttt{SEQV Vs1, Vs2}}
+Comparación vector-vector; el resultado elemento a elemento se escribe directamente en VM: VM[i] = condición(Vs1[i], Vs2[i]).
+
+\textit{Operandos:} Vs1: Primer vector fuente. Vs2: Segundo vector fuente.
+El Listado~\ref{lst:instr-sltv} presenta un ejemplo de construcción de la instrucción \texttt{SLTV}.
+
+\begin{lstlisting}[caption={SLTV},label={lst:instr-sltv}]
+	SLTV V1, V2      ; VM[i] = (V1[i] < V2[i])
+\end{lstlisting}
+\textit{Notas:} No tiene registro destino explícito; el resultado siempre va a VM. Usa CVM para resetear la máscara. Latencia por defecto de todas las comparaciones vectoriales: 1 ciclo.
+
+\paragraph*{SEQSV / SNESV / SGTSV / SLTSV / SGESV / SLESV --- \texttt{SEQSV Fs, Vs}}
+Comparación escalar-vector: VM[i] = condición(Fs, Vs[i]).
+
+\textit{Operandos:} Fs: Fuente escalar flotante. Vs: Vector fuente.
+El Listado~\ref{lst:instr-sltsv} presenta un ejemplo de construcción de la instrucción \texttt{SLTSV}.
+
+\begin{lstlisting}[caption={SLTSV},label={lst:instr-sltsv}]
+	SLTSV F2, V1     ; VM[i] = (F2 < V1[i])
+\end{lstlisting}
+\textit{Notas:} El resultado se escribe en VM, no en un vector destino.
+
+\paragraph*{SEQVS / SNEVS / SGTVS / SLTVS / SGEVS / SLEVS --- \texttt{SEQVS Vs, Fs}}
+Comparación vector-escalar: VM[i] = condición(Vs[i], Fs).
+
+\textit{Operandos:} Vs: Vector fuente. Fs: Fuente escalar flotante.
+El Listado~\ref{lst:instr-sgevs} presenta un ejemplo de construcción de la instrucción \texttt{SGEVS}.
+
+\begin{lstlisting}[caption={SGEVS},label={lst:instr-sgevs}]
+	SGEVS V1, F2     ; VM[i] = (V1[i] >= F2)
+\end{lstlisting}
+\textit{Notas:} El resultado se escribe en VM, no en un vector destino.
+
+\paragraph*{LV / SV --- \texttt{LV Vd, LABEL} / \texttt{LV Vd, offset(Rs)} / \texttt{SV LABEL, Vs} / \texttt{SV offset(Rs), Vs}}
+Carga (LV) o almacena (SV) un vector, elemento a elemento, en posiciones consecutivas de memoria a partir de la dirección base. El número de elementos que se transfieren lo controla VLR.
+
+\textit{Operandos:} Vd: Registro vectorial destino (LV). Vs: Registro vectorial fuente (SV). LABEL: Símbolo de \texttt{.data} (modo directo). offset: Desplazamiento numérico con signo (modo indirecto). Rs: Registro base (modo indirecto).
+El Listado~\ref{lst:instr-lv} presenta un ejemplo de construcción de las instrucciones \texttt{LV} y \texttt{SV}.
+
+\begin{lstlisting}[caption={LV y SV},label={lst:instr-lv}]
+	LV V0, vector_x  ; carga VLR elementos desde la etiqueta vector_x
+	LV V1, 0(R1)     ; carga VLR elementos desde MEM[R1]
+	SV 0(R2), V1     ; guarda VLR elementos en MEM[R2]
+\end{lstlisting}
+\textit{Notas:} Cada elemento ocupa 8 bytes (double), por lo que el elemento i se lee o escribe en la dirección base + 8$\times$i. Los datos se declaran con \texttt{.double}. La dirección base debe estar alineada a 8 bytes: si no lo está, \texttt{LV} lanza una excepción de dirección desalineada. Con solo dos operandos, el segundo se interpreta siempre como etiqueta de \texttt{.data}, por lo que \texttt{LV V0, R1} no es válido: para usar un registro como base hay que escribir \texttt{LV V0, 0(R1)}. Latencia por defecto de todos los accesos a memoria vectorial (LV, SV, LVWS, SVWS, LVI, SVI): 12 ciclos.
+
+\paragraph*{LVWS / SVWS --- \texttt{LVWS Vd, Rs1, Rs2}}
+Carga/almacena con paso (\textit{stride}): Rs2 contiene el paso en bytes entre elementos consecutivos.
+
+\textit{Operandos:} Vd: Registro vectorial destino. Rs1: Registro entero con dirección base. Rs2: Registro entero con el stride (salto entre elementos).
+El Listado~\ref{lst:instr-lvws} presenta un ejemplo de construcción de la instrucción \texttt{LVWS}.
+
+\begin{lstlisting}[caption={LVWS},label={lst:instr-lvws}]
+	LVWS V0, R1, R2  ; V0[i] = MEM[R1 + i*R2]
+\end{lstlisting}
+
+\paragraph*{LVI / SVI --- \texttt{LVI Vd, Rs, Vi}}
+Carga/almacena indexado: cada elemento usa su propio desplazamiento tomado del vector de índices Vi.
+
+\textit{Operandos:} Vd: Registro vectorial destino. Rs: Registro entero con dirección base. Vi: Vector de índices; cada elemento aporta su propio desplazamiento en bytes respecto a la dirección base.
+El Listado~\ref{lst:instr-lvi} presenta un ejemplo de construcción de la instrucción \texttt{LVI}.
+
+\begin{lstlisting}[caption={LVI},label={lst:instr-lvi}]
+	LVI V0, R1, V1   ; V0[i] = MEM[R1 + V1[i]]
+\end{lstlisting}
+\textit{Notas:} Como cada elemento ocupa 8 bytes, los índices deben ser múltiplos de 8 para que las direcciones resultantes estén alineadas.
+
+\paragraph*{CVI --- \texttt{CVI Vd, Rs}}
+Crea un vector de índices escalados en Vd: cada elemento i recibe i $\times$ Rs.
+
+\textit{Operandos:} Vd: Registro vectorial destino. Rs: Registro entero con el factor de escala.
+El Listado~\ref{lst:instr-cvi} presenta un ejemplo de construcción de la instrucción \texttt{CVI}.
+
+\begin{lstlisting}[caption={CVI},label={lst:instr-cvi}]
+	ADDI R1, R0, #8
+	CVI V0, R1       ; V0 = [0, 8, 16, 24, ...]  (V0[i] <- i*8)
+\end{lstlisting}
+\textit{Notas:} Con Rs=8 genera la secuencia 0, 8, 16, 24\ldots, que sirve como vector de índices para accesos indirectos (LVI/SVI) a elementos consecutivos, ya que los índices son desplazamientos en bytes y cada elemento ocupa 8 bytes. Con Rs=16 se accedería a uno de cada dos elementos, y así sucesivamente.
+
+\paragraph*{CVM --- \texttt{CVM}}
+Reinicia la máscara vectorial con todos los bits a 1 (todos los elementos activos).
+El Listado~\ref{lst:instr-cvm} presenta un ejemplo de construcción de la instrucción \texttt{CVM}.
+
+\begin{lstlisting}[caption={CVM},label={lst:instr-cvm}]
+	CVM
+\end{lstlisting}
+
+\paragraph*{POP --- \texttt{POP Rd, VM}}
+Recuento de población (\textit{popcount}) de la máscara vectorial: cuenta bits a 1 en VM y guarda el resultado en Rd.
+
+\textit{Operandos:} Rd: Registro destino. VM: Máscara vectorial cuyos bits a 1 se cuentan.
+El Listado~\ref{lst:instr-pop} presenta un ejemplo de construcción de la instrucción \texttt{POP}.
+
+\begin{lstlisting}[caption={POP},label={lst:instr-pop}]
+	POP R1, VM       ; R1 <- numero de elementos activos en VM
+\end{lstlisting}
+\textit{Notas:} Útil para saber cuántos elementos de un vector cumplen una condición tras una comparación vectorial (SLTV, SEQV, etc.).
+
+\section{Directivas}
+
+En esta sección se listan las directivas disponibles del ensamblador.
+
+\paragraph*{.data --- \texttt{.data [dirección]}}
+Marca el inicio del segmento de datos. Las directivas siguientes (\texttt{.word}, \texttt{.space}, \texttt{.asciiz}, etc.) reservan espacio en la memoria de datos. Opcionalmente admite una dirección inicial: los datos siguientes se colocan a partir de esa dirección de la memoria de datos.
+El Listado~\ref{lst:instr-data} presenta un ejemplo de uso de la directiva \texttt{.data}.
+
+\begin{lstlisting}[caption={.data},label={lst:instr-data}]
+	.data
+	MiVar: .word 42
+	.data 0x1000     ; los datos siguientes empiezan en 0x1000
+	X:     .double 1.0, 2.0
+\end{lstlisting}
+
+\paragraph*{.text --- \texttt{.text [desplazamiento]}}
+Marca el inicio del segmento de código. Las instrucciones siguientes se ensamblan en la memoria de instrucciones. Es obligatoria: todo programa debe contener al menos una directiva \texttt{.text}. Opcionalmente admite un desplazamiento, relativo al inicio del código del usuario (0x64, justo después de la tabla de vectores).
+El Listado~\ref{lst:instr-text} presenta un ejemplo de uso de la directiva \texttt{.text}.
+
+\begin{lstlisting}[caption={.text},label={lst:instr-text}]
+	.text
+	ADDI R1, R0, #5
+\end{lstlisting}
+
+\paragraph*{.global --- \texttt{.global label}}
+Declara una etiqueta como global, visible para todos los módulos que se ensamblen juntos. Sin esta directiva, las etiquetas son locales al módulo.
+El Listado~\ref{lst:instr-global} presenta un ejemplo de uso de la directiva \texttt{.global}.
+
+\begin{lstlisting}[caption={.global},label={lst:instr-global}]
+	.global InputUnsigned
+	InputUnsigned:
+\end{lstlisting}
+\textit{Notas:} Necesaria cuando se ensamblan varios archivos (.s) juntos y un módulo referencia etiquetas de otro.
+
+\paragraph*{.word --- \texttt{.word value [, value2, ...]}}
+Reserva una o más palabras de 32 bits en la memoria de datos y las inicializa con los valores dados. Se puede usar con etiquetas para referenciar la dirección.
+El Listado~\ref{lst:instr-word} presenta un ejemplo de uso de la directiva \texttt{.word}.
+
+\begin{lstlisting}[caption={.word},label={lst:instr-word}]
+	MiArray: .word 1, 2, 3, 4
+\end{lstlisting}
+
+\paragraph*{.byte --- \texttt{.byte value [, value2, ...]}}
+Reserva uno o más bytes en la memoria de datos.
+El Listado~\ref{lst:instr-byte} presenta un ejemplo de uso de la directiva \texttt{.byte}.
+
+\begin{lstlisting}[caption={.byte},label={lst:instr-byte}]
+	MiByte: .byte 0xFF
+\end{lstlisting}
+
+\paragraph*{.float --- \texttt{.float value [, value2, ...]}}
+Reserva 4 bytes por cada valor y los inicializa con valores de punto flotante de precisión simple.
+El Listado~\ref{lst:instr-float} presenta un ejemplo de uso de la directiva \texttt{.float}.
+
+\begin{lstlisting}[caption={.float},label={lst:instr-float}]
+	Pi: .float 3.14159
+\end{lstlisting}
+
+\paragraph*{.double --- \texttt{.double value [, value2, ...]}}
+Reserva 8 bytes por cada valor y los inicializa con valores de punto flotante de doble precisión. Es el formato de los elementos de los registros vectoriales (LV/SV).
+El Listado~\ref{lst:instr-double} presenta un ejemplo de uso de la directiva \texttt{.double}.
+
+\begin{lstlisting}[caption={.double},label={lst:instr-double}]
+	E: .double 2.718281828
+\end{lstlisting}
+
+\paragraph*{.space --- \texttt{.space n}}
+Reserva n bytes en la memoria de datos. Su contenido inicial es 0, ya que la memoria de datos se pone a cero antes de cargar cada programa.
+El Listado~\ref{lst:instr-space} presenta un ejemplo de uso de la directiva \texttt{.space}.
+
+\begin{lstlisting}[caption={.space},label={lst:instr-space}]
+	Buffer: .space 80
+\end{lstlisting}
+
+\paragraph*{.ascii --- \texttt{.ascii \textquotedbl string\textquotedbl}}
+Almacena la cadena de texto en memoria sin terminador nulo. Se procesan las secuencias de escape estándar (\texttt{\textbackslash n}, \texttt{\textbackslash t}, \texttt{\textbackslash r}, \texttt{\textbackslash\textbackslash}, \texttt{\textbackslash\textquotedbl}, \texttt{\textbackslash 0}).
+El Listado~\ref{lst:instr-ascii} presenta un ejemplo de uso de la directiva \texttt{.ascii}.
+
+\begin{lstlisting}[caption={.ascii},label={lst:instr-ascii}]
+	.ascii "Hola mundo"
+\end{lstlisting}
+
+\paragraph*{.asciiz --- \texttt{.asciiz \textquotedbl string\textquotedbl}}
+Almacena la cadena de texto seguida de un byte nulo (0x00). Es la forma estándar para cadenas compatibles con C.
+El Listado~\ref{lst:instr-asciiz} presenta un ejemplo de uso de la directiva \texttt{.asciiz}.
+
+\begin{lstlisting}[caption={.asciiz},label={lst:instr-asciiz}]
+	Msg: .asciiz "Valor = %d\n"
+\end{lstlisting}
+\textit{Notas:} Soporta secuencias de escape: \texttt{\textbackslash n} (0x0A), \texttt{\textbackslash t} (0x09), \texttt{\textbackslash r} (0x0D), \texttt{\textbackslash\textbackslash} (0x5C), \texttt{\textbackslash\textquotedbl} (0x22), \texttt{\textbackslash 0} (0x00).
+
+\paragraph*{.align --- \texttt{.align n}}
+Alinea el puntero del segmento actual (datos o código) al siguiente múltiplo de $2^n$ bytes. Útil antes de \texttt{.word} o \texttt{.double} para cumplir requisitos de alineación.
+El Listado~\ref{lst:instr-align} presenta un ejemplo de uso de la directiva \texttt{.align}.
+
+\begin{lstlisting}[caption={.align},label={lst:instr-align}]
+	.align 2  ; alinea a 4 bytes (2^2)
+	.word 0
+\end{lstlisting}
+
+
+\section{Llamadas al sistema}
+
+En esta sección se listan las operaciones especiales del sistema, el manejo de excepciones y el control de entrada/salida.
+
+\paragraph*{IAR --- registro especial implícito}
+El IAR (Interrupt Address Register) es un registro especial de 32 bits que escribe automáticamente el procesador. Al producirse una excepción guarda la dirección de la instrucción que la ha provocado, y es la dirección que utiliza RFE para continuar la ejecución. Al ejecutar un TRAP guarda la dirección de la instrucción siguiente al TRAP (PC+4).
+El Listado~\ref{lst:instr-iar} presenta un ejemplo de uso del registro especial \texttt{IAR}.
+
+\begin{lstlisting}[caption={IAR},label={lst:instr-iar}]
+	DIV R3, R1, R2   ; si R2 = 0: IAR <- PC de esta DIV
+	                 ; y salta al manejador __divzero_handler
+\end{lstlisting}
+\textit{Notas:} El IAR se muestra en el panel de registros (banco de enteros, al final). Ninguna instrucción de usuario puede escribirlo. Se reinicia a 0 cuando el procesador se reinicia.
+
+\paragraph*{RFE --- \texttt{RFE}}
+Retorna de un manejador de excepciones. Carga en el PC la dirección guardada en el IAR más 4 (PC $\leftarrow$ IAR + 4), borra el registro de causa de la excepción y vacía las instrucciones captadas especulativamente tras RFE. Como el IAR contiene la dirección de la instrucción que provocó la excepción, la ejecución continúa en la instrucción siguiente a ella.
+El Listado~\ref{lst:instr-rfe} presenta un ejemplo de construcción de la instrucción \texttt{RFE}.
+
+\begin{lstlisting}[caption={RFE},label={lst:instr-rfe}]
+	__divzero_handler:   ; se llega aqui si una DIV divide por 0
+	ADDI R3, R0, #0      ; tratamiento: deja el resultado a 0
+	RFE                  ; PC <- IAR+4: continua tras la DIV
+\end{lstlisting}
+\textit{Notas:} RFE es una instrucción de tipo J sin operandos. La instrucción que provocó la excepción no se vuelve a ejecutar. Los TRAP no pasan por ningún manejador (el simulador los ejecuta directamente), por lo que no es necesario usar RFE tras un TRAP.
+
+\paragraph*{TRAP 0 --- exit}
+Finaliza la ejecución del programa. El simulador detiene el pipeline y marca la ejecución como terminada.
+El Listado~\ref{lst:instr-trap-0} presenta un ejemplo de construcción de la instrucción \texttt{TRAP 0}.
+
+\begin{lstlisting}[caption={TRAP 0},label={lst:instr-trap-0}]
+	TRAP 0
+\end{lstlisting}
+
+\paragraph*{TRAP 1 --- open}
+Apertura de fichero (no soportada en este simulador). Devuelve siempre $-1$ en R1.
+El Listado~\ref{lst:instr-trap-1} presenta un ejemplo de construcción de la instrucción \texttt{TRAP 1}.
+
+\begin{lstlisting}[caption={TRAP 1},label={lst:instr-trap-1}]
+	TRAP 1
+\end{lstlisting}
+\textit{Notas:} No implementada. Devuelve $-1$ para indicar error.
+
+\paragraph*{TRAP 2 --- close}
+Cierre de fichero (no soportado en este simulador). Devuelve siempre $-1$ en R1.
+El Listado~\ref{lst:instr-trap-2} presenta un ejemplo de construcción de la instrucción \texttt{TRAP 2}.
+
+\begin{lstlisting}[caption={TRAP 2},label={lst:instr-trap-2}]
+	TRAP 2
+\end{lstlisting}
+
+\paragraph*{TRAP 3 --- read}
+Lee una línea de texto desde la entrada estándar (stdin). R14 debe apuntar a un bloque de parámetros: MEM[R14+0] (word) descriptor de fichero (0=stdin); MEM[R14+4] (word) dirección del buffer destino; MEM[R14+8] (word) tamaño del buffer en bytes. La línea leída incluye el salto de línea final y se termina con un byte nulo, por lo que se guardan como máximo (tamaño $-$ 1) caracteres; si la línea es más larga, se trunca. Al terminar, R1 contiene el número de caracteres guardados (sin contar el nulo). Solo se admite el descriptor 0 (stdin); con cualquier otro valor, R1 recibe $-1$.
+
+\textit{Operandos:} R14: Dirección del bloque de parámetros en memoria de datos.
+El Listado~\ref{lst:instr-trap-3} presenta un ejemplo de construcción de la instrucción \texttt{TRAP 3}.
+
+\begin{lstlisting}[caption={TRAP 3},label={lst:instr-trap-3}]
+	.data
+	LeerBuf: .space 80
+	LeerPar: .word 0, LeerBuf, 80
+	.text
+	ADDI R14, R0, LeerPar
+	TRAP 3
+\end{lstlisting}
+\textit{Notas:} La ejecución se pausa hasta que el usuario introduce texto en la consola. El simulador muestra un aviso de entrada en la propia consola.
+
+\paragraph*{TRAP 4 --- write}
+Escribe bytes en stdout o stderr. Bloque de parámetros: MEM[R14+0] descriptor (1=stdout, 2=stderr); MEM[R14+4] dirección del buffer origen; MEM[R14+8] número de bytes a escribir. Escribe exactamente ese número de bytes, sin detenerse en un byte nulo, por lo que en una cadena \texttt{.asciiz} hay que indicar su longitud sin contar el nulo. Al terminar, R1 contiene el número de bytes escritos ($-1$ si el descriptor no es válido).
+
+\textit{Operandos:} R14: Dirección del bloque de parámetros en memoria de datos.
+El Listado~\ref{lst:instr-trap-4} presenta un ejemplo de construcción de la instrucción \texttt{TRAP 4}.
+
+\begin{lstlisting}[caption={TRAP 4},label={lst:instr-trap-4}]
+	.data
+	Msg:     .asciiz "Hola"
+	.align 2
+	EscrPar: .word 1, Msg, 4   ; 4 = longitud de "Hola"
+	.text
+	ADDI R14, R0, EscrPar
+	TRAP 4
+\end{lstlisting}
+
+\paragraph*{TRAP 5 --- printf}
+Imprime en stdout con formato estilo printf. Bloque de parámetros: MEM[R14+0] dirección de la cadena de formato (\texttt{.asciiz}); MEM[R14+4], MEM[R14+8]\ldots argumentos según especificador (\texttt{\%d}/\texttt{\%i} entero con signo, \texttt{\%u} sin signo, \texttt{\%x}/\texttt{\%X} hexadecimal, \texttt{\%f}/\texttt{\%g}/\texttt{\%e} double, \texttt{\%s} cadena, \texttt{\%c} carácter y \texttt{\%\%} para escribir el símbolo \%). Al terminar, R1 contiene el número de caracteres escritos.
+
+\textit{Operandos:} R14: Dirección del bloque de parámetros en memoria de datos.
+El Listado~\ref{lst:instr-trap-5} presenta un ejemplo de construcción de la instrucción \texttt{TRAP 5}.
+
+\begin{lstlisting}[caption={TRAP 5},label={lst:instr-trap-5}]
+	.data
+	Fmt:  .asciiz "Factorial = %g"
+	.align 2
+	Par:  .word Fmt
+	Val:  .space 8
+	.text
+	SD Val, F2
+	ADDI R14, R0, Par
+	TRAP 5
+\end{lstlisting}
+\textit{Notas:} Los argumentos float/double (\%f, \%g, \%e) deben guardarse como double (8 bytes, alineados a 4). Los enteros como word (4 bytes). Las cadenas como dirección word.
+
+\paragraph*{TRAP 6 --- parada inmediata}
+Detiene inmediatamente la ejecución del programa, descartando las instrucciones posteriores y sin modificar R1 ni ningún otro registro, de forma que el estado de la máquina queda tal y como estaba al llegar al TRAP. Es la instrucción que contiene el manejador por defecto (\texttt{\_\_default\_handler}, en la dirección 0x60), al que saltan todas las excepciones para las que el usuario no ha definido un manejador propio.
+El Listado~\ref{lst:instr-trap-6} presenta un ejemplo de construcción de la instrucción \texttt{TRAP 6}.
+
+\begin{lstlisting}[caption={TRAP 6},label={lst:instr-trap-6}]
+	TRAP 6           ; detiene el procesador de inmediato
+\end{lstlisting}
+\textit{Notas:} A diferencia de TRAP 0, que finaliza el programa de forma ordenada, TRAP 6 es una parada de emergencia. No escribe nada en la consola: el motivo de la parada se muestra en el ``Log de eventos''. Los códigos de TRAP válidos son del 0 al 6.
+
+\end{document}

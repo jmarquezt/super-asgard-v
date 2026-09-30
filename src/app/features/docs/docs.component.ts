@@ -19,6 +19,8 @@ export class DocsComponent {
   private breakpointObserver = inject(BreakpointObserver);
 
   protected sections = DOC_SECTIONS;
+  // Ruta relativa para que respete el base-href
+  protected readonly manualPdfUrl = 'assets/docs/manual-usuario.pdf';
 
   protected selected = signal<DocEntry | null>(null);
   protected openCategories = signal<Set<string>>(new Set());

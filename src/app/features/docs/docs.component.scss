@@ -58,6 +58,24 @@
   }
 }
 
+.sidebar-manual-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 12px 12px 4px;
+  padding: 8px 12px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: 8px;
+  color: var(--mat-sys-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover { background: color-mix(in srgb, var(--mat-sys-primary) 8%, transparent); }
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+}
+
 .sidebar-nav {
   flex: 1;
   overflow-y: auto;
@@ -439,6 +457,23 @@
     h2 { font-size: 1.4rem; margin: 0 0 8px; }
     p { font-size: 0.95rem; }
   }
+}
+
+.welcome-manual-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 24px;
+  padding: 10px 20px;
+  border-radius: 20px;
+  background: var(--mat-sys-primary);
+  color: var(--mat-sys-on-primary);
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover { opacity: 0.9; }
+
+  mat-icon { font-size: 20px; width: 20px; height: 20px; }
 }
 
 .welcome-grid {

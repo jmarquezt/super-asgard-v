@@ -1,0 +1,1187 @@
+\documentclass[../main.tex]{subfiles}
+
+\begin{document}
+\chapter{Manual de usuario}
+\label{C:manual}
+
+Este capítulo sirve como punto de entrada y manual de referencia a alumnos y docentes que quieran utilizar la aplicación.
+
+\section{Requisitos previos}
+
+Es necesario disponer de acceso a la aplicación instalada ya sea en un entorno local o cloud como se explicó en el Capítulo~\ref{C:instalacion}, además de un navegador web para acceder a la misma.
+
+\section{Interfaz de usuario}
+
+La interfaz se presenta de dos posibles maneras, según se acceda utilizando un dispositivo de escritorio o un dispositivo móvil. Se considera un dispositivo móvil aquel con una resolución de pantalla inferior a 600px y orientación vertical o con una resolución de pantalla inferior a 960px y orientación horizontal.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\columnwidth]{desktop.png}
+	\caption{Interfaz desarrollada para escritorio.}
+	\label{fig:manual-desktop}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[height=0.5\textheight]{mobile.png}
+	\caption{Interfaz desarrollada para dispositivos móviles.}
+	\label{fig:manual-mobile}
+\end{figure}
+
+La Figura~\ref{fig:manual-desktop} muestra cómo es la interfaz para un dispositivo de escritorio, dividida en tres columnas, poniendo el foco en el pipeline y el cronograma de la ejecución (en la columna central), rodeando a estos del resto de componentes del procesador, así el editor del código fuente y los registros quedan en la columna izquierda y la consola de entrada / salida y la memoria en la columna derecha. Por otro lado, la Figura~\ref{fig:manual-mobile} muestra cómo en dispositivos móviles con la pantalla más pequeña, la interfaz se divide en pestañas agrupando los diferentes componentes por etapa dentro del proceso, pero manteniendo los controles de ejecución siempre visibles.
+
+\subsection{Menú principal}
+
+El menú principal se muestra siempre visible en la parte de arriba de la pantalla, incluye el logo y nombre de la aplicación junto a las opciones básicas de navegación. La Figura~\ref{fig:manual-menuppal} muestra las opciones del menú principal de la aplicación que, de izquierda a derecha son:
+
+\begin{enumerate}
+	\item \textbf{Inicio}: carga la pantalla por defecto de la aplicación, el simulador.
+	\item \textbf{Documentación}: carga una pantalla especial que recoge tanto las instrucciones y directivas disponibles en la arquitectura como un pequeño manual de usuario de la aplicación.
+	\item \textbf{Ajustes}: presenta un formulario en popup con las opciones de configuración del simulador.
+	\item \textbf{Tema}: permite intercambiar entre un tema oscuro y claro de la interfaz.
+	\item \textbf{Idioma}: consiste en un selector que permite cambiar el idioma de la aplicación. Los idiomas disponibles a fecha de la redacción de este manual son ``Inglés'' y ``Español''.
+\end{enumerate}
+
+Hay que aclarar que todos los textos del apartado ``Documentación'' así como las traducciones del idioma ``Inglés'' han sido generados con la Inteligencia Artificial Generativa de Google ``Gemini'' y revisados posteriormente antes de su inclusión.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\columnwidth]{manual-menuppal.png}
+	\caption{Menú principal de la aplicación.}
+	\label{fig:manual-menuppal}
+\end{figure}
+
+\subsection{Menú móvil}
+
+El menú de pestañas que aparece en dispositivos móviles se muestra en la parte de abajo de la pantalla, siguiendo las líneas de diseño actuales tanto de iOS como de Android. La Figura~\ref{fig:manual-menumovil} muestra las opciones del menú móvil de la aplicación que, de izquierda a derecha son:
+
+\begin{enumerate}
+	\item \textbf{Editor}: es la pantalla por defecto en móvil y punto de entrada de la aplicación. Muestra el editor a pantalla completa.
+	\item \textbf{Ejecución}: muestra los componentes de pipeline, cronograma, consola de E/S y el log de eventos.
+	\item \textbf{Registros}: muestra los componentes de registros y memorias, además de los específicos del superescalar.
+	\item \textbf{Stats}: muestra las estadísticas de la ejecución.
+\end{enumerate}
+
+El menú principal sigue estando visible siempre en la parte de arriba para poder seleccionar las opciones de navegación principales de la aplicación.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\columnwidth]{manual-menumovil.png}
+	\caption{Menú móvil de la aplicación.}
+	\label{fig:manual-menumovil}
+\end{figure}
+
+\subsection{Controles de ejecución}
+
+Tanto en la interfaz de escritorio como en la interfaz móvil los controles de la ejecución están siempre visibles y a disposición del usuario para controlar el sistema. La Figura~\ref{fig:manual-controlesdesktop} muestra cómo los controles de ejecución en la interfaz de escritorio están integrados en el editor, mientras que la Figura~\ref{fig:manual-controlesmovil} muestra cómo aparecen flotantes sobre el menú móvil, apareciendo siempre independientemente de la pestaña seleccionada.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\columnwidth]{manual-controlesdesktop.png}
+	\caption{Controles de ejecución del simulador.}
+	\label{fig:manual-controlesdesktop}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\columnwidth]{manual-controlesmovil.png}
+	\caption{Controles de ejecución del simulador flotantes.}
+	\label{fig:manual-controlesmovil}
+\end{figure}
+
+Los controles disponibles para el control de la ejecución son los siguientes:
+
+\begin{enumerate}
+	\item \textbf{Ejecutar}: compila y ejecuta el código disponible en el editor o continúa una ejecución en pausa hasta el final del mismo sin interrupciones (salvo que encuentre una excepción).
+	\item \textbf{Pausar}: pausa la ejecución actual manteniendo el estado de ejecución, pudiendo reanudar la misma desde la instrucción en que se pausó.
+	\item \textbf{Detener ejecución}: para la ejecución actual sin mantener el estado de ejecución, siendo necesario reiniciar la ejecución desde la primera instrucción.
+	\item \textbf{Ciclo único (step)}: en una ejecución pausada, ejecuta el siguiente ciclo al actual, pausando el procesador al término del mismo.
+	\item \textbf{Ejecutar hasta breakpoint}: ejecuta el código disponible en el editor o continúa una ejecución en pausa hasta el siguiente breakpoint encontrado.
+	\item \textbf{Modo rendimiento}: permite configurar el simulador para ejecutar 500 ciclos de reloj por ciclo real, aumentando el rendimiento.
+	\item \textbf{Reiniciar procesador}: para el procesador y reinicia el estado de ejecución al inicial.
+	\item \textbf{Selector de velocidad}: permite seleccionar la velocidad (ciclos por segundo) a la que se ejecutan los ciclos para aumentar o disminuir el rendimiento de la máquina.
+\end{enumerate}
+
+\section{Configuración de la ejecución}
+
+Desde el menú principal (icono engranaje - settings) se accede a la vista con el formulario para configurar los parámetros de la máquina que se quiere simular. Estos parámetros están agrupados según la categoría a la que aplican y se pueden cambiar individualmente, además se proporciona una configuración ``de fábrica'' con la que operar.
+
+\subsection{Procesador}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\columnwidth]{manual-configuracion1.png}
+	\caption{Parámetros de configuración del procesador.}
+	\label{fig:manual-configuracion1}
+\end{figure}
+
+La Figura~\ref{fig:manual-configuracion1} muestra los parámetros de configuración disponibles para la categoría ``procesador'', esta categoría permite personalizar los siguientes parámetros.
+
+\subsubsection*{Tipo de procesador}
+
+Permite seleccionar el tipo de procesador de entre los desarrollados que ejecutará el programa simulado.
+
+\textbf{Procesador monociclo} (``No segmentado (Ciclo único)'' en la interfaz): ejecuta una instrucción completa antes de comenzar la siguiente. Cada instrucción pasa por las etapas (IF, ID, EX, MEM, WB) de forma secuencial, cada una dura entre uno y varios ciclos de reloj según la latencia de la instrucción. No presenta riesgos de datos ni estructurales, ya que cada instrucción termina antes de que la siguiente empiece. El CPI es variable según la instrucción (dependiendo de la latencia) y no dispone de adelantamiento de datos ni predicción de saltos. Es útil para el aprendizaje inicial y para comparar el rendimiento con los procesadores segmentados.
+
+\textbf{Procesador segmentado}: ejecuta las instrucciones de manera solapada en las etapas (IF, ID, EX, MEM, WB), permitiendo hasta 5 instrucciones simultáneas. Dispone de adelantamiento de datos para resolver dependencias RAW sin detener la segmentación y predicción de saltos para continuar la ejecución antes de la resolución del mismo. Ambas técnicas permiten mejorar la velocidad de ejecución y reducir detenciones. El objetivo es alcanzar un CPI de 1, donde se completa una instrucción en cada ciclo de reloj.
+
+\textbf{Procesador superescalar}: arquitectura con ejecución fuera de orden que utiliza el algoritmo de Tomasulo (planificación dinámica) para maximizar el paralelismo y aumentar el rendimiento. El Reorder Buffer (ROB) mantiene el orden del programa. Las estaciones de reserva RS y las unidades FU se encargan de la ejecución fuera de orden y permiten procesar varias instrucciones en el mismo ciclo. Este procesador puede alcanzar un CPI menor que 1, pero a costa de aumentar el hardware del equipo.
+
+\subsubsection*{Tamaño de memoria}
+
+Tamaño del espacio de memoria de datos en bytes (por defecto 4096 bytes / 4 KB). Aumentar este valor permite programas más grandes, pero incrementa el uso de memoria del simulador. La memoria de instrucciones es independiente y no se puede configurar. El valor mínimo es 1024 y el máximo 65536. Los valores introducidos deben ser potencia de 2.
+
+\subsubsection*{Adelantamiento de datos}
+
+Activa o desactiva el envío de datos entre etapas del pipeline antes de su consolidación en los registros o memoria (adelantamiento). Con el adelantamiento activo, los resultados disponibles en las etapas EX/MEM y MEM/WB se propagan directamente a la entrada de la etapa EX de la instrucción siguiente, de forma que la única dependencia RAW que provoca una parada es la de una instrucción que usa el dato cargado por un load inmediatamente anterior (load-use). Al desactivarlo, la instrucción dependiente debe esperar en ID a que el dato esté disponible en la etapa WB de la instrucción anterior, aumentando el CPI. Valor por defecto: activado. Solo disponible si en tipo de procesador se selecciona ``segmentado''. El procesador monociclo por sus características de construcción no dispone de adelantamiento de datos y en el superescalar es obligatorio por sus características.
+
+\subsubsection*{Branch Delay Slot}
+
+Opción ``Slot de retardo de salto'' en la interfaz. Permite configurar si la instrucción posterior a un salto se debe ejecutar siempre, se tome o no el salto. Valor por defecto: desactivado. Solo disponible si en tipo de procesador se selecciona ``segmentado''. El procesador monociclo no dispone de slot de retardo, puesto que ejecuta una instrucción completa antes de la siguiente, y en el superescalar está desactivado por sus características especulativas, ya que se ejecutan instrucciones siguientes al salto antes de su resolución.
+
+\subsection{Predicción de saltos}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\columnwidth]{manual-configuracion2.png}
+	\caption{Parámetros de configuración de la predicción de saltos.}
+	\label{fig:manual-configuracion2}
+\end{figure}
+
+La Figura~\ref{fig:manual-configuracion2} muestra los parámetros de configuración disponibles para la categoría ``predicción de saltos'', esta categoría permite personalizar los siguientes parámetros. Solo está disponible si en tipo de procesador se selecciona ``segmentado'' o ``superescalar'': el procesador monociclo no dispone de predicción de saltos.
+
+\subsubsection*{Estrategia de predicción}
+
+Permite seleccionar entre una de las ocho estrategias de predicción de saltos disponibles en el sistema:
+
+\begin{itemize}
+	\item \texttt{Ninguna}: sin predictor; se continúa siempre por la ruta secuencial, es decir, se predice el salto como no tomado (``Ninguna (Siempre No Tomado)'' en la interfaz).
+	\item \texttt{Estática siempre tomado}: se predice el salto siempre como tomado.
+	\item \texttt{Estática BTFN}: Backward Taken, Forward Not. Se predice como tomado si el salto es hacia atrás en el código y como no tomado si el salto es hacia adelante.
+	\item \texttt{Dinámica 1-bit}: predictor de 1 bit por entrada, recuerda el último resultado.
+	\item \texttt{Dinámica 2-bit}: predictor de Smith con contador saturante de 2 bits.
+	\item \texttt{Dinámica 2-bit gshare}: predictor con historial global combinado aplicando XOR con la dirección de salto.
+	\item \texttt{Híbrida por torneo}: combina un predictor local con un predictor gshare global y evalúa el mejor resultado.
+	\item \texttt{RAS}: pila de direcciones de retorno para predecir el destino de instrucciones JR, siendo su principal uso predecir el retorno de las subrutinas.
+\end{itemize}
+
+Valor seleccionado por defecto: Ninguna.
+
+\subsubsection*{Tamaño del registro GHR}
+
+Permite configurar los bits del registro de historial global. Mínimo 2 bits y máximo 12 bits. Valor por defecto: 2 bits. Cuanto mayor sea el registro, mayor será el número de combinaciones posibles y patrones más largos, pero puede llevar a un menor porcentaje de acierto. Solo disponible si en estrategia de predicción se selecciona ``Dinámica 2-bit gshare'' o ``Híbrida por torneo''.
+
+\subsection{Arquitectura vectorial}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\columnwidth]{manual-configuracion3.png}
+	\caption{Parámetros de configuración de la arquitectura vectorial.}
+	\label{fig:manual-configuracion3}
+\end{figure}
+
+La Figura~\ref{fig:manual-configuracion3} muestra los parámetros de configuración disponibles para la categoría ``arquitectura vectorial'', esta categoría permite personalizar los siguientes parámetros.
+
+\subsubsection*{Máxima longitud vectorial MVL}
+
+Número máximo de elementos que puede contener cada registro vectorial. Determina cuántas iteraciones de un bucle vectorizado caben en una sola instrucción vectorial. Los bucles con más elementos que el MVL necesitan dividirse en varios tramos del tamaño del MVL. El registro VLR nunca puede ser mayor que el valor de MVL configurado. Siempre en potencias de 2, con valor mínimo de 8 y valor máximo de 256. Por defecto con valor 64.
+
+\subsubsection*{Encadenamiento vectorial (chaining)}
+
+Permite que una instrucción vectorial que depende del resultado de otra (dependencia RAW) empiece a consumir sus elementos a medida que se van produciendo, sin esperar a que el vector completo esté calculado. Al desactivarlo, la instrucción dependiente espera a que la anterior obtenga el resultado completo, lo que puede aumentar el tiempo de ejecución vectorial en varios ciclos. Valor por defecto: activado. Solo disponible si en tipo de procesador se selecciona ``segmentado'' o ``superescalar''. El procesador monociclo por sus características de construcción no dispone de encadenamiento.
+
+\subsubsection*{Carriles ALU vectoriales}
+
+Permite ajustar el número de ``lanes'' disponibles al realizar operaciones ALU vectoriales. Cada carril procesa un elemento por ciclo. El valor mínimo es 1 y el valor máximo 64. El valor por defecto es 4.
+
+\subsubsection*{Carriles memoria vectoriales}
+
+Permite ajustar el número de ``lanes'' disponibles al realizar operaciones de memoria vectorial. Cada carril procesa un elemento por ciclo. El valor mínimo es 1 y el valor máximo 64. El valor por defecto es 4.
+
+\subsection{Latencias de unidades funcionales}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\columnwidth]{manual-configuracion4.png}
+	\caption{Parámetros de configuración de latencias de unidades funcionales.}
+	\label{fig:manual-configuracion4}
+\end{figure}
+
+La Figura~\ref{fig:manual-configuracion4} muestra los parámetros de configuración disponibles para la categoría ``latencias de unidades funcionales'', esta categoría permite personalizar el número de ciclos que una operación permanece en la etapa EX según la operación que realiza (el valor configurable está siempre entre 1 y 256 ciclos). Valores altos de latencia simulan un hardware más lento para esa operación mientras que valores más bajos simulan un hardware más rápido.
+
+\begin{enumerate}
+	\item \textbf{Operaciones enteras}: multiplicación entera por defecto a 7 y la división entera por defecto a 24.
+	\item \textbf{Operaciones de punto flotante}:
+	\begin{itemize}
+		\item Suma / resta FP simple: por defecto a 2.
+		\item Multiplicación FP simple: por defecto a 7.
+		\item División FP simple: por defecto a 24.
+		\item Suma / resta FP doble: por defecto a 4.
+		\item Multiplicación FP doble: por defecto a 14.
+		\item División FP doble: por defecto a 48.
+	\end{itemize}
+	\item \textbf{Operaciones vectoriales}: se corresponden con la latencia inicial de la unidad funcional antes de poder operar (en el caso de las operaciones de almacenamiento se refiere a la latencia final hasta que el dato está disponible).
+	\begin{itemize}
+		\item Memoria vectorial: por defecto a 12.
+		\item Suma vectorial: por defecto a 6.
+		\item Multiplicación vectorial: por defecto a 7.
+		\item División vectorial: por defecto a 20.
+		\item Comparación vectorial: por defecto a 1.
+	\end{itemize}
+\end{enumerate}
+
+\subsection{Configuración específica superescalar}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\columnwidth]{manual-configuracion5.png}
+	\caption{Parámetros de configuración del procesador superescalar.}
+	\label{fig:manual-configuracion5}
+\end{figure}
+
+La Figura~\ref{fig:manual-configuracion5} muestra los parámetros de configuración disponibles para la categoría ``superescalar'', esta categoría permite personalizar las opciones de ejecución para el procesador superescalar, solo aplican si el tipo de procesador seleccionado es ``superescalar''.
+
+\subsubsection*{Tipo y tamaño de las estaciones de reserva}
+
+Permite seleccionar cómo se organizarán las estaciones de reserva entre ``distribuidas'' (cada unidad funcional tiene su propia RS; permite configurar el número de estaciones de reserva por unidad funcional, por defecto 4), ``centralizadas'' (una única RS compartida por todas las unidades funcionales. Permite configurar el tamaño de la estación, por defecto 32) y ``por clústeres'' (las unidades funcionales se agrupan en 4 clústeres según el tipo de operación. Cada uno tiene su propio tamaño de RS configurable).
+
+\subsubsection*{Ancho de emisión}
+
+Permite configurar cuántas instrucciones simultáneas se pueden enviar a las estaciones de reserva en un ciclo de reloj. También es el número de instrucciones que se capturan de manera simultánea en la etapa IF. Los valores disponibles son 1, 2, 4 y 8. Por defecto 4.
+
+\subsubsection*{Tamaño del ROB}
+
+Permite configurar cuántas entradas simultáneas en espera puede tener el buffer de reordenamiento, es decir, cuántas instrucciones pueden estar ``en vuelo'' a la vez. Si el ROB se llena, el procesador deja de capturar nuevas instrucciones en la etapa IF hasta que las existentes vayan saliendo haciendo commit en la etapa RI. Puede ser un valor entre 16 y 256. Valor por defecto 64.
+
+\subsubsection*{Ancho del CDB}
+
+Permite configurar el número de resultados que se pueden publicar en el bus común de datos en un ciclo de reloj. Ampliar el ancho del CDB permite reducir cuellos de botella cuando varias unidades funcionales terminan en el mismo ciclo. Puede ser un valor entre 1 y 16. Por defecto 4.
+
+\subsubsection*{Unidades funcionales}
+
+Permite configurar el número de unidades funcionales de cada tipo que hay disponibles en el procesador para realizar las operaciones. Aumentar el número de unidades de un tipo es de ayuda si el programa tiene varias instrucciones de ese tipo independientes entre sí esperando para ejecutarse. El número de unidades de cada tipo puede estar entre 1 y 8.
+
+\begin{enumerate}
+	\item ALU enteras: por defecto a 2.
+	\item Multiplicación entera: por defecto a 1.
+	\item División entera: por defecto a 1.
+	\item Suma / resta FP: por defecto a 1.
+	\item Multiplicación FP: por defecto a 1.
+	\item División FP: por defecto a 1.
+	\item Unidades carga / almacenamiento: por defecto a 2.
+	\item Unidades de salto: por defecto a 1.
+	\item Unidades de memoria vectorial: por defecto a 1.
+	\item ALU vectoriales: por defecto a 1.
+	\item Multiplicación vectorial: por defecto a 1.
+	\item División vectorial: por defecto a 1.
+\end{enumerate}
+
+\subsubsection*{Solapamiento de inicio vectorial}
+
+Opción ``Solapado de inicio vectorial'' en la interfaz. Permite que una instrucción vectorial comience su fase de inicialización en una unidad funcional que sigue ocupada por otra instrucción vectorial anterior terminando de procesar sus elementos, reduciendo el tiempo total de procesamiento entre instrucciones vectoriales. Valor por defecto: activado.
+
+\subsubsection*{Presets de la configuración}
+
+Se han preparado tres configuraciones predefinidas jugando con los parámetros del superescalar anteriores para un ajuste automático:
+
+\begin{itemize}
+	\item \textbf{Mínima}: Ancho de emisión = 2, ROB = 32, RS centralizada de 16, 1 ALU entera, 1 unidad de memoria, CDB = 2. Simula un procesador superescalar con configuración de hardware mínima.
+	\item \textbf{Equilibrada} (valor por defecto): Ancho de emisión = 4, ROB = 64, RS distribuida (4 por unidad), 2 ALUs enteras, 2 unidades de memoria, CDB = 4. Simula un procesador superescalar de rendimiento medio.
+	\item \textbf{Agresiva}: Ancho de emisión = 8, ROB = 128, RS agrupada en clústeres grandes, 4 ALUs enteras, 3 unidades de memoria, CDB = 8. Simula un procesador superescalar de alto rendimiento.
+\end{itemize}
+
+\subsection{Registro y visualización}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\columnwidth]{manual-configuracion6.png}
+	\caption{Parámetros de configuración de rendimiento del sistema.}
+	\label{fig:manual-configuracion6}
+\end{figure}
+
+La Figura~\ref{fig:manual-configuracion6} muestra los parámetros de configuración disponibles para la categoría ``registro y visualización'', esta categoría permite personalizar dos opciones para mejorar el rendimiento general del sistema:
+
+\begin{enumerate}
+	\item \textbf{Registro de eventos}: permite activar o desactivar completamente el componente de logs para no degradar el rendimiento con registros de log de la ejecución. Valor por defecto: activado.
+	\item \textbf{Nivel de detalle}: si la opción anterior está habilitada, permite restringir qué tipos de mensajes de log mostrar:
+	\begin{itemize}
+		\item \textbf{Debug}: muestra todos los logs de la aplicación. Perfecto para hacer debug de un programa pero peor en rendimiento en programas grandes.
+		\item \textbf{Relevante} (valor por defecto): muestra solo los mensajes de éxito y los errores. Modo balanceado.
+		\item \textbf{Warning}: muestra solo mensajes de aviso y de error.
+		\item \textbf{Error}: muestra solo mensajes de error.
+	\end{itemize}
+	\item \textbf{Modo del cronograma}: define cómo debe mostrarse el cronograma de la ejecución. ``En vivo'' (valor por defecto) actualiza en tiempo real. ``Al finalizar'' genera el cronograma completo al terminar la ejecución del programa, lo que mejora el rendimiento. ``Desactivado'' no genera ningún cronograma.
+\end{enumerate}
+
+\section{Cómo ejecutar programas}
+
+No es necesario un conocimiento previo de la herramienta para comenzar a ejecutar programas. Los pasos principales son:
+
+\begin{enumerate}
+	\item \textbf{Escribe el código}: en el editor, por defecto ya se dispone de una pestaña abierta, se escribe o se pega un código ASG.
+	\item \textbf{Pulsa ejecutar}: se pulsa el botón de reproducir, en los controles de ejecución. Al pulsarlo la aplicación compila el código introducido a instrucciones que el procesador simulado puede entender y empieza a ejecutarlas automáticamente, una tras otra, hasta el final.
+	\item \textbf{Observa los resultados}: durante la ejecución del programa, los paneles de registros, memoria, pipeline y cronograma muestran cómo cambian los valores cuando la instrucción que los modifica se ejecuta. También se puede seguir la ejecución en el editor, cuando una instrucción pasa a ejecutarse se remarca la línea actual en el editor.
+	\item \textbf{Si algo falla}: si el código contiene un error, la aplicación no ejecuta nada, se resalta en rojo la línea que contiene el error en el editor y se muestra un mensaje en el panel de ``Log de eventos''. Si el error se produce durante la ejecución, se ejecutará el manejador de errores correspondiente y la salida del programa variará dependiendo del contenido de este último.
+	\item \textbf{Para volver a empezar desde cero}: se pulsa el botón de reiniciar procesador, en los controles de ejecución. Esta acción restaura la máquina a su estado inicial y la ejecución del programa a la primera instrucción.
+\end{enumerate}
+
+Una vez en ejecución el programa, la herramienta dispone de varios paneles para hacer el seguimiento de los resultados.
+
+\subsection{Editor de código}
+
+El editor integrado soporta varias pestañas simultáneas, cada una con su propio módulo de código fuente independiente. La Figura~\ref{fig:manual-editor} muestra el editor de la aplicación con varias pestañas abiertas y las diferentes opciones disponibles.
+
+\begin{itemize}
+	\item \textbf{Añadir módulo}: el botón ``+'' crea un módulo adicional vacío. Al ejecutar un programa, todos los módulos abiertos se ensamblan juntos como si fueran ficheros de un mismo programa, compartiendo etiquetas y memoria de datos.
+	\item \textbf{Cerrar pestaña}: el botón ``x'' elimina el módulo de forma permanente. Esta acción no se puede revertir.
+	\item \textbf{Limpiar pestaña}: borra todo el contenido de la pestaña activa sin cerrarla.
+	\item \textbf{Planificador estático}: abre el planificador estático y carga el código de la pestaña activa.
+	\item \textbf{Puntos de interrupción}: permite añadir puntos de interrupción en las líneas deseadas, para ello basta con hacer clic en el margen izquierdo de la línea deseada, lo que hará que aparezca un punto rojo, señal de que se ha añadido correctamente.
+	\begin{itemize}
+		\item Para eliminar un punto de interrupción, basta con pulsar sobre el punto rojo y desaparecerá.
+		\item Al pulsar en ejecutar, la ejecución avanzará hasta que la instrucción en esa línea vaya a entrar al pipeline, momento en que se detendrá, permitiendo inspeccionar el estado de la máquina en ese punto.
+		\item Los puntos de interrupción solo pueden colocarse sobre líneas que contengan una instrucción real (no en comentarios, directivas o líneas vacías).
+	\end{itemize}
+	\item \textbf{Barra de estado inferior}: muestra el número de módulos abiertos y el valor actual del contador de programa (PC) en hexadecimal.
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[height=0.5\textheight]{manual-editor.png}
+	\caption{Editor con varias pestañas y un punto de interrupción.}
+	\label{fig:manual-editor}
+\end{figure}
+
+Durante el proceso de escritura del código, el editor va sugiriendo el autocompletado de palabras clave, registros y directivas. La Figura~\ref{fig:manual-editor-sugerencia} presenta cómo el editor muestra sugerencias durante la escritura del código. El código escrito no se ve plano, el editor dota a las palabras clave, registros, directivas y comentarios de diferentes colores para resaltarlos.
+
+Si el código proporcionado contiene errores de ensamblado, la pestaña y línea exactas donde está el error se activan y resaltan en rojo automáticamente. La Figura~\ref{fig:manual-editor-error} presenta cómo el editor muestra el error en una línea del código.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\columnwidth]{manual-editor-sugerencia.png}
+	\caption{El editor muestra sugerencias de autocompletado durante la escritura de código.}
+	\label{fig:manual-editor-sugerencia}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\columnwidth]{manual-editor-error.png}
+	\caption{El editor muestra la línea con error marcada en rojo.}
+	\label{fig:manual-editor-error}
+\end{figure}
+
+\subsection{Banco de registros}
+
+El panel del banco de registros dispone de tres pestañas:
+
+\begin{itemize}
+	\item \textbf{Enteros (R)}: muestra los registros R0-R31 además del registro especial IAR (dirección de retorno de interrupción). R0 siempre vale 0 y no puede modificarse. La Figura~\ref{fig:manual-registros-enteros} muestra cómo el panel presenta los registros enteros.
+	\item \textbf{Flotantes (F)}: muestra los registros F0-F31 además del bit de condición FPBC. Los registros de precisión doble ocupan un par de registros consecutivos empezando en uno par (F0, F2, F4\ldots). El panel muestra el valor de 64 bits en el registro par y marca el impar como ``no accesible'' mientras esa pareja se use en doble precisión. La Figura~\ref{fig:manual-registros-flotantes} muestra cómo el panel presenta los registros flotantes.
+	\item \textbf{Vectoriales (V)}: muestra los registros V0-V7, cada uno como un desplegable para ver sus elementos, además muestra los registros especiales VLR (longitud vectorial activa), MVL (longitud máxima del vector) y VM (máscara de vector). La Figura~\ref{fig:manual-registros-vectoriales} muestra cómo el panel presenta los registros vectoriales.
+\end{itemize}
+
+Cuando el valor de uno de los registros se modifica en un ciclo, se muestra una animación y se resalta visualmente en color para una mejor identificación. En el modo superescalar, el registro pendiente de recibir su valor real desde el buffer de reordenamiento se marca como ocupado y muestra su robTag asociado de renombramiento. El selector DEC/HEX/BIN de la cabecera cambia el formato de todos los valores numéricos del panel.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\columnwidth]{manual-registros-flotantes.png}
+	\caption{El panel de registros muestra el valor de los registros flotantes.}
+	\label{fig:manual-registros-flotantes}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\columnwidth]{manual-registros-enteros.png}
+	\caption{El panel de registros muestra el valor de los registros enteros.}
+	\label{fig:manual-registros-enteros}
+\end{figure}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\columnwidth]{manual-registros-vectoriales.png}
+	\caption{El panel de registros muestra el valor de los registros vectoriales.}
+	\label{fig:manual-registros-vectoriales}
+\end{figure}
+
+\subsection{Memoria de datos e instrucciones}
+
+El panel de vista de memoria dispone de dos pestañas análogas que muestran el contenido de la memoria de datos y el de la memoria de instrucciones como una tabla de dos columnas con los valores de la dirección y el contenido de esta.
+
+Al igual que en el panel de registros, es posible modificar el formato de los valores del panel con el selector DEC/HEX/BIN/ASCII de la cabecera del panel. Este componente también incluye un buscador en la cabecera que filtra las filas de la tabla mostrada por dirección o por contenido. La fila correspondiente a la última dirección leída o escrita se resalta, lo que permite comprobar visualmente que las instrucciones del código están accediendo a la posición esperada. La Figura~\ref{fig:manual-memoria} presenta cómo se visualiza la memoria de la máquina en la aplicación.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\columnwidth]{manual-memoria.png}
+	\caption{El panel de memoria resalta la última dirección accedida o modificada.}
+	\label{fig:manual-memoria}
+\end{figure}
+
+\subsection{Pipeline}
+
+Durante una ejecución, el panel de pipeline resume con colores en qué etapa interna se encuentra cada instrucción en el ciclo actual. Si la etapa se encuentra vacía, aparecerá vacía y si se encuentra bloqueada aparecerá en rojo y con la palabra ``stall''. La Figura~\ref{fig:manual-pipeline} presenta un pipeline segmentado durante la ejecución de un programa.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\columnwidth]{manual-pipeline.png}
+	\caption{El pipeline con instrucciones en cada etapa durante una ejecución.}
+	\label{fig:manual-pipeline}
+\end{figure}
+
+Para el procesador superescalar, se ha modificado el componente visual adaptándolo a un pipeline de seis etapas: IF (captura), ID (decodificación), II (emisión a las estaciones de reserva), EX (ejecución), WR (escritura del resultado en el CDB) y RI (retirada o commit desde el ROB). La Figura~\ref{fig:manual-superescalar-pipeline} muestra el pipeline del procesador superescalar.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\columnwidth]{manual-superescalar-pipeline.png}
+	\caption{El pipeline superescalar con instrucciones en cada etapa durante una ejecución.}
+	\label{fig:manual-superescalar-pipeline}
+\end{figure}
+
+\subsection{Cronograma de ejecución}
+
+El panel del cronograma permite visualizar un diagrama de Gantt con la ejecución del programa. Cada fila muestra una instrucción del programa y las columnas muestran los ciclos de ejecución, mostrando, para cada instrucción, las etapas por las que ha pasado dicha instrucción durante la ejecución y en qué ciclos ha ocurrido. Cada etapa se muestra con un color diferente. Las instrucciones descartadas (que no debieron ejecutarse por una mala predicción de un salto) se muestran tachadas y con opacidad. La Figura~\ref{fig:manual-cronograma} presenta la visualización del cronograma de una ejecución.
+
+El panel permite exportar el cronograma de la ejecución en formato CSV o en PNG con los botones disponibles en la parte superior derecha del componente. El modo de renderizado del cronograma (en vivo, al finalizar, o desactivado) se controla desde la configuración. En programas muy largos, el modo ``al finalizar'' o ``desactivado'' mejoran el rendimiento del navegador.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\columnwidth]{manual-cronograma.png}
+	\caption{El cronograma muestra el historial de etapas de la ejecución.}
+	\label{fig:manual-cronograma}
+\end{figure}
+
+\subsection{Métricas de rendimiento}
+
+Este panel muestra diversas métricas de rendimiento y estadísticas que se calculan automáticamente cada ciclo de ejecución. La Figura~\ref{fig:manual-stats} muestra las estadísticas de ejecución en un procesador segmentado. Las estadísticas mostradas son:
+
+\begin{itemize}
+	\item \textbf{CPI (Ciclos por instrucción)}: cuántos ciclos de reloj de media hacen falta para completar cada instrucción. Cuanto más bajo sea este valor, mejor. El valor ideal es 1.0. Valores mayores indican que el procesador tuvo que detenerse por algún riesgo.
+	\item \textbf{Tasa de paradas}: porcentaje de ciclos que el procesador estuvo detenido en lugar de procesando instrucciones. Esta estadística se desglosa en varias: RAW, WAR, WAW, Estructurales (recursos ocupados) y de Control (saltos mal predichos y vaciado del pipeline).
+	\item \textbf{Instrucciones completadas}: número de instrucciones que completan todas las etapas de la segmentación.
+	\item \textbf{Precisión de saltos}: porcentaje de aciertos del predictor de saltos. Esta estadística solo se calcula si el programa incluye saltos condicionales. Se muestra también el número de predicciones correctas.
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\columnwidth]{manual-stats.png}
+	\caption{Las estadísticas de la ejecución se calculan ciclo a ciclo.}
+	\label{fig:manual-stats}
+\end{figure}
+
+El panel es ligeramente diferente si se selecciona el procesador ``superescalar''. La Figura~\ref{fig:manual-stats-superescalar} muestra cómo las estadísticas incluyen el uso de las estructuras del procesador. Las estadísticas mostradas son:
+
+\begin{itemize}
+	\item \textbf{IPC (Instrucciones por ciclo)}: es la medida inversa al CPI. Mide cuántas instrucciones se pueden completar en un ciclo de reloj. Cuanto mayor sea el valor, mayor rendimiento.
+	\item \textbf{Ciclos}: número de ciclos totales de ejecución del programa.
+	\item \textbf{Instrucciones completadas}: número de instrucciones que completan todas las etapas de la segmentación.
+	\item \textbf{Precisión de saltos}: porcentaje de aciertos del predictor de saltos. Esta estadística solo se calcula si el programa incluye saltos condicionales. Se muestra también el número de predicciones correctas y el número de fallos.
+	\item \textbf{Vaciados de buffer}: número de veces que el buffer de lectura ha tenido que ser vaciado por un fallo en la predicción de un salto (perdiendo rendimiento al descartar esas instrucciones en vuelo).
+	\item \textbf{Uso del ROB}: porcentaje de uso en el ciclo actual del buffer de reordenamiento. Útil para saber la ocupación.
+	\item \textbf{Uso de las RS}: porcentaje de uso en el ciclo actual de las estaciones de reserva. Útil para saber la ocupación.
+	\item \textbf{Paradas de captura de instrucciones}: número de veces que el procesador ha tenido que parar de leer nuevas instrucciones porque el buffer de lectura está lleno.
+	\item \textbf{Paradas de entrada al ROB}: número de veces que el procesador ha tenido que parar de enviar nuevas entradas al ROB porque está lleno. Un valor alto indica que hay partes del programa que saturan el procesador y que conviene aumentar el tamaño del ROB.
+	\item \textbf{Paradas de entrada a RS}: número de veces que el procesador ha tenido que parar de enviar nuevas entradas a las estaciones de reserva porque están llenas. Un valor alto indica que hay partes del programa que saturan el procesador y que conviene aumentar el tamaño de las estaciones de reserva.
+	\item \textbf{Paradas estructurales}: número de veces que una instrucción lista para ejecutarse ha tenido que esperar porque todas las unidades funcionales de su tipo estaban ocupadas. Un valor alto indica que conviene aumentar el número de unidades funcionales de ese tipo.
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\columnwidth]{manual-stats-superescalar.png}
+	\caption{Las estadísticas de la ejecución del superescalar muestran sus elementos propios.}
+	\label{fig:manual-stats-superescalar}
+\end{figure}
+
+\subsection{Entrada y salida por consola}
+
+Los programas pueden interactuar con el usuario mediante llamadas al sistema. Para ello, se dispone de un ``terminal'' en el que se imprime por pantalla la salida de los programas y en el que se reciben los datos por parte del usuario. Cuando un programa requiere que el usuario introduzca datos, se detiene la ejecución y el cursor del terminal queda parpadeando a la espera del dato. El usuario debe introducir los datos posicionándose en el terminal y pulsar ``enter'' cuando haya terminado, lo que hará que se reanude la ejecución. La Figura~\ref{fig:manual-consola} muestra cómo la aplicación pide al usuario que introduzca un dato a través del terminal. El terminal conserva el historial de la ejecución y puede vaciarse con el botón ``CLR'' de la cabecera.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\columnwidth]{manual-consola.png}
+	\caption{El terminal puede pedir valores por pantalla.}
+	\label{fig:manual-consola}
+\end{figure}
+
+\subsection{Componentes del procesador superescalar}
+
+El procesador superescalar dispone de tres componentes extra para procesar las instrucciones. La aplicación dispone de un panel visual para cada uno de ellos.
+
+\subsubsection*{Reorder buffer (ROB)}
+
+Es una lista circular que contiene cada una de las instrucciones del programa en ejecución que han entrado al procesador en orden de entrada. Garantiza que los resultados de la ejecución fuera de orden se retiren en orden en la etapa RI. La Figura~\ref{fig:manual-superescalar-rob} presenta la visualización del ROB de la aplicación. La columna estado indica si está finalizada (y cuando llegue a la cabeza del ROB podrá retirarse), emitida (a su estación de reserva correspondiente) o en espera (de ser emitida). El panel también muestra el opcode que originó la entrada, así como su registro destino (si lo tuviera) y su valor a escribir. El panel también muestra en su cabecera la ocupación como (Nº de entradas ocupadas / Nº de entradas totales).
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\columnwidth]{manual-superescalar-rob.png}
+	\caption{Lista ROB con instrucciones pendientes.}
+	\label{fig:manual-superescalar-rob}
+\end{figure}
+
+\subsubsection*{Estaciones de reserva (RS)}
+
+Las instrucciones se emiten a su estación de reserva correspondiente para ser ejecutadas y esperan aquí a que sus operandos estén listos. Si alguno de sus operandos no está resuelto, se muestra una etiqueta con la fila del ROB que lo generará. Cada estación de reserva muestra su ocupación en la cabecera como (Nº entradas ocupadas / Nº de entradas totales). Y por cada fila muestra el opcode, el valor de sus operandos (si están resueltos se mostrará el valor y si no el robTag que lo resolverá), el destino de la operación (robTag que actualizará con su resultado) y el estado en que se encuentra. La Figura~\ref{fig:manual-superescalar-rs} muestra la ocupación de una estación de reserva de operaciones con enteros ocupada durante una ejecución.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[height=0.3\textheight]{manual-superescalar-rs.png}
+	\caption{Estación de reserva de operaciones enteras ocupada.}
+	\label{fig:manual-superescalar-rs}
+\end{figure}
+
+\subsubsection*{Common Data Bus (CDB)}
+
+Cuando una unidad funcional termina de calcular un resultado, lo publica en este bus para que las estaciones de reserva que lo esperan actualicen sus operandos en el mismo ciclo. El panel visual muestra el tipo de la unidad funcional que ha publicado el resultado, el ciclo en el que lo ha publicado, el robTag que actualiza y el valor del resultado. La Figura~\ref{fig:manual-superescalar-cdb} presenta un CDB con dos resultados publicados en el ciclo 22.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[height=0.3\textheight]{manual-superescalar-cdb.png}
+	\caption{Bus común de datos con dos resultados publicados.}
+	\label{fig:manual-superescalar-cdb}
+\end{figure}
+
+\subsection{Registro de eventos (Log)}
+
+Durante la ejecución de programas, la herramienta dispone de un sistema de depuración para que el usuario pueda hacer un seguimiento más detallado de la misma. El panel muestra un histórico de todos los eventos relevantes que ocurren durante la ejecución: instrucciones capturadas, finalizadas, detenciones detectadas, saltos tomados o no tomados, fallos de predicción, excepciones o errores de ensamblado. Cada entrada muestra el ciclo en el que ocurrió, además de un fondo de color y un icono según su severidad (información, aviso, error o éxito). Al igual que la memoria, dispone de un buscador que filtra las entradas por el contenido de su mensaje. Permite también limpiar el panel sin afectar al resto de componentes. El registro se reinicia automáticamente al reiniciar el procesador.
+
+Es el primer panel a consultar cuando un programa no se comporta como se espera, ya que suele señalar la causa. La Figura~\ref{fig:manual-log} muestra el panel con eventos durante una ejecución.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\columnwidth]{manual-log.png}
+	\caption{El panel de log muestra un histórico de eventos de la ejecución.}
+	\label{fig:manual-log}
+\end{figure}
+
+
+
+\subsection{Planificador estático}
+
+El botón de optimización disponible en el editor abre el diálogo ``Planificador Estático (Optimización)'', que permite aplicar técnicas para optimizar el código actual del editor. El código no se modifica hasta que el usuario acepta los cambios propuestos por el planificador. La Figura~\ref{fig:manual-planificador} presenta el planificador estático con las diferentes opciones disponibles. Estas opciones son:
+
+\begin{itemize}
+	\item \textbf{Reordenamiento (scheduling)}: reordena instrucciones independientes para reducir las paradas por dependencias.
+	\item \textbf{Desenrollado de bucles (Loop unrolling)}: desenrolla bucles un número configurable de veces (factor entre 2 y 8, por defecto 2) para reducir saltos y aumentar el paralelismo entre iteraciones.
+	\item \textbf{Renombrado estático de registros}: elimina falsas dependencias (WAW/WAR) asignando registros temporales distintos.
+	\item \textbf{Relleno de slot de retardo (Delayed branch)}: rellena el slot de retardo tras un salto con una instrucción útil que se debe ejecutar independientemente del resultado del salto.
+\end{itemize}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=\columnwidth]{manual-planificador.png}
+	\caption{Diálogo con el código original a la izquierda y el optimizado con las técnicas seleccionadas a la derecha.}
+	\label{fig:manual-planificador}
+\end{figure}
+
+El diálogo muestra el código original a la izquierda y el optimizado a la derecha. Al pulsar el botón ``Usar código optimizado'', el código optimizado sustituye al de la pestaña activa del editor. Estas optimizaciones son estáticas (se aplican antes de ejecutar) y son independientes de la configuración de la máquina (salvo el relleno del slot de retardo, que requiere tener activado el Branch Delay Slot en la configuración del procesador).
+
+\section{Excepciones}
+
+El simulador implementa un sistema de excepciones que gestiona los errores que pueden producirse durante las ejecuciones de los programas. Esto es válido para cualquier tipo de procesador seleccionado. El procedimiento es el siguiente:
+\begin{itemize}
+	\item Ocurre una excepción durante la ejecución de una instrucción.
+	\item Cuando la instrucción llega a la etapa de escritura (WB, o RI en el superescalar), el simulador guarda en el registro ``IAR'' la dirección de la instrucción que ha provocado la excepción y en el registro ``CAUSE'' el código de la excepción.
+	\item Se descartan las instrucciones posteriores que estuvieran en el pipeline.
+	\item El simulador carga en el PC la dirección de la entrada de la tabla de vectores correspondiente a ese código de excepción.
+	\item Esa entrada contiene una instrucción de salto (\texttt{J}) al manejador, que se ejecuta a continuación.
+	\item El manejador puede terminar con la instrucción RFE, que continúa la ejecución en la instrucción siguiente a la que provocó la excepción.
+\end{itemize}
+
+Los tipos de excepciones soportados son:
+\begin{itemize}
+	\item Desbordamiento aritmético.
+	\item División entera por cero.
+	\item División por cero en punto flotante.
+	\item Desbordamiento (overflow) en punto flotante.
+	\item Subdesbordamiento (underflow) en punto flotante.
+	\item Operación inválida en punto flotante (por ejemplo, un resultado NaN).
+	\item Dirección de memoria no alineada.
+	\item Dirección de memoria fuera de límites.
+	\item Instrucción ilegal.
+\end{itemize}
+
+Las llamadas al sistema (\texttt{TRAP}) no son excepciones: el simulador las ejecuta directamente, sin pasar por la tabla de vectores.
+
+Las excepciones son precisas: el estado del procesador refleja exactamente el punto donde ocurrió la excepción.
+
+\subsection{Tabla de Vectores}
+
+La tabla de vectores de excepción se genera en las primeras direcciones de la memoria de instrucciones (0x00 a 0x5F). Cada entrada ocupa 4 bytes y contiene una instrucción de salto (\texttt{J}) al manejador correspondiente:
+
+\begin{itemize}
+	\item \textbf{0x00}: Reset.
+	\item \textbf{0x04}: Overflow aritmético.
+	\item \textbf{0x08}: División por cero.
+	\item \textbf{0x0C}: División por cero flotante.
+	\item \textbf{0x10}: Overflow flotante.
+	\item \textbf{0x14}: Underflow flotante.
+	\item \textbf{0x18}: Operación inválida flotante.
+	\item \textbf{0x1C}: Dirección desalineada.
+	\item \textbf{0x20}: Dirección fuera de límites.
+	\item \textbf{0x24}: Instrucción ilegal.
+	\item \textbf{0x28}: Trap 0.
+	\item \textbf{0x2C}: Trap 1.
+	\item \textbf{0x30}: Trap 2.
+	\item \textbf{0x34}: Trap 3.
+	\item \textbf{0x38}: Trap 4.
+	\item \textbf{0x3C}: Trap 5.
+	\item \textbf{0x40-0x5C}: Reservados a futuro.
+\end{itemize}
+
+A continuación de la tabla, en la dirección \textbf{0x60}, se sitúa el manejador por defecto (una instrucción \texttt{TRAP 6}), y el código del usuario comienza en la dirección \textbf{0x64}.
+
+Cuando ocurre una excepción, el procesador salta a la entrada de la tabla correspondiente y la instrucción \texttt{J} que contiene lo lleva al manejador. Las entradas de los TRAP (0x28 a 0x3C) están reservadas: actualmente el procesador ejecuta los TRAP directamente y no salta a ellas.
+
+\subsection{Manejadores predefinidos}
+
+El simulador reconoce etiquetas especiales para los manejadores de excepción, que si se incluyen en el programa del usuario, permiten sobrescribir el manejador por defecto. Estas etiquetas de manejadores son:
+
+\begin{itemize}
+	\item \texttt{\_\_reset\_handler}.
+	\item \texttt{\_\_overflow\_handler}.
+	\item \texttt{\_\_divzero\_handler}.
+	\item \texttt{\_\_fp\_divzero\_handler}.
+	\item \texttt{\_\_fp\_overflow\_handler}.
+	\item \texttt{\_\_fp\_underflow\_handler}.
+	\item \texttt{\_\_fp\_invalid\_handler}.
+	\item \texttt{\_\_mem\_align\_handler}.
+	\item \texttt{\_\_mem\_bounds\_handler}.
+	\item \texttt{\_\_illegal\_instr\_handler}.
+	\item \texttt{\_\_trap\_exit\_handler}.
+	\item \texttt{\_\_trap\_open\_handler}.
+	\item \texttt{\_\_trap\_close\_handler}.
+	\item \texttt{\_\_trap\_read\_handler}.
+	\item \texttt{\_\_trap\_write\_handler}.
+	\item \texttt{\_\_trap\_printf\_handler}.
+\end{itemize}
+
+Las excepciones que no tienen un manejador definido saltan al manejador por defecto (\texttt{\_\_default\_handler}, en la dirección 0x60), que genera el propio ensamblador y siempre detiene el programa. Para tratar una excepción hay que definir su manejador específico.
+
+Cuando se define una de estas etiquetas en el código de usuario, la instrucción de salto de la entrada correspondiente de la tabla de vectores apunta al manejador del usuario, por lo que si ocurre una excepción de este tipo, el programa saltará a él, permitiéndole el control de la excepción. Las etiquetas de los TRAP (\texttt{\_\_trap\_*\_handler}) se reconocen, pero actualmente no tienen efecto, ya que los TRAP no pasan por la tabla de vectores.
+
+\subsection{Manejador por defecto}
+
+Por defecto, cuando ocurre una excepción y no hay un manejador declarado en el código del usuario, el simulador ejecuta el manejador por defecto \texttt{\_\_default\_handler}, situado en la dirección 0x60. Este manejador ejecuta TRAP 6, que detiene inmediatamente la ejecución del programa. El tipo de excepción ocurrida se puede consultar en el panel de ``Log de eventos'', que muestra el mensaje ``EXCEPCIÓN PRECISA'' junto a la dirección de la instrucción y el código de la excepción. La consola de entrada / salida no muestra ningún mensaje.
+
+\subsection{Registro IAR}
+
+Registro especial de 32 bits de la arquitectura que el propio procesador escribe automáticamente: al producirse una excepción guarda la dirección de la instrucción que la ha provocado, y al ejecutar un TRAP guarda la dirección de la instrucción siguiente al TRAP. Solo puede escribirlo el propio procesador: ninguna instrucción de usuario puede modificarlo. Se muestra en el panel de registros del simulador, al final del banco de enteros.
+
+\subsection{Registro CAUSE}
+
+Registro especial interno que almacena el código que identifica el tipo de excepción ocurrida. Lo actualiza el procesador al producirse una excepción y se borra al ejecutar RFE. No se muestra en el panel de registros ni puede leerse desde ninguna instrucción; el código de la excepción se puede consultar en el ``Log de eventos''. Los valores posibles son:
+\begin{itemize}
+	\item ARITHMETIC\_OVERFLOW.
+	\item DIVISION\_BY\_ZERO.
+	\item FP\_DIVISION\_BY\_ZERO.
+	\item FP\_OVERFLOW.
+	\item FP\_UNDERFLOW.
+	\item FP\_INVALID\_OPERATION.
+	\item MEMORY\_ALIGNMENT\_ERROR.
+	\item MEMORY\_OUT\_OF\_BOUNDS.
+	\item ILLEGAL\_INSTRUCTION.
+	\item UNKNOWN.
+\end{itemize}
+
+\subsection{Instrucción RFE}
+
+Esta instrucción especial permite retornar de un manejador de excepciones. Carga en el PC la dirección guardada en el IAR más 4 (PC $\leftarrow$ IAR + 4) y borra el registro CAUSE. Como el IAR contiene la dirección de la instrucción que provocó la excepción, la ejecución continúa en la instrucción \emph{siguiente} a ella: la instrucción que falló no se vuelve a ejecutar.
+
+\section{Planificación estática}
+
+\subsection{Reordenamiento de instrucciones (Scheduling)}
+
+Esta técnica de reordenamiento busca minimizar los ciclos de parada (stall). Divide el código en bloques básicos (hasta una instrucción de salto) y analiza, por cada bloque básico, las dependencias de datos (RAW) y las latencias de las unidades para alterar el orden en el programa, haciendo que el procesador las ejecute más rápido sin cambiar el resultado final. El Listado~\ref{lst:manual-scheduling} presenta un código con posibles optimizaciones y el mismo código optimizado tras aplicar reordenamiento.
+
+\begin{lstlisting}[caption={Ejemplo de reordenamiento de instrucciones para optimizar un código.},label={lst:manual-scheduling}]
+	LW      R1, 0(R2)      ; 1. Carga el dato de memoria en R1 (Supongamos que tarda 2 ciclos)
+	ADD     R3, R1, R4     ; 2. STALL: R1 no está listo. El procesador se detiene 1 ciclo.
+	LW      R5, 4(R2)      ; 3. Carga otro dato en R5
+	ADD     R6, R5, R7     ; 4. STALL: R5 no está listo. El procesador se detiene 1 ciclo.
+	
+	; Optimizado
+	LW      R1, 0(R2)      ; 1. Inicia la carga de R1
+	LW      R5, 4(R2)      ; 2. Intercalada: Inicia la carga de R5 (Mientras R1 se procesa)
+	ADD     R3, R1, R4     ; 3. R1 ya está listo. No hay parada.
+	ADD     R6, R5, R7     ; 4. R5 ya está listo. No hay parada.
+\end{lstlisting}
+
+\subsection{Desenrollado de bucles (Loop unrolling)}
+
+Esta técnica consiste en replicar el cuerpo de un bucle N veces. Esto reduce las instrucciones de salto, permitiendo además al planificador encontrar más instrucciones independientes para reordenar. Un factor de cuatro, por ejemplo, replica el cuerpo del bucle cuatro veces y modifica los incrementos de los punteros en cuatro. Esta técnica aumenta el paralelismo a costa de incrementar el tamaño del binario del programa. El Listado~\ref{lst:manual-unrolling} muestra el código de un bucle optimizado.
+
+\begin{lstlisting}[caption={Ejemplo de desenrollado de bucle con factor 8.},label={lst:manual-unrolling}]
+	;codigo original
+	.text
+	ADDI R1, R0, #10
+	LOOP: SUBI R1, R1, #1
+	BNEZ R1, LOOP
+	
+	; bucle desenrollado
+	.text
+	ADDI R1, R0, #10
+	LOOP: SUBI R1, R1, #8
+	BNEZ R1, LOOP
+\end{lstlisting}
+
+\subsection{Renombrado estático de registros}
+
+Esta técnica trata de eliminar las dependencias WAR y WAW cambiando los registros usados por instrucciones dependientes por otros que estén libres, lo que permite a su vez al planificador mover instrucciones con mayor libertad. El Listado~\ref{lst:manual-renombrado} muestra la aplicación de esta técnica a un código de ejemplo.
+
+\begin{lstlisting}[caption={Ejemplo de renombrado de registros.},label={lst:manual-renombrado}]
+	; Original (Riesgo WAR)
+	ADD R1, R2, R3
+	SUB R2, R4, R5   ; R2 se usa antes de escribirse
+	
+	; Optimizado
+	ADD R1, R2, R3
+	SUB R10, R4, R5  ; Usa R10 en lugar de R2 para eliminar la dependencia
+\end{lstlisting}
+
+\subsection{Relleno de slot de retardo}
+
+Esta técnica depende de que la arquitectura permita la ejecución de \texttt{Branch delay slot}. El planificador busca una instrucción útil después de un salto y la mueve a la posición inmediatamente posterior al salto, haciendo que esta instrucción se ejecute siempre independientemente de la resolución del salto. Si no hay una candidata segura, el planificador inserta una instrucción NOP.
+
+\section{Ejemplos de código}
+
+Para finalizar, se incluyen varias aplicaciones de ejemplo a modo de demostración.
+
+\subsection{Cálculo del factorial de un número}
+
+Este ejemplo es una adaptación del manual de WinDLX. Pide un número por pantalla y calcula su factorial. Utiliza una librería adicional para obtención de números por consola. El Listado~\ref{lst:manual-factorial-1} presenta el código del programa y el Listado~\ref{lst:manual-factorial-2} presenta el código de la librería input.
+
+\begin{lstlisting}[caption={Programa factorial.},label={lst:manual-factorial-1}]
+.data
+	Prompt:
+		.asciiz "A value >1:\n"
+	PrintfFormat:
+		.asciiz "Factorial = %g\n\n"
+		.align 2
+	PrintfPar:
+		.word PrintfFormat
+	PrintfValue:
+		.space 8
+.text
+	;*** Read from stdin into R1
+	addi r1,r0,Prompt
+	jal InputUnsigned
+	;*** init values
+	movi2fp f10,r1
+	cvti2d f0,f10 ;D0..Count register
+	addi r2,r0,#1
+	movi2fp f11,r2
+	cvti2d f2,f11 ;D2..result
+	movd f4,f2 ;D4..Constant 1
+	Loop: ;*** Break loop if D0 = 1
+		led f0,f4 ;D0<=1 ?
+		bfpt Finish
+		;*** Multiplication and next loop
+		multd f2,f2,f0
+		subd f0,f0,f4
+		j Loop
+	Finish: ;*** write result to stdout
+		sd PrintfValue,f2
+		addi r14,r0,PrintfPar
+		trap 5
+		trap 0
+\end{lstlisting}
+
+\begin{lstlisting}[caption={Librería input.},label={lst:manual-factorial-2}]
+.data
+	;*** Data for Read-Trap
+	ReadBuffer: .space 80
+	ReadPar: .word 0,ReadBuffer,80
+	;*** Data for Printf-Trap
+	PrintfPar: .space 4
+		SaveR2: .space 4
+		SaveR3: .space 4
+		SaveR4: .space 4
+		SaveR5: .space 4
+.text
+	.global InputUnsigned
+	InputUnsigned:
+		;*** save register contents
+		sw SaveR2,r2
+		sw SaveR3,r3
+		sw SaveR4,r4
+		sw SaveR5,r5
+		;*** Prompt
+		sw PrintfPar,r1
+		addi r14,r0,PrintfPar
+		trap 5
+		;*** call Trap-3 to read line
+		addi r14,r0,ReadPar
+		trap 3
+		;*** determine value
+		addi r2,r0,ReadBuffer
+		addi r1,r0,#0
+		addi r4,r0,#10 ;Decimal system
+		Loop: ;*** reads digits to end of line
+			lbu r3,0(r2)
+			seqi r5,r3,#10 ;LF -> Exit
+			bnez r5,Finish
+			subi r3,r3,#48 ; 0
+			multu r1,r1,r4 ;Shift decimal
+			add r1,r1,r3
+			addi r2,r2,#1 ;increment pointer
+			j Loop
+	Finish: ;*** restore old register contents
+		lw r2,SaveR2
+		lw r3,SaveR3
+		lw r4,SaveR4
+		lw r5,SaveR5
+		jr r31 ; Return
+\end{lstlisting}
+
+\subsection{Test de número primo}
+
+Este ejemplo pide por consola un número y calcula si se trata de un número primo o no. El Listado~\ref{lst:manual-primo} presenta el código del programa.
+
+\begin{lstlisting}[caption={Test de número primo.},label={lst:manual-primo}]
+	.data
+	msg_prompt:  .ascii "Introduce un numero (2-99): "
+	.align 2
+	msg_prime:   .ascii "El numero %d es PRIMO.\n"
+	.align 2
+	msg_not:     .ascii "El numero %d NO es primo.\n"
+	.align 2
+	buffer:      .space 20
+	
+	.align 2
+	p_read:      .word 0, buffer, 10
+	.align 2
+	p_print:     .word 0, 0
+	
+	.text
+	main:
+	; 1. Mostrar prompt inicial
+	addi r1, r0, msg_prompt
+	sw   p_print, r1
+	addi r14, r0, p_print
+	trap 5
+	
+	; 2. Leer numero del usuario
+	addi r14, r0, p_read
+	trap 3
+	
+	; 3. Convertir ASCII a Entero (atoi)
+	addi r2, r0, buffer     ; R2 = puntero al buffer
+	addi r3, r0, #0         ; R3 = acumulador
+	
+	loop_atoi:
+	lb   r4, 0(r2)          ; Leer byte
+	addi r5, r4, #-48       ; ASCII a int ('0'=48)
+	bltz r5, end_atoi
+	addi r6, r0, #9
+	sub  r6, r6, r5
+	bltz r6, end_atoi
+	
+	; acumulador = (acumulador * 10) + digito
+	slli r7, r3, #3         ; *8
+	slli r8, r3, #1         ; *2
+	add  r3, r7, r8         ; *10
+	add  r3, r3, r5
+	
+	addi r2, r2, #1
+	j    loop_atoi
+	
+	end_atoi:
+	; Probar si R3 es primo
+	addi r6, r0, #2
+	sub  r7, r3, r6
+	bltz r7, is_not_prime
+	
+	addi r10, r0, #2        ; divisor
+	
+	check_loop:
+	sub  r7, r10, r3
+	beqz r7, is_prime
+	
+	div  r11, r3, r10
+	mult r12, r11, r10
+	sub  r13, r3, r12
+	
+	beqz r13, is_not_prime
+	
+	addi r10, r10, #1
+	j    check_loop
+	
+	is_prime:
+	addi r1, r0, msg_prime
+	j    print_result
+	
+	is_not_prime:
+	addi r1, r0, msg_not
+	
+	print_result:
+	sw   p_print, r1        ; fmtPtr
+	addi r10, r0, p_print
+	sw   4(r10), r3         ; arg1
+	addi r14, r0, p_print
+	trap 5
+	
+	trap 0
+\end{lstlisting}
+
+\subsection{Algoritmo de la burbuja}
+
+Clásico algoritmo que ordena los elementos de un array. El Listado~\ref{lst:manual-burbuja} presenta el código del programa.
+
+\begin{lstlisting}[caption={Algoritmo de la burbuja que ordena un array y muestra el resultado por pantalla.},label={lst:manual-burbuja}]
+	.data
+	.align 2
+	size:        .word 8
+	array:       .word 50, 10, 80, 20, 40, 70, 30, 60
+	
+	msg_done:    .ascii "Array ordenado: %d, %d, %d, %d, %d, %d, %d, %d\n"
+	.align 2
+	p_print:     .word msg_done
+	.space 32      ; hueco para los 8 resultados
+	
+	.text
+	main:
+	lw   r1, size           ; N = 8
+	addi r2, r0, #0         ; i = 0 (bucle externo)
+	
+	outer_loop:
+	addi r3, r1, #-1        ; r3 = N - 1
+	sub  r4, r2, r3         ; i == N-1
+	beqz r4, print_array
+	
+	addi r5, r0, #0         ; j = 0 (bucle interno)
+	addi r6, r1, #-1
+	sub  r6, r6, r2         ; Limite j = N - 1 - i
+	
+	inner_loop:
+	sub  r7, r5, r6         ; j == Limite
+	beqz r7, next_outer
+	
+	; Cargar array[j] y array[j+1]
+	slli r8, r5, #2         ; r8 = j * 4
+	addi r9, r0, array      ; r9 = &array
+	add  r9, r9, r8         ; r9 = &array[j]
+	lw   r10, 0(r9)         ; r10 = array[j]
+	lw   r11, 4(r9)         ; r11 = array[j+1]
+	
+	; array[j] > array[j+1]
+	sub  r12, r11, r10      ; r12 = a[j+1] - a[j]
+	bgtz r12, next_inner    ; Si ok (a[j+1] > a[j]), no hacer swap
+	
+	; Intercambiar (SWAP)
+	sw   0(r9), r11         ; array[j] = r11
+	sw   4(r9), r10         ; array[j+1] = r10
+	
+	next_inner:
+	addi r5, r5, #1         ; j++
+	j    inner_loop
+	
+	next_outer:
+	addi r2, r2, #1         ; i++
+	j    outer_loop
+	
+	print_array:
+	; Copiar array a p_print para mostrar con TRAP 5
+	addi r1, r0, #0         ; index i = 0
+	addi r2, r0, array      ; r2 = base array
+	addi r3, r0, p_print    ; r3 = base p_print
+	copy_loop:
+	slli r4, r1, #2         ; r4 = i * 4
+	add  r5, r2, r4         ; r5 = &array[i]
+	lw   r6, 0(r5)          ; r6 = array[i]
+	add  r7, r3, r4         ; r7 = &p_print[i]
+	sw   4(r7), r6          ; Almacenar en p_print + 4 + i*4
+	addi r1, r1, #1
+	addi r8, r1, #-8
+	bltz r8, copy_loop
+	
+	addi r14, r0, p_print   ; R14 apunta al bloque de parametros
+	trap 5                  ; Imprimir
+	trap 0                  ; Fin
+\end{lstlisting}
+
+\subsection{Serie de Fibonacci}
+
+Algoritmo que genera los 10 primeros términos de la serie. El Listado~\ref{lst:manual-fibonacci} presenta el código del programa.
+
+\begin{lstlisting}[caption={Algoritmo de Fibonacci.},label={lst:manual-fibonacci}]
+	.data
+	.align 2
+	n_terms:     .word 10
+	msg_item:    .ascii "Fibonacci(%d) = %d\n"
+	
+	.align 2
+	p_print:     .word msg_item
+	.word 0        ; para el indice %d
+	.word 0        ; para el valor %d
+	
+	.text
+	main:
+	addi r20, r0, #0        ; F(n-2) = 0
+	addi r21, r0, #1        ; F(n-1) = 1
+	addi r22, r0, #0        ; i = 0
+	lw   r23, n_terms       ; N = 10
+	
+	loop:
+	sub  r5, r22, r23       ; i == N
+	beqz r5, end
+	
+	; Preparar bloque de parametros para TRAP 5
+	addi r10, r0, p_print
+	sw   4(r10), r22        ; Guardar indice i
+	sw   8(r10), r20        ; Guardar valor F(n-2)
+	
+	addi r14, r0, p_print
+	trap 5                  ; Imprimir "Fibonacci(i) = F(n-2)"
+	
+	; Calcular siguiente: r6 = r20 + r21
+	add  r6, r20, r21
+	addi r20, r21, #0       ; F(n-2) = F(n-1)
+	addi r21, r6, #0        ; F(n-1) = F(n)
+	
+	addi r22, r22, #1       ; i++
+	j    loop
+	
+	end:
+	trap 0
+\end{lstlisting}
+
+\subsection{Cálculo del área de un círculo}
+
+Algoritmo que pide por pantalla un número (el radio del círculo) y calcula su área. El Listado~\ref{lst:manual-area} muestra el código del programa.
+
+\begin{lstlisting}[caption={Cálculo del área de un círculo.},label={lst:manual-area}]
+	.data
+	.align 3
+	pi:          .double 3.14159265
+	zero:        .double 0.0
+	
+	msg_prompt:  .ascii "Introduce radio (entero positivo): "
+	.align 2
+	msg_err:     .ascii "Error: El radio debe ser positivo.\n"
+	.align 2
+	msg_res:     .ascii "Area del circulo = %f\n"
+	
+	.align 2
+	p_read:      .word 0, buffer, 10
+	
+	; El bloque de parametros para TRAP 5 debe estar alineado
+	; para que el double en offset 4 sea accesible correctamente.
+	.align 3
+	p_print:     .word 0        ; [Offset 0] fmtPtr
+	.word 0        ; [Offset 4] arg1 (High 32 bits de double)
+	.word 0        ; [Offset 8] arg1 (Low 32 bits de double)
+	
+	buffer:      .space 20
+	
+	.text
+	main:
+	; 1. Cargar PI y Zero
+	ld   f10, pi
+	ld   f12, zero
+	
+	; 2. Mostrar prompt
+	addi r1, r0, msg_prompt
+	sw   p_print, r1
+	addi r14, r0, p_print
+	trap 5
+	
+	; 3. Leer radio del usuario
+	addi r14, r0, p_read
+	trap 3
+	
+	; --- Convertir ASCII a Entero (atoi) ---
+	addi r2, r0, buffer
+	addi r1, r0, #0
+	
+	loop_atoi:
+	lb   r4, 0(r2)
+	addi r5, r4, #-48
+	bltz r5, end_atoi
+	addi r6, r0, #9
+	sub  r6, r6, r5
+	bltz r6, end_atoi
+	slli r7, r1, #3
+	slli r8, r1, #1
+	add  r1, r7, r8
+	add  r1, r1, r5
+	addi r2, r2, #1
+	j    loop_atoi
+	
+	end_atoi:
+	; 4. Convertir entero r1 a double en f0
+	movi2fp f0, r1
+	cvti2d  f0, f0
+	
+	; 5. Validar radio > 0
+	led  f0, f12
+	bfpt error
+	
+	; 6. Calcular Area = PI * R * R
+	multd f2, f0, f0
+	multd f2, f2, f10
+	
+	; 7. Mostrar resultado
+	addi r1, r0, msg_res
+	addi r10, r0, p_print
+	sw   0(r10), r1         ; Guardar puntero al formato en offset 0
+	sd   4(r10), f2         ; Guardar double en offset 4 (ocupa 4 y 8)
+	
+	addi r14, r0, p_print
+	trap 5
+	j    end
+	
+	error:
+	addi r1, r0, msg_err
+	sw   p_print, r1
+	addi r14, r0, p_print
+	trap 5
+	
+	end:
+	trap 0
+\end{lstlisting}
+
+\subsection{Operación DAXPY vectorial}
+
+Algoritmo que implementa el bucle DAXPY vectorial con vectores de 16 elementos. El Listado~\ref{lst:manual-daxpy} muestra el código del programa.
+
+\begin{lstlisting}[caption={DAXPY vectorial.},label={lst:manual-daxpy}]
+	.data
+	.align 3
+	val_a:       .double 2.5
+	vector_x:    .double 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0
+	vector_y:    .double 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 10.0
+	
+	msg_res:     .ascii "Resultado Y[0] = %f (Esperado: 12.5)\n"
+	.align 2
+	p_print:     .word msg_res
+	.double 0.0
+	
+	.text
+	main:
+	; 1. Configurar VL (Vector Length) a 16
+	addi r1, r0, #16
+	movi2s VLR, r1          ; VLR = 16
+	
+	; 2. Cargar escalar 'a' en F0
+	ld   f0, val_a
+	
+	; 3. Cargar vectores
+	lv   v1, vector_x
+	lv   v2, vector_y
+	
+	; 4. Operacion DAXPY
+	multsv v3, f0, v1
+	addv  v2, v3, v2
+	
+	; 5. Guardar resultado final
+	sv   vector_y, v2
+	
+	; 6. Mostrar el primer elemento
+	ld   f2, vector_y
+	addi r10, r0, p_print
+	sd   4(r10), f2
+	addi r14, r0, p_print
+	trap 5
+	
+	trap 0
+\end{lstlisting}
+
+\end{document}

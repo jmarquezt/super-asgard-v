@@ -18,6 +18,8 @@
   "DOCS": {
     "SEARCH_PLACEHOLDER": "Buscar...",
     "BACK": "Volver al índice",
+    "MANUAL_PDF": "Manual de usuario (PDF)",
+    "MANUAL_PDF_DOWNLOAD": "Descargar manual de usuario (PDF)",
     "DESCRIPTION": "Descripción",
     "OPERAND": "Operando",
     "EXAMPLE": "Ejemplo",
@@ -159,14 +161,16 @@
       "RS2_ALT": "Segundo operando",
       "RS_SRC": "Registro fuente",
       "IMM_SIGNED": "Inmediato de 16 bits con signo. El prefijo # es obligatorio para literales numéricos. Acepta decimal (#10, #-5) o hexadecimal (#0xFF). También se puede especificar una etiqueta (sin #), que el ensamblador resolverá a su dirección (debe estar definida en .data, no en .text).",
-      "IMM_UNSIGNED": "Inmediato de 16 bits sin signo. El prefijo # es obligatorio para literales numéricos. Acepta decimal (#10) o hexadecimal (#0xFF). También se puede especificar una etiqueta (sin #).",
+      "IMM_UNSIGNED": "Inmediato de 16 bits sin signo. El prefijo # es obligatorio para literales numéricos. Acepta decimal (#10) o hexadecimal (#0x100). También se puede especificar una etiqueta de .data (sin #).",
       "IMM_SIGNED_ALT": "Inmediato de 16 bits con signo. El prefijo # es obligatorio para literales numéricos. Acepta decimal (#4, #-1) o hexadecimal (#0x10). También se puede especificar una etiqueta (sin #).",
       "IMM_SIGNED_BASIC": "Inmediato de 16 bits con signo. El prefijo # es obligatorio para literales numéricos.",
       "IMM_16BIT": "Inmediato de 16 bits. El prefijo # es obligatorio para literales numéricos. Acepta decimal (#255) o hexadecimal (#0xFF). También se puede especificar una etiqueta (sin #).",
       "IMM_16BIT_HEX": "Inmediato de 16 bits. El prefijo # es obligatorio para literales numéricos. Acepta decimal o hexadecimal (#0x80). También se puede especificar una etiqueta (sin #).",
       "IMM_16BIT_ALT": "Inmediato de 16 bits. El prefijo # es obligatorio para literales numéricos. Acepta decimal o hexadecimal (#0x01). También se puede especificar una etiqueta (sin #).",
-      "SHIFT_AMOUNT": "Número de posiciones a desplazar (0-63). El prefijo # es obligatorio. Solo acepta literal decimal o hexadecimal; no se permiten etiquetas en instrucciones de desplazamiento.",
-      "SHIFT_AMOUNT_BASIC": "Número de posiciones a desplazar (0-63). El prefijo # es obligatorio. Solo acepta literal decimal o hexadecimal.",
+      "SHIFT_AMOUNT": "Número de posiciones a desplazar (0-63). El prefijo # es obligatorio para literales numéricos, en decimal o hexadecimal. Como el resto de instrucciones con inmediato, también acepta una etiqueta de .data (sin #), aunque en un desplazamiento rara vez tiene sentido.",
+      "SHIFT_AMOUNT_BASIC": "Número de posiciones a desplazar (0-63). El prefijo # es obligatorio para literales numéricos, en decimal o hexadecimal. También acepta una etiqueta de .data (sin #).",
+      "IMM_SEQI": "Inmediato de 16 bits (con signo en SEQI, sin signo en SEQUI). El prefijo # es obligatorio para literales numéricos.",
+      "IMM_SLTI": "Inmediato de 16 bits. En SLTI, SGTI, SLEI, SGEI y SNEI se extiende con signo y la comparación es con signo; en las variantes terminadas en UI se extiende con ceros y la comparación es sin signo.",
       "IMM_HIGH": "Valor de 16 bits a colocar en la parte alta del registro. El prefijo # es obligatorio para literales numéricos. Acepta decimal (#0x1234) o hexadecimal. También se puede especificar una etiqueta (sin #).",
       "LABEL_DATA": "Símbolo definido en la sección .data (modo directo)",
       "OFFSET_NUMERIC": "Desplazamiento numérico con signo en decimal o hex (modo indirecto)",
@@ -194,7 +198,8 @@
       "FS2_DP_EVEN": "Segundo operando DP - debe ser registro par",
       "FD_DEST_DP": "Registro destino (par para DP)",
       "FS_SRC": "Registro fuente",
-      "VLR": "Registro especial de longitud vectorial (0-64)",
+      "FS_MOV_SRC": "Registro fuente (par para MOVD)",
+      "VLR": "Registro especial de longitud vectorial (0-MVL; MVL es configurable, 64 por defecto)",
       "RS_INT_SRC": "Registro entero fuente (MOVI2S)",
       "RD_INT_DEST": "Registro entero destino",
       "VM": "Registro especial de máscara vectorial",
@@ -215,7 +220,7 @@
       "FD_MOV_DEST": "Registro flotante destino (par para MOVD)",
       "FD_RD_RAW_DEST": "Registro destino: Fd (flotante) en MOVI2FP, Rd (entero) en MOVFP2I",
       "RS_FS_RAW_SRC": "Registro fuente: Rs (entero) en MOVI2FP, Fs (flotante) en MOVFP2I",
-      "VI_INDEX": "Vector de índices; cada elemento aporta su propio desplazamiento"
+      "VI_INDEX": "Vector de índices; cada elemento aporta su propio desplazamiento en bytes respecto a la dirección base"
     },
     "INT_ALU": {
       "ADD": {
@@ -257,12 +262,12 @@
         "NOTES": "Al igual que MULT, no comprueba desbordamiento aritmético: el resultado nunca genera una excepción."
       },
       "DIV": {
-        "DESCRIPTION": "División entera con signo. Rd = Rs1 / Rs2. Es la operación escalar más lenta del sistema.",
+        "DESCRIPTION": "División entera con signo. Rd = Rs1 / Rs2. Es la operación entera más lenta, por defecto tiene una latencia de 24 ciclos.",
         "EXAMPLE": "DIV R4, R6, R2   ; R4 <- R6 / R2",
         "NOTES": "Si el divisor (Rs2) es cero, el procesador dispara inmediatamente una excepción de DIVISION_BY_ZERO."
       },
       "DIVU": {
-        "DESCRIPTION": "División entera sin signo. Rd <- (Rs1 / Rs2) tratando ambos operandos como valores sin signo de 32 bits.",
+        "DESCRIPTION": "División entera sin signo. Rd <- (Rs1 / Rs2) tratando ambos operandos como valores sin signo de 32 bits. Es la operación entera más lenta, por defecto tiene una latencia de 24 ciclos.",
         "EXAMPLE": "DIVU R4, R6, R2",
         "NOTES": "Si el divisor (Rs2) es cero, se lanza una excepción de DIVISION_BY_ZERO."
       },
@@ -288,17 +293,17 @@
       "ADDI": {
         "DESCRIPTION": "Suma Rs1 con un inmediato de 16 bits con extensión de signo y guarda el resultado en Rd.",
         "EXAMPLE": "ADDI R3, R1, #10       ; R3 <- R1 + 10 (decimal)\nADDI R3, R1, #0xFF     ; R3 <- R1 + 255 (hexadecimal)\nADDI R3, R1, MiVar     ; R3 <- R1 + dirección de MiVar",
-        "NOTES": "Comúnmente usada para cargar constantes pequeñas o calcular desplazamientos. El inmediato se extiende a 64 bits con signo antes de sumar."
+        "NOTES": "Comúnmente usada para cargar constantes pequeñas o calcular desplazamientos. El inmediato se extiende a 32 bits con signo antes de sumar. Igual que ADD, genera una excepción de ARITHMETIC_OVERFLOW si el resultado excede el rango de 32 bits con signo."
       },
       "ADDUI": {
         "DESCRIPTION": "Suma Rs1 con un inmediato de 16 bits sin signo (extensión de ceros) y guarda el resultado en Rd.",
         "EXAMPLE": "ADDUI R3, R1, #10      ; R3 <- R1 + 10\nADDUI R3, R1, #0x100   ; R3 <- R1 + 256",
-        "NOTES": "A diferencia de ADDI, el inmediato se trata como siempre positivo (unsigned), por lo que no permite valores negativos."
+        "NOTES": "A diferencia de ADDI, el inmediato se extiende con ceros y se trata siempre como positivo (unsigned). El ensamblador acepta valores entre -32768 y 65535, pero un valor negativo se reinterpreta como su equivalente de 16 bits sin signo: por ejemplo, #-5 se suma como 65531."
       },
       "SUBI": {
         "DESCRIPTION": "Resta un inmediato de 16 bits con signo a Rs1 y guarda el resultado en Rd.",
         "EXAMPLE": "SUBI R3, R1, #4        ; R3 <- R1 - 4\nSUBI R3, R1, #0x10     ; R3 <- R1 - 16",
-        "NOTES": "Habitualmente usada para restar constantes pequeñas o ajustar direcciones calculadas. El inmediato se extiende a 64 bits con signo antes de restar."
+        "NOTES": "Habitualmente usada para restar constantes pequeñas o ajustar direcciones calculadas. El inmediato se extiende a 32 bits con signo antes de restar. Igual que SUB, genera una excepción de ARITHMETIC_OVERFLOW si el resultado excede el rango de 32 bits con signo."
       },
       "SUBUI": {
         "DESCRIPTION": "Resta un inmediato de 16 bits sin signo a Rs1, tratando ambos como valores sin signo de 32 bits. Rd <- (Rs1 - imm) mod 2³².",
@@ -318,7 +323,7 @@
       "ANDI": {
         "DESCRIPTION": "AND lógico bit a bit entre Rs1 y un inmediato de 16 bits (extensión de ceros).",
         "EXAMPLE": "ANDI R4, R1, #0xFF     ; R4 <- R1 & 0xFF  (máscara 8 bits bajos)\nANDI R4, R1, #0xF0     ; R4 <- R1 & 0xF0  (máscara nibble alto)",
-        "NOTES": "Muy útil para enmascarar bits. El inmediato se extiende a 64 bits con ceros."
+        "NOTES": "Muy útil para enmascarar bits. El inmediato se extiende a 32 bits con ceros."
       },
       "ORI": {
         "DESCRIPTION": "OR lógico bit a bit entre Rs1 y un inmediato de 16 bits (extensión de ceros).",
@@ -331,7 +336,7 @@
         "NOTES": "Útil para invertir bits concretos sin afectar al resto (máscara XOR)."
       },
       "SLLI": {
-        "DESCRIPTION": "Desplazamiento lógico a la izquierda de Rs1 por #imm posiciones.",
+        "DESCRIPTION": "Desplazamiento lógico a la izquierda de Rs1 por #imm posiciones. El prefijo # es obligatorio para literales numéricos, en decimal o hexadecimal. Como el resto de instrucciones con inmediato, también acepta una etiqueta de .data, aunque en un desplazamiento rara vez tiene sentido.",
         "EXAMPLE": "SLLI R4, R1, #2        ; R4 <- R1 << 2  (multiplicar por 4)\nSLLI R4, R1, #0x3      ; R4 <- R1 << 3  (multiplicar por 8)",
         "NOTES": "Los bits que salen del registro se pierden. Rellena con ceros por la derecha."
       },
@@ -395,22 +400,22 @@
       "SH": {
         "DESCRIPTION": "Almacena los 16 bits bajos de Rs2 en la memoria.\n\n- Modo directo: dirección = símbolo .data, base R0 implícita.\n- Modo indirecto: dirección = Rs1 + desplazamiento numérico.",
         "EXAMPLE": "SH MiMedia, R5\nSH 2(R2), R5",
-        "NOTES": "Requiere alineación a 2 bytes."
+        "NOTES": "El simulador no comprueba la alineación en los almacenamientos, pero se recomienda usar direcciones múltiplo de 2 para poder leer el dato después con LH/LHU, que sí la exigen."
       },
       "SW": {
         "DESCRIPTION": "Almacena una palabra (32 bits) en la memoria.\n\n- Modo directo: dirección = símbolo .data, base R0 implícita.\n- Modo indirecto: dirección = Rs1 + desplazamiento numérico.",
         "EXAMPLE": "SW MiVar, R3          ; MEM[addr(MiVar)] <- R3\nSW 4(R1), R3          ; MEM[R1+4] <- R3",
-        "NOTES": "Requiere alineación a 4 bytes."
+        "NOTES": "El simulador no comprueba la alineación en los almacenamientos, pero se recomienda usar direcciones múltiplo de 4 para poder leer el dato después con LW, que sí la exige."
       },
       "SF": {
         "DESCRIPTION": "Almacena un float de precisión simple desde un registro flotante.\n\n- Modo directo: dirección = símbolo .data, base R0 implícita.\n- Modo indirecto: dirección = Rs + desplazamiento numérico.",
         "EXAMPLE": "SF MiFloat, F2\nSF 8(R1), F2",
-        "NOTES": "Requiere alineación a 4 bytes."
+        "NOTES": "El simulador no comprueba la alineación en los almacenamientos, pero se recomienda usar direcciones múltiplo de 4 para poder leer el dato después con LF, que sí la exige."
       },
       "SD": {
-        "DESCRIPTION": "Almacena un valor de 64 bits (Double) de los registros Fn:Fn+1 en la memoria.\nSoporta alineación de 4 bytes en este simulador para facilitar bloques de parámetros de TRAP 5.",
+        "DESCRIPTION": "Almacena un valor de 64 bits (Double) de los registros Fs:Fs+1 en la memoria.\n\n- Modo directo: dirección = símbolo .data, base R0 implícita.\n- Modo indirecto: dirección = Rs + desplazamiento numérico.",
         "EXAMPLE": "SD MiDouble, F0\nSD 0(R1), F0",
-        "NOTES": "Fd debe ser un registro par. A diferencia de LD (que exige 8 bytes), SD acepta alineación de 4 bytes."
+        "NOTES": "Fs debe ser un registro par. El simulador no comprueba la alineación en los almacenamientos, lo que permite, por ejemplo, guardar un double en un bloque de parámetros de TRAP 5 alineado a 4 bytes. Si el dato se va a leer después con LD, la dirección debe ser múltiplo de 8, ya que LD sí exige esa alineación."
       },
       "ALIGN_2": "Alineación obligatoria: La dirección debe ser múltiplo de 2 (Halfword).",
       "ALIGN_4": "Alineación obligatoria: La dirección debe ser múltiplo de 4 (Word)."
@@ -419,7 +424,7 @@
       "BEQZ": {
         "DESCRIPTION": "Salta a la etiqueta si Rs es igual a 0 (Branch if Equal to Zero).",
         "EXAMPLE": "BEQZ R1, fin     ; si R1 == 0, salta a la etiqueta \"fin\"",
-        "NOTES": "La etiqueta debe estar definida en la sección .text del programa. El ensamblador la resuelve a un desplazamiento de 16 bits relativo al PC."
+        "NOTES": "La etiqueta debe estar definida en la sección .text. El ensamblador la resuelve a la dirección absoluta de la instrucción destino, codificada como número de palabra (dirección / 4) en el campo de 16 bits; no es un desplazamiento relativo al PC. Lo mismo se aplica al resto de saltos condicionales."
       },
       "BNEZ": {
         "DESCRIPTION": "Salta si Rs es distinto de 0.",
@@ -445,7 +450,7 @@
       "J": {
         "DESCRIPTION": "Salto incondicional. El PC se actualiza a la dirección de la etiqueta.",
         "EXAMPLE": "J bucle",
-        "NOTES": "Solo se permiten etiquetas de código (.text). El salto se codifica como un desplazamiento de 26 bits relativo al PC."
+        "NOTES": "Solo se permiten etiquetas de código (.text). El destino se codifica como dirección absoluta de palabra (dirección / 4) en el campo de 26 bits; no es un desplazamiento relativo al PC. Lo mismo se aplica a JAL."
       },
       "JAL": {
         "DESCRIPTION": "Salto con enlace (Jump and Link). Guarda la dirección de retorno (PC+4) en R31 y salta a la etiqueta.",
@@ -458,9 +463,9 @@
         "NOTES": "No usa etiqueta - la dirección se toma del registro. Típicamente usado para retorno de subrutinas (JR R31)."
       },
       "JALR": {
-        "DESCRIPTION": "Salto con enlace por registro. Guarda PC+4 en Rd y salta a la dirección de Rs.",
-        "EXAMPLE": "JALR R31, R2",
-        "NOTES": "No usa etiqueta - la dirección destino viene del registro Rs."
+        "DESCRIPTION": "Salto con enlace por registro. Guarda PC+4 en R31 y salta a la dirección contenida en Rs.",
+        "EXAMPLE": "JALR R2          ; R31 <- PC+4, salta a la dirección de R2",
+        "NOTES": "No usa etiqueta: la dirección destino viene del registro Rs. El enlace se guarda siempre en R31 (igual que en JAL); no se puede indicar otro registro destino."
       },
       "TEXT_ONLY": "Solo se permiten etiquetas de la sección de código (.text)."
     },
@@ -494,38 +499,40 @@
         "EXAMPLE": "SEQI R5, R1, #10  ; R5 <- (R1 == 10) ? 1 : 0"
       },
       "SLTI": {
-        "DESCRIPTION": "Comparaciones con inmediato en todas sus variantes (menor, mayor, menor o igual, mayor o igual, distinto). Los nombres terminados en U/UI usan operandos sin signo.",
+        "DESCRIPTION": "Comparaciones con inmediato en todas sus variantes (menor, mayor, menor o igual, mayor o igual, distinto). Los nombres terminados en UI usan operandos sin signo.",
         "EXAMPLE": "SLTI R5, R1, #100 ; R5 <- (R1 < 100) ? 1 : 0"
       }
     },
     "FLOAT": {
       "ADDF": {
         "DESCRIPTION": "Aritmética de precisión simple (32 bits IEEE 754). El resultado se guarda en Fd. Cualquier registro float F0-F31 es válido.",
-        "EXAMPLE": "ADDF F1, F3, F5  ; F1 <- F3 + F5 (simple precisión)"
+        "EXAMPLE": "ADDF F1, F3, F5  ; F1 <- F3 + F5 (simple precisión)",
+        "NOTES": "Latencias por defecto: ADDF/SUBF 2 ciclos, MULTF 7 ciclos y DIVF 24 ciclos."
       },
       "ADDD": {
         "DESCRIPTION": "Aritmética de precisión doble (64 bits IEEE 754). Los registros deben ser PARES (F0, F2, F4...).",
         "EXAMPLE": "MULTD F0, F2, F4 ; F0 <- F2 * F4 (doble precisión)",
-        "NOTES": "Un double ocupa el par de registros Fn y Fn+1. En la instrucción solo se especifica Fn (el par)."
+        "NOTES": "Un double ocupa el par de registros Fn y Fn+1. En la instrucción solo se especifica Fn (el par). Latencias por defecto: ADDD/SUBD 4 ciclos, MULTD 14 ciclos y DIVD 48 ciclos."
       },
       "EQF": {
         "DESCRIPTION": "Comparaciones de precisión simple (32 bits). No tiene registro destino: el resultado booleano se escribe en el bit de condición de punto flotante (fpConditionBit). Usa BFPT/BFPF para saltar según el resultado.\n\nMnemónicos disponibles:\n- EQF - igual (==)\n- NEF - distinto (!=)\n- LTF - menor (<)\n- GTF - mayor (>)\n- LEF - menor o igual (<=)\n- GEF - mayor o igual (>=)\n- SLTF / SGTF / SLEF / SGEF - variantes \"Set\" equivalentes a LTF/GTF/LEF/GEF",
         "EXAMPLE": "LTF F1, F3       ; fpConditionBit <- (F1 < F3)\nBFPT menor       ; salta si fpConditionBit = 1",
-        "NOTES": "No se escribe ningún registro. La instrucción BFPT salta si fpConditionBit=1; BFPF salta si fpConditionBit=0."
+        "NOTES": "No se escribe ningún registro. La instrucción BFPT salta si fpConditionBit=1; BFPF salta si fpConditionBit=0. Latencia por defecto: 2 ciclos."
       },
       "EQD": {
         "DESCRIPTION": "Comparaciones de precisión doble (64 bits). No tiene registro destino: el resultado se escribe en fpConditionBit.\n\nMnemónicos disponibles:\n- EQD - igual (==)\n- NED - distinto (!=)\n- LTD - menor (<)\n- GTD - mayor (>)\n- LED - menor o igual (<=)\n- GED - mayor o igual (>=)\n- SLTD / SGTD / SLED / SGED - variantes \"Set\" equivalentes a LTD/GTD/LED/GED",
         "EXAMPLE": "LED F0, F2       ; fpConditionBit <- (F0:F1 <= F2:F3)\nBFPT fin",
-        "NOTES": "Los registros deben ser pares; cada uno representa un double de 64 bits junto con el siguiente registro (Fn:Fn+1)."
+        "NOTES": "Los registros deben ser pares; cada uno representa un double de 64 bits junto con el siguiente registro (Fn:Fn+1). Latencia por defecto: 4 ciclos."
       },
       "CVTF2D": {
         "DESCRIPTION": "Conversión entre precisión simple y doble. CVTF2D convierte SP->DP; CVTD2F convierte DP->SP.",
-        "EXAMPLE": "CVTF2D F0, F5    ; convierte F5 (SP) a DP en F0:F1"
+        "EXAMPLE": "CVTF2D F0, F5    ; convierte F5 (SP) a DP en F0:F1",
+        "NOTES": "El registro de doble precisión (destino en CVTF2D, fuente en CVTD2F) debe ser par. Latencia por defecto de todas las conversiones: 4 ciclos."
       },
       "CVTI2D": {
         "DESCRIPTION": "Conversión entre entero y flotante.\n- CVTI2D: entero (en registro F) -> double en Fd:Fd+1\n- CVTI2F: entero (en registro F) -> simple en Fd\n- CVTD2I: double -> entero 32 bits truncado, destino en un registro flotante Fd (el valor entero se guarda numéricamente en el banco de punto flotante, no en el banco de enteros)\n- CVTF2I: simple -> entero 32 bits truncado, destino en un registro flotante Fd (igual que CVTD2I)",
         "EXAMPLE": "CVTI2D F0, F10   ; F0:F1 <- double(entero en F10)\nCVTD2I F3, F0    ; F3 <- trunc(F0:F1 como double)",
-        "NOTES": "CVTD2I y CVTF2I escriben su resultado en un registro flotante (Fd), no en uno entero, pese a que el resultado sea un valor entero truncado: el ensamblador exige la sintaxis 'CVTD2I Fd, Fs'. Para llevar ese valor a un registro entero (Rd) hace falta un MOVFP2I posterior. El destino DP de CVTI2D debe ser un registro par."
+        "NOTES": "CVTD2I y CVTF2I escriben su resultado en un registro flotante (Fd), no en uno entero, pese a que el resultado sea un valor entero truncado: el ensamblador exige la sintaxis 'CVTD2I Fd, Fs'. Para llevar ese valor a un registro entero (Rd) hace falta un MOVFP2I posterior. El destino DP de CVTI2D y la fuente DP de CVTD2I deben ser registros pares."
       },
       "MOVF": {
         "DESCRIPTION": "Copia un registro flotante. MOVF copia precisión simple; MOVD copia un par DP (Fd y Fd+1 <- Fs y Fs+1).",
@@ -538,12 +545,13 @@
       },
       "MOVI2S": {
         "DESCRIPTION": "Transfiere el contenido del registro de longitud vectorial (VLR).\n- MOVI2S VLR, Rs: carga Rs en VLR (establece el número de elementos activos en operaciones vectoriales).\n- MOVS2I Rd, VLR: copia el valor actual de VLR al registro entero Rd.",
-        "EXAMPLE": "ADDI R1, R0, #16\nMOVI2S VLR, R1   ; VLR <- 16 (procesar 16 elementos)\nMOVS2I R2, VLR   ; R2 <- VLR actual"
+        "EXAMPLE": "ADDI R1, R0, #16\nMOVI2S VLR, R1   ; VLR <- 16 (procesar 16 elementos)\nMOVS2I R2, VLR   ; R2 <- VLR actual",
+        "NOTES": "MOVI2S limita el valor escrito al rango [0, MVL]: si Rs es mayor que MVL, VLR toma el valor de MVL."
       },
       "MOVF2S": {
-        "DESCRIPTION": "Transfiere el contenido del registro de máscara vectorial (VM) hacia/desde un registro flotante tratado como bitmask de 32 bits.\n- MOVF2S VM, Fs: los bits brutos de Fs se interpretan como bitmask; VM[i] <- bit i de Fs (i=0..31); VM[32..63] <- 0.\n- MOVS2F Fd, VM: empaqueta VM[0..31] en un entero de 32 bits (bit i = VM[i]) y lo guarda como bits brutos en Fd.",
+        "DESCRIPTION": "Transfiere el contenido del registro de máscara vectorial (VM) hacia/desde un registro flotante tratado como bitmask de 32 bits.\n- MOVF2S VM, Fs: los bits brutos de Fs se interpretan como bitmask; VM[i] <- bit i de Fs (i=0..31); VM[32..MVL-1] <- 0.\n- MOVS2F Fd, VM: empaqueta VM[0..31] en un entero de 32 bits (bit i = VM[i]) y lo guarda como bits brutos en Fd.",
         "EXAMPLE": "MOVF2S VM, F0    ; VM <- bitmask(bits de F0)\nMOVS2F F1, VM    ; F1 <- bitmask empaquetada de VM",
-        "NOTES": "Solo se representan 32 elementos en el float (32 bits). VM[32..63] se ponen a 0 en MOVF2S. Usa CVM para resetear VM a todo 1s."
+        "NOTES": "Solo se representan 32 elementos en el float (32 bits). VM[32..MVL-1] se ponen a 0 en MOVF2S. Usa CVM para resetear VM a todo 1s."
       },
       "POP": {
         "DESCRIPTION": "Cuenta de población de la máscara vectorial. Cuenta cuántos bits están a 1 en el registro de máscara vectorial (VM) y guarda el resultado en el registro entero Rd.",
@@ -553,8 +561,9 @@
     },
     "VECTOR": {
       "LV": {
-        "DESCRIPTION": "Carga (LV) o almacena (SV) un vector completo. Los elementos se cargan/almacenan secuencialmente a partir de la dirección base Rs. El número de elementos activos se controla mediante el registro de longitud vectorial (VLR).",
-        "EXAMPLE": "LV V0, R1        ; carga VLR elementos desde MEM[R1]"
+        "DESCRIPTION": "Carga (LV) o almacena (SV) un vector, elemento a elemento, en posiciones consecutivas de memoria a partir de la dirección base.\n\n- Direccionamiento directo (2 operandos): la dirección base es el símbolo de .data indicado.\n- Direccionamiento indirecto (3 operandos): la dirección base es Rs + desplazamiento.\n\nEl número de elementos que se transfieren se controla mediante el registro de longitud vectorial (VLR).",
+        "EXAMPLE": "LV V0, vector_x  ; carga VLR elementos desde la etiqueta vector_x\nLV V1, 0(R1)     ; carga VLR elementos desde MEM[R1]\nSV 0(R2), V1     ; guarda VLR elementos en MEM[R2]",
+        "NOTES": "Cada elemento ocupa 8 bytes (double), por lo que el elemento i se lee o escribe en la dirección base + 8·i. Los datos se declaran con .double. La dirección base debe estar alineada a 8 bytes: si no lo está, LV lanza una excepción de dirección desalineada. Con solo dos operandos, el segundo se interpreta siempre como etiqueta de .data, por lo que LV V0, R1 no es válido: para usar un registro como base hay que escribir LV V0, 0(R1). Latencia por defecto de todos los accesos a memoria vectorial (LV, SV, LVWS, SVWS, LVI, SVI): 12 ciclos."
       },
       "LVWS": {
         "DESCRIPTION": "Carga/almacena un vector con salto (stride). Rs2 contiene el salto en bytes entre elementos consecutivos.",
@@ -562,12 +571,13 @@
       },
       "LVI": {
         "DESCRIPTION": "Carga/almacena vectorial indexado. Cada elemento usa su propio desplazamiento contenido en el vector de índices Vi.",
-        "EXAMPLE": "LVI V0, R1, V1   ; V0[i] <- MEM[R1 + V1[i]]"
+        "EXAMPLE": "LVI V0, R1, V1   ; V0[i] <- MEM[R1 + V1[i]]",
+        "NOTES": "Como cada elemento ocupa 8 bytes, los índices deben ser múltiplos de 8 para que las direcciones resultantes estén alineadas."
       },
       "ADDV": {
         "DESCRIPTION": "Aritmética vector-vector. La operación se aplica elemento a elemento sobre los VLR elementos activos.",
         "EXAMPLE": "ADDV V0, V1, V2  ; V0[i] <- V1[i] + V2[i]",
-        "NOTES": "Con el encadenamiento vectorial (chaining) activado, estas instrucciones pueden solaparse si no hay dependencias de datos."
+        "NOTES": "Con el encadenamiento vectorial (chaining) activado, una instrucción que depende del resultado de otra (dependencia RAW) puede empezar a consumir sus elementos a medida que se producen, sin esperar al vector completo. Latencias por defecto: ADDV/SUBV 6 ciclos, MULTV 7 ciclos y DIVV 20 ciclos (las mismas para las variantes escalar-vector y vector-escalar)."
       },
       "ADDSV": {
         "DESCRIPTION": "Aritmética escalar-vector. El escalar (registro flotante Fs) opera con cada elemento del vector Vs.",
@@ -579,8 +589,8 @@
       },
       "CVI": {
         "DESCRIPTION": "Crea un vector de índices escalados en Vd. Cada elemento i recibe el valor i x Rs, donde Rs es el stride guardado en un registro entero.",
-        "EXAMPLE": "ADDI R1, R0, #4\nCVI V0, R1       ; V0 = [0, 4, 8, 12, ...]  (V0[i] <- i*4)",
-        "NOTES": "Con Rs=1 genera la secuencia 0,1,2,3,... útil como vector de índices para accesos indirectos (LVI/SVI)."
+        "EXAMPLE": "ADDI R1, R0, #8\nCVI V0, R1       ; V0 = [0, 8, 16, 24, ...]  (V0[i] <- i*8)",
+        "NOTES": "Con Rs=8 genera la secuencia 0, 8, 16, 24..., que sirve como vector de índices para accesos indirectos (LVI/SVI) a elementos consecutivos, ya que los índices son desplazamientos en bytes y cada elemento ocupa 8 bytes. Con Rs=16 se accedería a uno de cada dos elementos, y así sucesivamente."
       },
       "CVM": {
         "DESCRIPTION": "Reinicia la máscara vectorial a todo 1s (todos los elementos activos).",
@@ -589,7 +599,7 @@
       "SEQV": {
         "DESCRIPTION": "Comparación vector-vector. El resultado booleano elemento a elemento se escribe directamente en el registro de máscara vectorial (VM): VM[i] <- condición(Vs1[i], Vs2[i]).",
         "EXAMPLE": "SLTV V1, V2      ; VM[i] <- (V1[i] < V2[i])",
-        "NOTES": "No tiene registro destino explícito; el resultado siempre va a VM. Usa CVM para resetear la máscara."
+        "NOTES": "No tiene registro destino explícito; el resultado siempre va a VM. Usa CVM para resetear la máscara. Latencia por defecto de todas las comparaciones vectoriales: 1 ciclo."
       },
       "SEQSV": {
         "DESCRIPTION": "Comparación escalar-vector. VM[i] <- condición(Fs, Vs[i]).",
@@ -604,11 +614,13 @@
     },
     "DIRECTIVES": {
       "DATA": {
-        "DESCRIPTION": "Marca el inicio del segmento de datos. Las directivas siguientes (.word, .space, .asciiz, etc.) reservan espacio en la memoria de datos.",
-        "EXAMPLE": ".data\nMiVar: .word 42"
+        "SYNTAX": ".data [dirección]",
+        "DESCRIPTION": "Marca el inicio del segmento de datos. Las directivas siguientes (.word, .space, .asciiz, etc.) reservan espacio en la memoria de datos. Opcionalmente admite una dirección inicial: los datos siguientes se colocan a partir de esa dirección de la memoria de datos.",
+        "EXAMPLE": ".data\nMiVar: .word 42\n.data 0x1000     ; los datos siguientes empiezan en 0x1000\nX:     .double 1.0, 2.0"
       },
       "TEXT": {
-        "DESCRIPTION": "Marca el inicio del segmento de código. Las instrucciones siguientes se ensamblan en la memoria de instrucciones.",
+        "SYNTAX": ".text [desplazamiento]",
+        "DESCRIPTION": "Marca el inicio del segmento de código. Las instrucciones siguientes se ensamblan en la memoria de instrucciones. Es obligatoria: todo programa debe contener al menos una directiva .text. Opcionalmente admite un desplazamiento, relativo al inicio del código del usuario (0x64, justo después de la tabla de vectores).",
         "EXAMPLE": ".text\nADDI R1, R0, #5"
       },
       "GLOBAL": {
@@ -625,15 +637,15 @@
         "EXAMPLE": "MiByte: .byte 0xFF"
       },
       "FLOAT": {
-        "DESCRIPTION": "Reserva 4 bytes e inicializa con un valor de punto flotante de precisión simple.",
+        "DESCRIPTION": "Reserva 4 bytes por cada valor y los inicializa con valores de punto flotante de precisión simple.",
         "EXAMPLE": "Pi: .float 3.14159"
       },
       "DOUBLE": {
-        "DESCRIPTION": "Reserva 8 bytes e inicializa con un valor de punto flotante de doble precisión.",
+        "DESCRIPTION": "Reserva 8 bytes por cada valor y los inicializa con valores de punto flotante de doble precisión. Es el formato de los elementos de los registros vectoriales (LV/SV).",
         "EXAMPLE": "E: .double 2.718281828"
       },
       "SPACE": {
-        "DESCRIPTION": "Reserva n bytes sin inicializar (contenido indefinido, generalmente 0).",
+        "DESCRIPTION": "Reserva n bytes en la memoria de datos. Su contenido inicial es 0, ya que la memoria de datos se pone a cero antes de cargar cada programa.",
         "EXAMPLE": "Buffer: .space 80"
       },
       "ASCII": {
@@ -646,21 +658,21 @@
         "NOTES": "Soporta secuencias de escape: \\n (0x0A), \\t (0x09), \\r (0x0D), \\\\ (0x5C), \\\" (0x22), \\0 (0x00)."
       },
       "ALIGN": {
-        "DESCRIPTION": "Alinea el puntero de datos al siguiente múltiplo de 2^n bytes. Útil antes de .word o .double para cumplir requisitos de alineación.",
+        "DESCRIPTION": "Alinea el puntero del segmento actual (datos o código) al siguiente múltiplo de 2^n bytes. Útil antes de .word o .double para cumplir requisitos de alineación.",
         "EXAMPLE": ".align 2  ; alinea a 4 bytes (2^2)\n.word 0"
       }
     },
     "TRAPS": {
       "IAR": {
-        "SYNTAX": "(registro especial implícito de solo lectura)",
-        "DESCRIPTION": "El IAR (Interrupt Address Register) es un registro especial de 32 bits que guarda automáticamente la dirección de retorno (PC + 4 de la instrucción TRAP) cada vez que se ejecuta una instrucción TRAP. Es el mecanismo hardware que permite volver al programa interrumpido mediante RFE.",
-        "EXAMPLE": "TRAP 3           ; IAR <- PC(TRAP)+4 automáticamente\n; ... código del manejador ...\nRFE              ; PC <- IAR (vuelve)",
-        "NOTES": "El IAR se muestra en el panel de registros (banco de enteros, al final). Se reinicia a 0 cuando el procesador se reinicia."
+        "SYNTAX": "(registro especial implícito, lo escribe el procesador)",
+        "DESCRIPTION": "El IAR (Interrupt Address Register) es un registro especial de 32 bits que escribe automáticamente el procesador:\n\n- Al producirse una excepción: IAR <- PC de la instrucción que la ha provocado. Es la dirección que utiliza RFE para continuar la ejecución.\n- Al ejecutar un TRAP: IAR <- PC + 4 (instrucción siguiente al TRAP).",
+        "EXAMPLE": "DIV R3, R1, R2   ; si R2 = 0: IAR <- PC de esta DIV\n                 ; y salta al manejador __divzero_handler",
+        "NOTES": "El IAR se muestra en el panel de registros (banco de enteros, al final). Ninguna instrucción de usuario puede escribirlo. Se reinicia a 0 cuando el procesador se reinicia."
       },
       "RFE": {
-        "DESCRIPTION": "Retorna de una interrupción o llamada al sistema restaurando el PC desde el IAR (Interrupt Address Register). Equivale a un salto incondicional a la dirección guardada en IAR y vacía las instrucciones mal capturadas tras el TRAP.",
-        "EXAMPLE": "TRAP 3           ; invoca syscall, IAR <- PC+4\n; ... código del manejador ...\nRFE              ; PC <- IAR, continúa tras el TRAP",
-        "NOTES": "RFE es una instrucción tipo J sin operandos. El destino es siempre IAR; no acepta argumentos."
+        "DESCRIPTION": "Retorna de un manejador de excepciones. Carga en el PC la dirección guardada en el IAR más 4 (PC <- IAR + 4), borra el registro CAUSE y vacía las instrucciones captadas especulativamente tras RFE. Como el IAR contiene la dirección de la instrucción que provocó la excepción, la ejecución continúa en la instrucción siguiente a ella.",
+        "EXAMPLE": "__divzero_handler:   ; se llega aquí si una DIV divide por 0\n  ADDI R3, R0, #0    ; tratamiento: deja el resultado a 0\n  RFE                ; PC <- IAR+4: continúa tras la DIV",
+        "NOTES": "RFE es una instrucción de tipo J sin operandos. La instrucción que provocó la excepción no se vuelve a ejecutar. Los TRAP no pasan por ningún manejador (el simulador los ejecuta directamente), por lo que no es necesario usar RFE tras un TRAP."
       },
       "TRAP0": {
         "DESCRIPTION": "Finaliza la ejecución del programa. El simulador detiene el pipeline y marca la ejecución como terminada.",
@@ -672,22 +684,27 @@
         "NOTES": "No implementada. Devuelve -1 para indicar error."
       },
       "TRAP2": {
-        "DESCRIPTION": "Cierre de fichero (NOP en este simulador). Devuelve 0 en R1.",
+        "DESCRIPTION": "Cierre de fichero (no soportado en este simulador). Devuelve siempre -1 en R1.",
         "EXAMPLE": "TRAP 2"
       },
       "TRAP3": {
-        "DESCRIPTION": "Lee una línea de texto desde la entrada estándar (stdin). R14 debe apuntar a un bloque de parámetros en memoria de datos con la siguiente estructura:\n\n- MEM[R14+0] (word): descriptor de fichero (0 = stdin)\n- MEM[R14+4] (word): dirección del buffer de destino\n- MEM[R14+8] (word): número máximo de bytes a leer\n\nLa cadena termina con \\n (incluido) y un byte nulo.",
+        "DESCRIPTION": "Lee una línea de texto desde la entrada estándar (stdin). R14 debe apuntar a un bloque de parámetros en memoria de datos con la siguiente estructura:\n\n- MEM[R14+0] (word): descriptor de fichero (0 = stdin)\n- MEM[R14+4] (word): dirección del buffer de destino\n- MEM[R14+8] (word): tamaño del buffer en bytes\n\nLa línea leída incluye el salto de línea final y se termina con un byte nulo, por lo que se guardan como máximo (tamaño - 1) caracteres; si la línea es más larga, se trunca. Al terminar, R1 contiene el número de caracteres guardados (sin contar el nulo). Solo se admite el descriptor 0 (stdin); con cualquier otro valor, R1 recibe -1.",
         "EXAMPLE": ".data\n  LeerBuf: .space 80\n  LeerPar: .word 0, LeerBuf, 80\n.text\n  ADDI R14, R0, LeerPar\n  TRAP 3",
-        "NOTES": "La ejecución se pausa hasta que el usuario introduce texto en la consola stdout. El simulador mostrará un prompt inline en la terminal."
+        "NOTES": "La ejecución se pausa hasta que el usuario introduce texto en la consola. El simulador muestra un prompt inline en la terminal."
       },
       "TRAP4": {
-        "DESCRIPTION": "Escribe bytes en stdout o stderr. R14 apunta a un bloque de parámetros:\n\n- MEM[R14+0] (word): descriptor de fichero (1 = stdout, 2 = stderr)\n- MEM[R14+4] (word): dirección del buffer de origen\n- MEM[R14+8] (word): número de bytes a escribir",
-        "EXAMPLE": ".data\n  Msg:     .asciiz \"Hola\\n\"\n  EscrPar: .word 1, Msg, 6\n.text\n  ADDI R14, R0, EscrPar\n  TRAP 4"
+        "DESCRIPTION": "Escribe bytes en stdout o stderr. R14 apunta a un bloque de parámetros:\n\n- MEM[R14+0] (word): descriptor de fichero (1 = stdout, 2 = stderr)\n- MEM[R14+4] (word): dirección del buffer de origen\n- MEM[R14+8] (word): número de bytes a escribir\n\nEscribe exactamente ese número de bytes, sin detenerse en un byte nulo, por lo que en una cadena .asciiz hay que indicar su longitud sin contar el nulo. Al terminar, R1 contiene el número de bytes escritos (-1 si el descriptor no es válido).",
+        "EXAMPLE": ".data\n  Msg:     .asciiz \"Hola\\n\"\n  .align 2\n  EscrPar: .word 1, Msg, 5   ; 5 = longitud de \"Hola\\n\"\n.text\n  ADDI R14, R0, EscrPar\n  TRAP 4"
       },
       "TRAP5": {
-        "DESCRIPTION": "Imprime en stdout con formato estilo printf. R14 apunta a un bloque:\n\n- MEM[R14+0] (word): dirección de la cadena de formato (.asciiz)\n- MEM[R14+4], MEM[R14+8], ... : argumentos según especificadores de la cadena\n\nEspecificadores soportados:\n- %d - entero con signo\n- %u - entero sin signo\n- %x - hexadecimal\n- %f / %g / %e - double precisión\n- %s - cadena de texto\n- %c - carácter",
-        "EXAMPLE": ".data\n  Fmt:  .asciiz \"Factorial = %g\\n\"\n  Par:  .word Fmt\n  Val:  .space 8\n.text\n  SD Val(R0), F2\n  ADDI R14, R0, Par\n  TRAP 5",
+        "DESCRIPTION": "Imprime en stdout con formato estilo printf. R14 apunta a un bloque:\n\n- MEM[R14+0] (word): dirección de la cadena de formato (.asciiz)\n- MEM[R14+4], MEM[R14+8], ... : argumentos según especificadores de la cadena\n\nEspecificadores soportados:\n- %d / %i - entero con signo\n- %u - entero sin signo\n- %x / %X - hexadecimal\n- %f / %g / %e - double\n- %s - cadena de texto\n- %c - carácter\n- %% - escribe el símbolo %\n\nAl terminar, R1 contiene el número de caracteres escritos.",
+        "EXAMPLE": ".data\n  Fmt:  .asciiz \"Factorial = %g\\n\"\n  .align 2\n  Par:  .word Fmt\n  Val:  .space 8\n.text\n  SD Val, F2\n  ADDI R14, R0, Par\n  TRAP 5",
         "NOTES": "Los argumentos float/double (%f, %g, %e) deben guardarse como double (8 bytes, alineados a 4) en el bloque de parámetros. Los enteros como word (4 bytes). Las cadenas como dirección word."
+      },
+      "TRAP6": {
+        "DESCRIPTION": "Detiene inmediatamente la ejecución del programa, descartando las instrucciones posteriores y sin modificar R1 ni ningún otro registro, de forma que el estado de la máquina queda tal y como estaba al llegar al TRAP. Es la instrucción que contiene el manejador por defecto (__default_handler, en la dirección 0x60), al que saltan todas las excepciones para las que el usuario no ha definido un manejador propio.",
+        "EXAMPLE": "TRAP 6           ; detiene el procesador de inmediato",
+        "NOTES": "A diferencia de TRAP 0, que finaliza el programa de forma ordenada, TRAP 6 es una parada de emergencia. No escribe nada en la consola: el motivo de la parada se muestra en el Log de eventos. Los códigos de TRAP válidos son del 0 al 6."
       }
     },
     "CONFIG": {
@@ -854,42 +871,42 @@
       "OVERVIEW": {
         "NAME": "Sistema de Excepciones",
         "SYNTAX": "(mecanismo hardware)",
-        "DESCRIPTION": "El simulador implementa un sistema de excepciones que gestiona condiciones anómalas durante la ejecución del programa. Cuando ocurre una excepción:\n\n1. Se guarda la dirección de retorno en IAR (Interrupt Address Register)\n2. Se almacena el código de excepción en el registro CAUSE\n3. El PC salta a la dirección del manejador correspondiente en la tabla de vectores\n4. El manejador puede usar RFE para volver al punto de interrupción\n\nTipos de excepciones soportadas:\n- Desbordamiento aritmético (Overflow)\n- División por cero\n- Dirección de memoria no alineada\n- Instrucción ilegal\n- Llamadas al sistema (TRAP)",
+        "DESCRIPTION": "El simulador implementa un sistema de excepciones que gestiona condiciones anómalas durante la ejecución del programa. Cuando ocurre una excepción:\n\n1. Al llegar la instrucción a la etapa de escritura (WB, o RI en el superescalar), se guarda en IAR la dirección de la instrucción que la ha provocado y en CAUSE el código de la excepción\n2. Se descartan las instrucciones posteriores que estuvieran en el pipeline\n3. El PC salta a la entrada de la tabla de vectores correspondiente, que contiene una instrucción J al manejador\n4. El manejador puede terminar con RFE, que continúa en la instrucción siguiente a la que provocó la excepción\n\nTipos de excepciones soportadas:\n- Desbordamiento aritmético (overflow)\n- División entera por cero\n- División por cero en punto flotante\n- Overflow en punto flotante\n- Underflow en punto flotante\n- Operación inválida en punto flotante (por ejemplo, un resultado NaN)\n- Dirección de memoria no alineada\n- Dirección de memoria fuera de límites\n- Instrucción ilegal\n\nLas llamadas al sistema (TRAP) no son excepciones: el simulador las ejecuta directamente, sin pasar por la tabla de vectores.",
         "NOTES": "Las excepciones son precisas: el estado del procesador refleja exactamente el punto donde ocurrió la excepción."
       },
       "VECTORS": {
         "NAME": "Tabla de Vectores",
         "SYNTAX": "Direcciones 0x00 - 0x5F",
-        "DESCRIPTION": "La tabla de vectores de excepción ocupa las direcciones bajas de memoria (0x00 a 0x5F). Cada entrada es una dirección de 4 bytes que apunta al manejador correspondiente.\n\nDirecciones de la tabla:\n- 0x00: Reset / Inicio\n- 0x04: Overflow aritmético\n- 0x08: División por cero\n- 0x0C: Dirección desalineada\n- 0x10: Instrucción ilegal\n- 0x14: Interrupción externa\n- 0x18-0x5F: Reservados para extensiones\n\nCuando ocurre una excepción, el procesador lee la dirección del manejador de la tabla y salta a ella.",
-        "EXAMPLE": "; Ejemplo de tabla de vectores en .data\n.data\n.word __reset_handler\n.word __overflow_handler\n.word __divzero_handler\n.word __align_handler\n.word __illegal_handler"
+        "DESCRIPTION": "La tabla de vectores de excepción ocupa las primeras direcciones de la memoria de instrucciones (0x00 a 0x5F). La genera automáticamente el ensamblador: cada entrada ocupa 4 bytes y contiene una instrucción de salto (J) al manejador correspondiente.\n\nDirecciones de la tabla:\n- 0x00: Reset\n- 0x04: Overflow aritmético\n- 0x08: División por cero\n- 0x0C: División por cero flotante\n- 0x10: Overflow flotante\n- 0x14: Underflow flotante\n- 0x18: Operación inválida flotante\n- 0x1C: Dirección desalineada\n- 0x20: Dirección fuera de límites\n- 0x24: Instrucción ilegal\n- 0x28-0x3C: TRAP 0 a TRAP 5 (reservadas: los TRAP se ejecutan directamente y no saltan a ellas)\n- 0x40-0x5C: Reservados para extensiones\n\nA continuación, en 0x60, está el manejador por defecto (una instrucción TRAP 6), y el código del usuario comienza en 0x64.\n\nCuando ocurre una excepción, el procesador salta a la entrada de la tabla correspondiente y la instrucción J que contiene lo lleva al manejador.",
+        "EXAMPLE": "; Contenido generado automáticamente por el ensamblador\n; (no hay que escribirlo en el programa)\n0x00:  J __reset_handler\n0x04:  J __overflow_handler\n0x08:  J __divzero_handler\n...\n0x60:  TRAP 6        ; __default_handler\n0x64:  ...           ; primera instrucción del usuario"
       },
       "HANDLERS": {
         "NAME": "Manejadores Predefinidos",
-        "DESCRIPTION": "El simulador reconoce etiquetas especiales para los manejadores de excepción. Si estas etiquetas se definen en el programa, se usarán automáticamente cuando ocurra la excepción correspondiente.\n\nEtiquetas predefinidas:\n- __overflow_handler: Manejador de overflow aritmético\n- __divzero_handler: Manejador de división por cero\n- __align_handler: Manejador de acceso desalineado\n- __illegal_handler: Manejador de instrucción ilegal\n- __default_handler: Manejador por defecto para excepciones no cubiertas\n\nSi no se define un manejador específico, se usará __default_handler. Si este tampoco existe, se ejecutará el TRAP 6 (parada por error).",
-        "EXAMPLE": ".text\n__overflow_handler:\n  ; salvar contexto si es necesario\n  ; gestionar el overflow\n  RFE              ; volver al programa",
-        "NOTES": "Los nombres de los manejadores deben empezar por doble subrayado (__) para que el ensamblador los reconozca."
+        "DESCRIPTION": "El simulador reconoce etiquetas especiales para los manejadores de excepción. Si una de estas etiquetas se define en el programa, la entrada correspondiente de la tabla de vectores salta a ella cuando ocurre esa excepción.\n\nEtiquetas reconocidas:\n- __reset_handler: reset\n- __overflow_handler: overflow aritmético\n- __divzero_handler: división entera por cero\n- __fp_divzero_handler: división por cero flotante\n- __fp_overflow_handler: overflow flotante\n- __fp_underflow_handler: underflow flotante\n- __fp_invalid_handler: operación inválida flotante\n- __mem_align_handler: dirección desalineada\n- __mem_bounds_handler: dirección fuera de límites\n- __illegal_instr_handler: instrucción ilegal\n\nLas excepciones que no tienen un manejador definido saltan al manejador por defecto (__default_handler, en 0x60), que ejecuta TRAP 6.\n\nTambién se reconocen __trap_exit_handler, __trap_open_handler, __trap_close_handler, __trap_read_handler, __trap_write_handler y __trap_printf_handler, pero actualmente no tienen efecto, ya que los TRAP no pasan por la tabla de vectores.",
+        "EXAMPLE": ".text\n__overflow_handler:\n  ; gestionar el overflow\n  RFE              ; continúa tras la instrucción que falló",
+        "NOTES": "Los nombres de los manejadores deben coincidir exactamente con los de la lista, incluido el doble subrayado (__) inicial."
       },
       "DEFAULT": {
-        "DESCRIPTION": "Cuando ocurre una excepción y no hay definido ningún manejador (ni específico ni __default_handler), el procesador ejecuta el TRAP 6, que termina el programa con un código de error.\n\nComportamiento de TRAP 6:\n- Detiene la ejecución del programa\n- Marca el estado como \"terminado con error\"\n- Muestra un mensaje de error en consola indicando el tipo de excepción\n- El registro CAUSE contiene el código de excepción original",
-        "EXAMPLE": "; Si no defines manejadores, una división por cero\n; provocará automáticamente un TRAP 6:\nDIV R1, R2, R0     ; R0=0 -> TRAP 6",
-        "NOTES": "Es recomendable definir al menos el __default_handler para tener control sobre las excepciones no esperadas."
+        "DESCRIPTION": "Cuando ocurre una excepción y el programa no define su manejador específico, la tabla de vectores salta al manejador por defecto (__default_handler, en la dirección 0x60), que ejecuta TRAP 6.\n\nComportamiento de TRAP 6:\n- Detiene inmediatamente la ejecución del programa\n- Descarta las instrucciones posteriores y no modifica ningún registro\n- No escribe nada en la consola: el tipo de excepción aparece en el Log de eventos con el mensaje \"EXCEPCIÓN PRECISA\", la dirección de la instrucción y el código de la excepción",
+        "EXAMPLE": "; Si no defines __divzero_handler, una división por cero\n; salta al manejador por defecto y ejecuta TRAP 6:\nDIV R1, R2, R0     ; R0=0 -> parada con TRAP 6",
+        "NOTES": "Para tratar una excepción hay que definir su manejador específico (por ejemplo, __divzero_handler). El manejador por defecto lo genera el ensamblador y siempre detiene el programa."
       },
       "IAR": {
-        "SYNTAX": "(registro especial de solo lectura)",
-        "DESCRIPTION": "El IAR (Interrupt Address Register) es un registro especial de 32 bits que guarda automáticamente la dirección de retorno cuando ocurre una excepción o se ejecuta un TRAP.\n\nComportamiento:\n- En una excepción: IAR <- PC de la instrucción que causó la excepción\n- En la ejecución de un TRAP: IAR <- PC + 4 (siguiente instrucción)\n- La instrucción RFE restaura el PC <- IAR\n\nEl IAR es de solo escritura por hardware; el programa no puede modificarlo directamente.",
-        "EXAMPLE": "ADD R1, R2, R3   ; dirección 0x100\n; si hay overflow, IAR = 0x100\n; el manejador puede usar RFE para reintentar o\n; modificar R1 y continuar",
+        "SYNTAX": "(registro especial, lo escribe el procesador)",
+        "DESCRIPTION": "El IAR (Interrupt Address Register) es un registro especial de 32 bits que escribe automáticamente el procesador.\n\nComportamiento:\n- En una excepción: IAR <- PC de la instrucción que causó la excepción\n- En la ejecución de un TRAP: IAR <- PC + 4 (siguiente instrucción)\n- La instrucción RFE hace PC <- IAR + 4, es decir, continúa en la instrucción siguiente a la que causó la excepción\n\nSolo puede escribirlo el propio procesador: el programa no puede modificarlo.",
+        "EXAMPLE": "ADD R1, R2, R3   ; dirección 0x100\n; si hay overflow, IAR = 0x100\n; al terminar el manejador, RFE continúa en 0x104\n; (la ADD no se vuelve a ejecutar)",
         "NOTES": "El IAR se muestra en el panel de registros del simulador, al final del banco de enteros."
       },
       "CAUSE": {
-        "SYNTAX": "(registro especial)",
-        "DESCRIPTION": "El registro CAUSE almacena el código numérico que identifica el tipo de excepción ocurrido. El hardware lo actualiza automáticamente al producirse la excepción.\n\nCódigos de causa:\n- 0: Reset\n- 1: Overflow aritmético\n- 2: División por cero\n- 3: Dirección desalineada\n- 4: Instrucción ilegal\n- 5: Interrupción externa\n- 6-15: Reservados\n\nEl manejador de excepciones puede leer CAUSE para determinar qué tipo de fallo ha ocurrido y actuar en consecuencia.",
-        "EXAMPLE": "__default_handler:\n  ; CAUSE contiene el código de excepción\n  ; el manejador puede usarlo para decidir\n  ; cómo proceder\n  RFE",
-        "NOTES": "CAUSE se puede leer con MOVS2I para cargarlo en un registro entero y tomar decisiones según el tipo de fallo."
+        "SYNTAX": "(registro especial interno)",
+        "DESCRIPTION": "El registro CAUSE almacena el código que identifica el tipo de excepción ocurrida. Lo actualiza el procesador al producirse la excepción y se borra al ejecutar RFE.\n\nValores posibles:\n- ARITHMETIC_OVERFLOW\n- DIVISION_BY_ZERO\n- FP_DIVISION_BY_ZERO\n- FP_OVERFLOW\n- FP_UNDERFLOW\n- FP_INVALID_OPERATION\n- MEMORY_ALIGNMENT_ERROR\n- MEMORY_OUT_OF_BOUNDS\n- ILLEGAL_INSTRUCTION\n- UNKNOWN",
+        "EXAMPLE": "; CAUSE no se puede leer desde el programa.\n; Cada tipo de excepción tiene su propio manejador,\n; así que el manejador ya sabe qué ha ocurrido:\n__mem_align_handler:\n  ; aquí CAUSE = MEMORY_ALIGNMENT_ERROR\n  RFE",
+        "NOTES": "CAUSE es un registro interno: no se muestra en el panel de registros ni puede leerse con ninguna instrucción. El código de la excepción se puede consultar en el Log de eventos."
       },
       "RFE": {
-        "DESCRIPTION": "Instrucción que retorna de un manejador de excepciones restaurando el PC desde el IAR. Equivale a un salto incondicional a la dirección guardada en IAR.\n\nEfectos de RFE:\n1. PC <- IAR (restaura el flujo de ejecución)\n2. Vacía las instrucciones del pipeline capturadas por error\n3. Restaura el modo de ejecución normal\n\nRFE es una instrucción de tipo J sin operandos.",
-        "EXAMPLE": "__overflow_handler:\n  ; El overflow ya ocurrió, el resultado es\n  ; indefinido. Podemos:\n  ; 1. Saturar el resultado\n  ; 2. Registrar el error y seguir\n  ; 3. Terminar el programa\n  \n  ; Opción 2: continuar tras el error\n  RFE              ; vuelve al PC guardado en IAR",
-        "NOTES": "Si se usa RFE sin una excepción previa, el comportamiento depende del valor actual de IAR (que puede ser 0 o basura)."
+        "DESCRIPTION": "Instrucción que retorna de un manejador de excepciones.\n\nEfectos de RFE:\n1. PC <- IAR + 4: la ejecución continúa en la instrucción siguiente a la que provocó la excepción (esta no se vuelve a ejecutar)\n2. Borra el registro CAUSE\n3. Vacía las instrucciones captadas especulativamente tras RFE\n\nRFE es una instrucción de tipo J sin operandos.",
+        "EXAMPLE": "__overflow_handler:\n  ; El overflow ya ocurrió, el resultado es\n  ; indefinido. Podemos:\n  ; 1. Saturar el resultado\n  ; 2. Registrar el error y seguir\n  ; 3. Terminar el programa (TRAP 0)\n  \n  ; Opción 2: continuar tras el error\n  RFE              ; PC <- IAR+4",
+        "NOTES": "Si se usa RFE sin una excepción previa, salta a IAR + 4 con el valor que tenga IAR en ese momento (0 tras reiniciar el procesador, o la dirección siguiente al último TRAP ejecutado)."
       }
     }
   },
