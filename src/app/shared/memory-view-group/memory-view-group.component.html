@@ -34,7 +34,7 @@
       dynamicHeight
       [selectedIndex]="activeTabIndex()"
       (selectedIndexChange)="activeTabIndex.set($event)">
-      @for (memory of memories; track $index) {
+      @for (memory of memories(); track $index) {
         <mat-tab [label]="memory.getName()">
           <div class="viewport">
             <div class="memory-table">

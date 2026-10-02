@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,7 +8,7 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoDirective } from '@jsverse/transloco';
-import { CommonModule } from '@angular/common';
+
 import { AsgConfig, LogLevel, DEFAULT_LATENCIES, DEFAULT_SUPERSCALAR_CONFIG, SUPERSCALAR_PRESETS } from '../../core/models/asg.config';
 import { MatOption, MatSelect } from '@angular/material/select';
 
@@ -16,7 +16,6 @@ import { MatOption, MatSelect } from '@angular/material/select';
   selector: 'app-settings',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatDialogModule,
     MatButtonModule,
@@ -27,12 +26,17 @@ import { MatOption, MatSelect } from '@angular/material/select';
     MatIconModule,
     TranslocoDirective,
     MatSelect,
-    MatOption,
-  ],
+    MatOption
+],
   templateUrl: './settings.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./settings.component.scss']
 })
 export class SettingsComponent implements OnInit {
+  private fb = inject(FormBuilder);
+  dialogRef = inject<MatDialogRef<SettingsComponent>>(MatDialogRef);
+  data = inject<AsgConfig>(MAT_DIALOG_DATA);
+
   settingsForm!: FormGroup;
 
   readonly LIMITS = {
@@ -50,12 +54,6 @@ export class SettingsComponent implements OnInit {
   };
 
   readonly DEFAULT_LATENCIES = DEFAULT_LATENCIES;
-
-  constructor(
-    private fb: FormBuilder,
-    public dialogRef: MatDialogRef<SettingsComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: AsgConfig
-  ) {}
 
   ngOnInit(): void {
     this.settingsForm = this.fb.group({

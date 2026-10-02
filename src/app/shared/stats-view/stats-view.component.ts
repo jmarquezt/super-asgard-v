@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { MatProgressBar } from '@angular/material/progress-bar';
 import { NgClass } from '@angular/common';
@@ -16,6 +16,7 @@ import { AsgNonPipelinedProcessorService } from '../../core/services/processor/a
     NgClass,
     TranslocoDirective
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./stats-view.component.scss']
 })
 export class StatsViewComponent {

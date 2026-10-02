@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { MatProgressSpinner } from '@angular/material/progress-spinner';
 import { TranslocoDirective } from '@jsverse/transloco';
 import { ThemeService } from '../../services/theme';
@@ -21,6 +21,7 @@ import { ThemeService } from '../../services/theme';
       </div>
     </ng-container>
   `,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styles: [`
     .loading-overlay {
       position: fixed;

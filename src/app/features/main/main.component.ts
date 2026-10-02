@@ -1,6 +1,6 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { CommonModule } from '@angular/common';
+
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { map } from 'rxjs';
 import { MobileMainComponent } from '../mobile-main/mobile-main.component';
@@ -23,7 +23,6 @@ import { MemoryViewGroupComponent } from '../../shared/memory-view-group/memory-
   selector: 'app-main',
   standalone: true,
   imports: [
-    CommonModule,
     RegistersViewComponent,
     PipelineViewComponent,
     SuperscalarPipelineViewComponent,
@@ -32,15 +31,15 @@ import { MemoryViewGroupComponent } from '../../shared/memory-view-group/memory-
     TimelineViewComponent,
     EditorComponent,
     ConsoleViewComponent,
-    // Superscalar views
     RobViewComponent,
     RsViewComponent,
     CdbViewComponent,
     SuperscalarStatsViewComponent,
     MemoryViewGroupComponent,
-    MobileMainComponent,
-  ],
+    MobileMainComponent
+],
   templateUrl: './main.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./main.component.scss'],
 })
 export class MainComponent {

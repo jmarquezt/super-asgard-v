@@ -1,4 +1,4 @@
-@if (!hideControls) {
+@if (!hideControls()) {
   <mat-toolbar class="modern-toolbar shadow-lg">
     <ng-container *transloco="let t">
       <div class="toolbar-section center">
@@ -68,7 +68,7 @@
 
 }
 
-<div class="editor-window shadow-lg" [class.no-toolbar]="hideControls">
+<div class="editor-window shadow-lg" [class.no-toolbar]="hideControls()">
   <ng-container *transloco="let t">
     <div class="editor-header">
       <div class="tabs-scroll">

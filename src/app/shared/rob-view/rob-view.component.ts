@@ -1,5 +1,5 @@
-import { Component, inject, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, computed, ChangeDetectionStrategy } from '@angular/core';
+
 import { MatIcon } from '@angular/material/icon';
 import { TranslocoDirective } from '@jsverse/transloco';
 import { ROBEntry } from '../../core/models/superscalar/rob';
@@ -8,8 +8,9 @@ import { AsgSuperscalarProcessorService } from '../../core/services/processor/as
 @Component({
   selector: 'app-rob-view',
   standalone: true,
-  imports: [CommonModule, TranslocoDirective, MatIcon],
+  imports: [TranslocoDirective, MatIcon],
   templateUrl: './rob-view.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./rob-view.component.scss']
 })
 export class RobViewComponent {

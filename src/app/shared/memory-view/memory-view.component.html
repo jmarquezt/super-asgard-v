@@ -3,7 +3,7 @@
     <div class="memory-header">
       <div class="title">
         <mat-icon>storage</mat-icon>
-        <h3>{{ t(titleKey) }}</h3>
+        <h3>{{ t(titleKey()) }}</h3>
       </div>
 
       <div class="search-box">
@@ -39,12 +39,12 @@
         </div>
 
         @for (word of filteredWords(); track word.address) {
-          <div class="memory-row" [class.last-access]="memory.getLastAccess() === (word.address / 4)">
+          <div class="memory-row" [class.last-access]="memory().getLastAccess() === (word.address / 4)">
             <div class="cell address">{{ word.address | numberFormat:(displayMode() === 'ascii' ? 'dec' : displayMode()) }}</div>
             <div class="cell content">
               @if (displayMode() === 'hex' || displayMode() === 'dec') {
                 @for(i of [0,1,2,3]; track i) {
-                  {{ memory.get()[word.address + i] | numberFormat:displayMode() }}{{ i < 3 ? ' ' : '' }}
+                  {{ memory().get()[word.address + i] | numberFormat:displayMode() }}{{ i < 3 ? ' ' : '' }}
                 }
               } @else {
                 {{ word.value | numberFormat:displayMode() }}

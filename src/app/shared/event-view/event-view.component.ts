@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, AfterViewChecked, inject, signal, computed } from '@angular/core';
+import { Component, ElementRef, AfterViewChecked, inject, signal, computed, ChangeDetectionStrategy, viewChild } from '@angular/core';
 import {MatIcon} from '@angular/material/icon';
 import {NgClass} from '@angular/common';
 import {TranslocoDirective} from '@jsverse/transloco';
@@ -16,10 +16,11 @@ import {LogService} from '../../services/log';
     MatIconButton,
     MatTooltip
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./event-view.component.scss']
 })
 export class EventViewComponent implements AfterViewChecked {
-  @ViewChild('scrollContainer') private scrollContainer!: ElementRef;
+  private readonly scrollContainer = viewChild.required<ElementRef>('scrollContainer');
 
   protected logService = inject(LogService);
 
@@ -42,7 +43,7 @@ export class EventViewComponent implements AfterViewChecked {
 
   private scrollToBottom(): void {
     try {
-      this.scrollContainer.nativeElement.scrollTop = 0;
+      this.scrollContainer().nativeElement.scrollTop = 0;
     } catch(err) {}
   }
 }

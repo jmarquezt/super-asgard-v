@@ -8,7 +8,8 @@ import {
   viewChild,
   signal,
   computed,
-  Input
+  ChangeDetectionStrategy,
+  input
 } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { MatButton, MatIconButton } from '@angular/material/button';
@@ -48,12 +49,13 @@ interface TabState {
     MatSliderThumb,
     TranslocoDirective,
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./editor.component.scss'],
 })
 export class EditorComponent implements AfterViewInit, OnDestroy {
 
   // flag para controlar si hay que ocultar la botonera de ejecucion (para movil se oculta y aparece la flotante)
-  @Input() hideControls = false;
+  readonly hideControls = input(false);
   private editor!: monaco.editor.IStandaloneCodeEditor;
   private readonly editorElement = viewChild<ElementRef<HTMLDivElement>>('editorContainer');
 

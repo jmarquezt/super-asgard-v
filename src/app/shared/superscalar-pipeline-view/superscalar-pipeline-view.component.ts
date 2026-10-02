@@ -1,5 +1,5 @@
-import { Component, inject, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, computed, ChangeDetectionStrategy } from '@angular/core';
+
 import { MatIcon } from '@angular/material/icon';
 import { TranslocoDirective } from '@jsverse/transloco';
 import { AsgSuperscalarProcessorService } from '../../core/services/processor/asg.superscalar.processor';
@@ -9,11 +9,11 @@ import { AsgSuperscalarProcessorService } from '../../core/services/processor/as
   standalone: true,
   templateUrl: './superscalar-pipeline-view.component.html',
   styleUrls: ['./superscalar-pipeline-view.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   imports: [
-    CommonModule,
     MatIcon,
     TranslocoDirective
-  ]
+]
 })
 export class SuperscalarPipelineViewComponent {
   public processor = inject(AsgSuperscalarProcessorService);

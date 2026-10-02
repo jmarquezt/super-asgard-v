@@ -1,4 +1,4 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule, DecimalPipe, NgClass } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 import { MatProgressBar } from '@angular/material/progress-bar';
@@ -10,6 +10,7 @@ import { AsgSuperscalarProcessorService } from '../../core/services/processor/as
   standalone: true,
   imports: [CommonModule, TranslocoDirective, DecimalPipe, NgClass, MatIcon, MatProgressBar],
   templateUrl: './superscalar-stats-view.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./superscalar-stats-view.component.scss']
 })
 export class SuperscalarStatsViewComponent {

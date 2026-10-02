@@ -1,5 +1,5 @@
-import { Component, signal, computed, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, signal, computed, inject, ChangeDetectionStrategy } from '@angular/core';
+
 import { MatIconModule } from '@angular/material/icon';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -10,8 +10,9 @@ import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 @Component({
   selector: 'app-docs',
   standalone: true,
-  imports: [CommonModule, MatIconModule, TranslocoDirective],
+  imports: [MatIconModule, TranslocoDirective],
   templateUrl: './docs.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./docs.component.scss'],
 })
 export class DocsComponent {

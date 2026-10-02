@@ -1,4 +1,4 @@
-import { Component, inject, signal, viewChild } from '@angular/core';
+import { Component, inject, signal, viewChild, ChangeDetectionStrategy } from '@angular/core';
 import { TranslocoDirective } from '@jsverse/transloco';
 import { MatIcon } from '@angular/material/icon';
 import { RegistersViewComponent } from '../../shared/registers-view/registers-view.component';
@@ -45,6 +45,7 @@ type MobileTab = 'editor' | 'execution' | 'registers' | 'stats';
     MobileExecButtonsComponent,
   ],
   templateUrl: './mobile-main.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./mobile-main.component.scss'],
 })
 export class MobileMainComponent {

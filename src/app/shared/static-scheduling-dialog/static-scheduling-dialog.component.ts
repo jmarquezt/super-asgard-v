@@ -1,5 +1,5 @@
-import { Component, Inject, signal, computed, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, signal, computed, inject, ChangeDetectionStrategy } from '@angular/core';
+
 import { FormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -15,7 +15,6 @@ import { AsgStaticSchedulerService, StaticSchedulerConfig, OptimizeResult } from
   selector: 'app-static-scheduling-dialog',
   standalone: true,
   imports: [
-    CommonModule,
     FormsModule,
     MatDialogModule,
     MatButtonModule,
@@ -24,12 +23,18 @@ import { AsgStaticSchedulerService, StaticSchedulerConfig, OptimizeResult } from
     MatInputModule,
     MatIconModule,
     MatDividerModule,
-    TranslocoModule,
-  ],
+    TranslocoModule
+],
   templateUrl: './static-scheduling-dialog.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./static-scheduling-dialog.component.scss'],
 })
 export class StaticSchedulingDialogComponent {
+  dialogRef = inject<MatDialogRef<StaticSchedulingDialogComponent>>(MatDialogRef);
+  data = inject<{
+    source: string;
+}>(MAT_DIALOG_DATA);
+
   private scheduler = inject(AsgStaticSchedulerService);
 
   // Configuración de optimización reactiva
@@ -69,10 +74,9 @@ export class StaticSchedulingDialogComponent {
     }));
   });
 
-  constructor(
-    public dialogRef: MatDialogRef<StaticSchedulingDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { source: string },
-  ) {
+  constructor() {
+    const data = this.data;
+
     this.originalCode = data.source;
   }
 

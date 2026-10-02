@@ -11,10 +11,12 @@
       <mat-slide-toggle [checked]="config().enableUnrolling" (change)="updateConfig({enableUnrolling: $event.checked})">
         {{ 'STATIC_SCHEDULER.UNROLLING' | transloco }}
       </mat-slide-toggle>
-      <mat-form-field *ngIf="config().enableUnrolling" appearance="outline" class="small-input">
-        <mat-label>{{ 'STATIC_SCHEDULER.FACTOR' | transloco }}</mat-label>
-        <input matInput type="number" [ngModel]="config().unrollFactor" (ngModelChange)="updateConfig({unrollFactor: $event})" min="2" max="8">
-      </mat-form-field>
+      @if (config().enableUnrolling) {
+        <mat-form-field appearance="outline" class="small-input">
+          <mat-label>{{ 'STATIC_SCHEDULER.FACTOR' | transloco }}</mat-label>
+          <input matInput type="number" [ngModel]="config().unrollFactor" (ngModelChange)="updateConfig({unrollFactor: $event})" min="2" max="8">
+        </mat-form-field>
+      }
     </div>
 
     <mat-slide-toggle [checked]="config().enableRegisterRenaming" (change)="updateConfig({enableRegisterRenaming: $event.checked})">
@@ -29,73 +31,89 @@
   <mat-divider></mat-divider>
 
   <!-- Warning message for unrolling -->
-  <div *ngIf="optimizeResult().unrollWarning" class="warning-panel">
-    <mat-icon class="warning-icon">warning</mat-icon>
-    <span>{{ optimizeResult().unrollWarning | transloco }}</span>
-  </div>
+  @if (optimizeResult().unrollWarning) {
+    <div class="warning-panel">
+      <mat-icon class="warning-icon">warning</mat-icon>
+      <span>{{ optimizeResult().unrollWarning | transloco }}</span>
+    </div>
+  }
 
   <!-- Error message -->
-  <div *ngIf="hasError()" class="error-panel">
-    <mat-icon class="error-icon">error</mat-icon>
-    <div class="error-content">
-      <h3>{{ 'STATIC_SCHEDULER.ERROR_TITLE' | transloco }}</h3>
-      <p>{{ optimizeResult().error }}</p>
+  @if (hasError()) {
+    <div class="error-panel">
+      <mat-icon class="error-icon">error</mat-icon>
+      <div class="error-content">
+        <h3>{{ 'STATIC_SCHEDULER.ERROR_TITLE' | transloco }}</h3>
+        <p>{{ optimizeResult().error }}</p>
+      </div>
     </div>
-  </div>
+  }
 
   <!-- Vista Side-by-Side -->
-  <div class="comparison-view" *ngIf="!hasError()">
-
-    <!-- Panel original -->
-    <div class="code-box">
-      <div class="box-header">{{ 'STATIC_SCHEDULER.ORIGINAL' | transloco }}</div>
-      <div class="code-lines">
-        <div *ngFor="let line of originalAnnotatedLines(); let i = index"
-             class="code-line"
-             [class.line-moved-out]="line.movedOut">
-          <span class="ln">{{ i + 1 }}</span>
-          <span class="content">{{ line.text || ' ' }}</span>
+  @if (!hasError()) {
+    <div class="comparison-view">
+      <!-- Panel original -->
+      <div class="code-box">
+        <div class="box-header">{{ 'STATIC_SCHEDULER.ORIGINAL' | transloco }}</div>
+        <div class="code-lines">
+          @for (line of originalAnnotatedLines(); track line; let i = $index) {
+            <div
+              class="code-line"
+              [class.line-moved-out]="line.movedOut">
+              <span class="ln">{{ i + 1 }}</span>
+              <span class="content">{{ line.text || ' ' }}</span>
+            </div>
+          }
         </div>
       </div>
-    </div>
-
-    <div class="divider-vertical"></div>
-
-    <!-- Panel optimizado -->
-    <div class="code-box optimized">
-      <div class="box-header">
-        <span>{{ 'STATIC_SCHEDULER.OPTIMIZED' | transloco }}</span>
-        <span class="stats-row">
-          <ng-container *ngIf="optimizeResult().reorderedCount > 0 || optimizeResult().insertedCount > 0">
-            <span class="stat stat-reordered" *ngIf="optimizeResult().reorderedCount > 0"
+      <div class="divider-vertical"></div>
+      <!-- Panel optimizado -->
+      <div class="code-box optimized">
+        <div class="box-header">
+          <span>{{ 'STATIC_SCHEDULER.OPTIMIZED' | transloco }}</span>
+          <span class="stats-row">
+            @if (optimizeResult().reorderedCount > 0 || optimizeResult().insertedCount > 0) {
+              @if (optimizeResult().reorderedCount > 0) {
+                <span class="stat stat-reordered"
                   [title]="'STATIC_SCHEDULER.STAT_REORDERED_TITLE' | transloco">
-              ↕ {{ optimizeResult().reorderedCount }}
-            </span>
-            <span class="stat stat-inserted" *ngIf="optimizeResult().insertedCount > 0"
+                  ↕ {{ optimizeResult().reorderedCount }}
+                </span>
+              }
+              @if (optimizeResult().insertedCount > 0) {
+                <span class="stat stat-inserted"
                   [title]="'STATIC_SCHEDULER.STAT_INSERTED_TITLE' | transloco">
-              + {{ optimizeResult().insertedCount }}
-            </span>
-          </ng-container>
-          <span class="stat stat-none"
-                *ngIf="optimizeResult().reorderedCount === 0 && optimizeResult().insertedCount === 0">
-            {{ 'STATIC_SCHEDULER.STAT_NO_CHANGES' | transloco }}
+                  + {{ optimizeResult().insertedCount }}
+                </span>
+              }
+            }
+            @if (optimizeResult().reorderedCount === 0 && optimizeResult().insertedCount === 0) {
+              <span class="stat stat-none"
+                >
+                {{ 'STATIC_SCHEDULER.STAT_NO_CHANGES' | transloco }}
+              </span>
+            }
           </span>
-        </span>
-      </div>
-      <div class="code-lines">
-        <div *ngFor="let line of optimizeResult().lines; let i = index"
-             class="code-line"
-             [class.line-reordered]="line.status === 'reordered'"
-             [class.line-new]="line.status === 'new'">
-          <span class="ln">{{ i + 1 }}</span>
-          <span class="content">{{ line.text || ' ' }}</span>
-          <span class="badge badge-reordered" *ngIf="line.status === 'reordered'">↕</span>
-          <span class="badge badge-new"       *ngIf="line.status === 'new'">+</span>
+        </div>
+        <div class="code-lines">
+          @for (line of optimizeResult().lines; track line; let i = $index) {
+            <div
+              class="code-line"
+              [class.line-reordered]="line.status === 'reordered'"
+              [class.line-new]="line.status === 'new'">
+              <span class="ln">{{ i + 1 }}</span>
+              <span class="content">{{ line.text || ' ' }}</span>
+              @if (line.status === 'reordered') {
+                <span class="badge badge-reordered">↕</span>
+              }
+              @if (line.status === 'new') {
+                <span class="badge badge-new"      >+</span>
+              }
+            </div>
+          }
         </div>
       </div>
     </div>
-
-  </div>
+  }
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">

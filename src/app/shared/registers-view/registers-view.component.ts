@@ -1,4 +1,4 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, computed, ChangeDetectionStrategy } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { MatButtonToggle, MatButtonToggleGroup } from '@angular/material/button-toggle';
 import { MatTab, MatTabGroup } from '@angular/material/tabs';
@@ -27,6 +27,7 @@ import { AsgSuperscalarProcessorService } from '../../core/services/processor/as
     MatExpansionPanelDescription,
     TranslocoDirective
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./registers-view.component.scss']
 })
 export class RegistersViewComponent {

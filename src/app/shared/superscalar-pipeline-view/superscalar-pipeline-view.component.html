@@ -20,96 +20,100 @@
                 <span class="opcode">{{ inf.instr.opcode }}</span>
                 <span class="tag">#{{ inf.id }}</span>
               </div>
-            } @empty { <div class="empty-msg">{{ t('PIPELINE.EMPTY') }}</div> }
+              } @empty { <div class="empty-msg">{{ t('PIPELINE.EMPTY') }}</div> }
+            </div>
           </div>
         </div>
-      </div>
 
-      <mat-icon class="connector">arrow_forward</mat-icon>
+        <mat-icon class="connector">arrow_forward</mat-icon>
 
-      <!-- ID: DECODE -->
-      <div class="stage-column">
-        <div class="stage-box stage-ID" [class.active]="stages().ID.length > 0">
-          <div class="stage-label">ID</div>
-          <div class="instr-list">
-            @for (inf of stages().ID; track inf.id) {
-              <div class="instr-mini">
-                <span class="opcode">{{ inf.instr.opcode }}</span>
-                <span class="tag">ROB[{{ inf.robTag?.slot }}]</span>
+        <!-- ID: DECODE -->
+        <div class="stage-column">
+          <div class="stage-box stage-ID" [class.active]="stages().ID.length > 0">
+            <div class="stage-label">ID</div>
+            <div class="instr-list">
+              @for (inf of stages().ID; track inf.id) {
+                <div class="instr-mini">
+                  <span class="opcode">{{ inf.instr.opcode }}</span>
+                  <span class="tag">ROB[{{ inf.robTag?.slot }}]</span>
+                </div>
+                } @empty { <div class="empty-msg">{{ t('PIPELINE.EMPTY') }}</div> }
               </div>
-            } @empty { <div class="empty-msg">{{ t('PIPELINE.EMPTY') }}</div> }
+            </div>
           </div>
-        </div>
-      </div>
 
-      <mat-icon class="connector">arrow_forward</mat-icon>
+          <mat-icon class="connector">arrow_forward</mat-icon>
 
-      <!-- II: ISSUE / RS -->
-      <div class="stage-column">
-        <div class="stage-box stage-II" [class.active]="stages().II.length > 0">
-          <div class="stage-label">II</div>
-          <div class="instr-list">
-            @for (inf of stages().II; track inf.id) {
-              <div class="instr-mini">
-                <span class="opcode">{{ inf.instr.opcode }}</span>
-                <span class="rs-info">RS[{{ inf.rsIndex }}]</span>
+          <!-- II: ISSUE / RS -->
+          <div class="stage-column">
+            <div class="stage-box stage-II" [class.active]="stages().II.length > 0">
+              <div class="stage-label">II</div>
+              <div class="instr-list">
+                @for (inf of stages().II; track inf.id) {
+                  <div class="instr-mini">
+                    <span class="opcode">{{ inf.instr.opcode }}</span>
+                    <span class="rs-info">RS[{{ inf.rsIndex }}]</span>
+                  </div>
+                  } @empty { <div class="empty-msg">{{ t('PIPELINE.EMPTY') }}</div> }
+                </div>
               </div>
-            } @empty { <div class="empty-msg">{{ t('PIPELINE.EMPTY') }}</div> }
-          </div>
-        </div>
-      </div>
+            </div>
 
-      <mat-icon class="connector">arrow_forward</mat-icon>
+            <mat-icon class="connector">arrow_forward</mat-icon>
 
-      <!-- EX: EXECUTE -->
-      <div class="stage-column">
-        <div class="stage-box stage-EX" [class.active]="stages().EX.length > 0">
-          <div class="stage-label">EX</div>
-          <div class="instr-list">
-            @for (inf of stages().EX; track inf.id) {
-              <div class="instr-mini">
-                <span class="opcode">{{ inf.instr.opcode }}</span>
-                <span class="phase" *ngIf="inf.executionPhaseLabel">{{ inf.executionPhaseLabel }}</span>
-                <span class="latency" *ngIf="!inf.instr.isVector && inf.cyclesRemainingEX > 0">[{{ inf.cyclesRemainingEX }}]</span>
+            <!-- EX: EXECUTE -->
+            <div class="stage-column">
+              <div class="stage-box stage-EX" [class.active]="stages().EX.length > 0">
+                <div class="stage-label">EX</div>
+                <div class="instr-list">
+                  @for (inf of stages().EX; track inf.id) {
+                    <div class="instr-mini">
+                      <span class="opcode">{{ inf.instr.opcode }}</span>
+                      @if (inf.executionPhaseLabel) {
+                        <span class="phase">{{ inf.executionPhaseLabel }}</span>
+                      }
+                      @if (!inf.instr.isVector && inf.cyclesRemainingEX > 0) {
+                        <span class="latency">[{{ inf.cyclesRemainingEX }}]</span>
+                      }
+                    </div>
+                    } @empty { <div class="empty-msg">{{ t('PIPELINE.EMPTY') }}</div> }
+                  </div>
+                </div>
               </div>
-            } @empty { <div class="empty-msg">{{ t('PIPELINE.EMPTY') }}</div> }
-          </div>
-        </div>
-      </div>
 
-      <mat-icon class="connector">arrow_forward</mat-icon>
+              <mat-icon class="connector">arrow_forward</mat-icon>
 
-      <!-- WR: WRITE RESULT -->
-      <div class="stage-column">
-        <div class="stage-box stage-WR" [class.active]="stages().WR.length > 0">
-          <div class="stage-label">WR</div>
-          <div class="instr-list">
-            @for (inf of stages().WR; track inf.id) {
-              <div class="instr-mini">
-                <span class="opcode">{{ inf.instr.opcode }}</span>
-                <mat-icon class="done-icon">check_circle</mat-icon>
+              <!-- WR: WRITE RESULT -->
+              <div class="stage-column">
+                <div class="stage-box stage-WR" [class.active]="stages().WR.length > 0">
+                  <div class="stage-label">WR</div>
+                  <div class="instr-list">
+                    @for (inf of stages().WR; track inf.id) {
+                      <div class="instr-mini">
+                        <span class="opcode">{{ inf.instr.opcode }}</span>
+                        <mat-icon class="done-icon">check_circle</mat-icon>
+                      </div>
+                      } @empty { <div class="empty-msg">{{ t('PIPELINE.EMPTY') }}</div> }
+                    </div>
+                  </div>
+                </div>
+
+                <mat-icon class="connector">arrow_forward</mat-icon>
+
+                <!-- RI: RETIRE / COMMIT -->
+                <div class="stage-column">
+                  <div class="stage-box stage-RI" [class.active]="stages().RI.length > 0">
+                    <div class="stage-label">RI</div>
+                    <div class="instr-list">
+                      @for (inf of stages().RI; track inf.id) {
+                        <div class="instr-mini commit">
+                          <span class="opcode">{{ inf.instr.opcode }}</span>
+                          <mat-icon class="commit-icon">shutter_speed</mat-icon>
+                        </div>
+                        } @empty { <div class="empty-msg">{{ t('PIPELINE.EMPTY') }}</div> }
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
-            } @empty { <div class="empty-msg">{{ t('PIPELINE.EMPTY') }}</div> }
-          </div>
-        </div>
-      </div>
-
-      <mat-icon class="connector">arrow_forward</mat-icon>
-
-      <!-- RI: RETIRE / COMMIT -->
-      <div class="stage-column">
-        <div class="stage-box stage-RI" [class.active]="stages().RI.length > 0">
-          <div class="stage-label">RI</div>
-          <div class="instr-list">
-            @for (inf of stages().RI; track inf.id) {
-              <div class="instr-mini commit">
-                <span class="opcode">{{ inf.instr.opcode }}</span>
-                <mat-icon class="commit-icon">shutter_speed</mat-icon>
-              </div>
-            } @empty { <div class="empty-msg">{{ t('PIPELINE.EMPTY') }}</div> }
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</ng-container>
+            </ng-container>

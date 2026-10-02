@@ -1,4 +1,4 @@
-import {Component, computed, Input, signal} from '@angular/core';
+import {Component, computed, signal, ChangeDetectionStrategy, input} from '@angular/core';
 import {MatIcon} from '@angular/material/icon';
 import {MatButtonToggle, MatButtonToggleGroup} from '@angular/material/button-toggle';
 import {FormsModule} from '@angular/forms';
@@ -17,21 +17,22 @@ import {AsgMemoryService} from '../../core/services/asg.memory';
     FormsModule,
     TranslocoDirective
   ],
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./memory-view.component.scss']
 })
 export class MemoryViewComponent {
 
-  @Input({ required: true }) memory!: AsgMemoryService;
-  @Input({ required: true }) titleKey!: string;
+  readonly memory = input.required<AsgMemoryService>();
+  readonly titleKey = input.required<string>();
 
   readonly displayMode = signal<'hex' | 'dec' | 'bin' | 'ascii'>('dec');
   readonly searchQuery = signal('');
 
   readonly memoryWords = computed(() => {
-    const rawData = this.memory.get();
+    const rawData = this.memory().get();
     const words = [];
     for (let i = 0; i < rawData.length; i += 4) {
-      words.push({ address: i, value: this.memory.read(i, 4, true) });
+      words.push({ address: i, value: this.memory().read(i, 4, true) });
     }
     return words;
   });
@@ -46,7 +47,7 @@ export class MemoryViewComponent {
     if (!q) return words;
 
     const mode = this.displayMode();
-    const mem = this.memory.get();
+    const mem = this.memory().get();
     return words.filter(w => this.matchesQuery(w, q, mode, mem));
   });
 

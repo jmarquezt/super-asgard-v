@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { UpperCasePipe } from '@angular/common';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { MatToolbar } from '@angular/material/toolbar';
@@ -18,6 +18,7 @@ import { ThemeService } from '../../services/theme';
   standalone: true,
   imports: [RouterOutlet, RouterLink, RouterLinkActive, MatToolbar, MatIconModule, MatButtonModule, MatMenuModule, UpperCasePipe, TranslocoDirective, MatTooltip],
   templateUrl: './full-page.component.html',
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./full-page.component.scss'],
 })
 export class FullPageComponent {

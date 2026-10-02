@@ -91,7 +91,7 @@
               <input matSliderThumb formControlName="ghrBits">
             </mat-slider>
             <small class="help-text">
-              {{ t('SETTINGS.GHR_COMBINATIONS') }}: {{ Math.pow(2, settingsForm.get('ghrBits')?.value) }}
+              {{ t('SETTINGS.GHR_COMBINATIONS') }}: {{ Math.pow(2, settingsForm.get('ghrBits')?.value ?? 0) }}
             </small>
           </div>
         </div>
