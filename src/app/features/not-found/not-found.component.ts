@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy } from '@angular/core';
+import { Component } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { TranslocoModule } from "@jsverse/transloco";
 import {MatIcon} from '@angular/material/icon';
@@ -10,9 +10,7 @@ import {MatIcon} from '@angular/material/icon';
     TranslocoModule,
     MatIcon,
   ],
-  standalone: true,
   templateUrl: './not-found.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './not-found.component.scss'
 })
 export class NotFoundComponent {

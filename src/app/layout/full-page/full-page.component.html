@@ -23,7 +23,7 @@
 
       <button mat-button [matMenuTriggerFor]="langMenu" class="lang-selector">
         <mat-icon>language</mat-icon>
-        <span class="lang-text">{{ activeLang | uppercase }}</span>
+        <span class="lang-text">{{ activeLang() | uppercase }}</span>
         <mat-icon class="arrow-icon">expand_more</mat-icon>
       </button>
 

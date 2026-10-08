@@ -8,7 +8,6 @@ import {
   viewChild,
   signal,
   computed,
-  ChangeDetectionStrategy,
   input
 } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
@@ -49,8 +48,7 @@ interface TabState {
     MatSliderThumb,
     TranslocoDirective,
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrls: ['./editor.component.scss'],
+  styleUrl: './editor.component.scss',
 })
 export class EditorComponent implements AfterViewInit, OnDestroy {
 
@@ -311,12 +309,19 @@ export class EditorComponent implements AfterViewInit, OnDestroy {
   }
 
   toggleBreakpoint(localLine: number) {
-    const tab = this.tabs()[this.activeTabIndex()];
-    if (tab.breakpoints.has(localLine)) {
-      tab.breakpoints.delete(localLine);
-    } else {
-      tab.breakpoints.add(localLine);
-    }
+    // Actualización inmutable para que el signal notifique el cambio (necesario con OnPush,
+    // ya que el evento viene de Monaco y no de una plantilla de Angular)
+    const activeIndex = this.activeTabIndex();
+    this.tabs.update(tabs => tabs.map((tab, i) => {
+      if (i !== activeIndex) return tab;
+      const breakpoints = new Set(tab.breakpoints);
+      if (breakpoints.has(localLine)) {
+        breakpoints.delete(localLine);
+      } else {
+        breakpoints.add(localLine);
+      }
+      return { ...tab, breakpoints };
+    }));
     this.updateBreakpointMarkers();
   }
 

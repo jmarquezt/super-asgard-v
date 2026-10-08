@@ -93,7 +93,7 @@ describe('FullPageComponent (integración)', () => {
     fixture.componentInstance.changeLang('en');
 
     expect(setActiveLangSpy).toHaveBeenCalledWith('en');
-    expect(fixture.componentInstance.activeLang).toBe('en');
+    expect(fixture.componentInstance.activeLang()).toBe('en');
   });
 
   // Los tests anteriores llaman a openSettings()/toggleTheme()/changeLang() directamente sobre la
@@ -147,6 +147,6 @@ describe('FullPageComponent (integración)', () => {
     fixture.detectChanges();
 
     expect(setActiveLangSpy).toHaveBeenCalledWith('en');
-    expect(fixture.componentInstance.activeLang).toBe('en');
+    expect(fixture.componentInstance.activeLang()).toBe('en');
   });
 });

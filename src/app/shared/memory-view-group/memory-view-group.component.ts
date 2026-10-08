@@ -1,4 +1,4 @@
-import {Component, computed, signal, ChangeDetectionStrategy, input} from '@angular/core';
+import {Component, computed, signal, input} from '@angular/core';
 import {NumberFormatPipe} from '../pipes/number-format.pipe';
 import {MatIcon} from '@angular/material/icon';
 import {MatButtonToggle, MatButtonToggleGroup} from '@angular/material/button-toggle';
@@ -20,8 +20,7 @@ import {MatTab, MatTabGroup} from '@angular/material/tabs';
     MatTabGroup,
     MatTab
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrls: ['./memory-view-group.component.scss']
+  styleUrl: './memory-view-group.component.scss'
 })
 export class MemoryViewGroupComponent {
 

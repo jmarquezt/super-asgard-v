@@ -1,4 +1,4 @@
-import { Component, inject, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
 
 import { TranslocoDirective } from '@jsverse/transloco';
 import { ROBTag } from '../../core/models/superscalar/rob';
@@ -7,11 +7,9 @@ import { AsgSuperscalarProcessorService } from '../../core/services/processor/as
 
 @Component({
   selector: 'app-rs-view',
-  standalone: true,
   imports: [TranslocoDirective],
   templateUrl: './rs-view.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrls: ['./rs-view.component.scss']
+  styleUrl: './rs-view.component.scss'
 })
 export class RsViewComponent {
   private processor = inject(AsgSuperscalarProcessorService);

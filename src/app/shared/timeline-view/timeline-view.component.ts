@@ -1,4 +1,4 @@
-import { Component, ElementRef, effect, inject, computed, ChangeDetectionStrategy, viewChild } from '@angular/core';
+import { Component, ElementRef, effect, inject, computed, viewChild } from '@angular/core';
 import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import { MatIconButton } from '@angular/material/button';
@@ -12,10 +12,8 @@ import { AsgProcessorFactoryService } from '../../core/services/processor/asg.pr
 
 @Component({
   selector: 'app-timeline-view',
-  standalone: true,
   imports: [MatCard, MatCardContent, MatCardHeader, MatCardTitle, MatIcon, MatIconButton, MatTooltip, TranslocoDirective],
   templateUrl: './timeline-view.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './timeline-view.component.scss'
 })
 export class TimelineViewComponent {

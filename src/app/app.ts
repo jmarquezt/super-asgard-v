@@ -1,4 +1,4 @@
-import {Component, inject, signal, ChangeDetectionStrategy} from '@angular/core';
+import {Component, inject, signal} from '@angular/core';
 import {NavigationCancel, NavigationEnd, NavigationError, NavigationStart, Router, RouterOutlet} from '@angular/router';
 import {LoaderService} from './services/loader';
 import {LoaderComponent} from './layout/loader/loader.component';
@@ -7,7 +7,6 @@ import {LoaderComponent} from './layout/loader/loader.component';
   selector: 'app-root',
   imports: [RouterOutlet, LoaderComponent],
   templateUrl: './app.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrl: './app.scss'
 })
 export class App {

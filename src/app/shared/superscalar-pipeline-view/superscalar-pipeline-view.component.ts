@@ -1,4 +1,4 @@
-import { Component, inject, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
 
 import { MatIcon } from '@angular/material/icon';
 import { TranslocoDirective } from '@jsverse/transloco';
@@ -6,10 +6,8 @@ import { AsgSuperscalarProcessorService } from '../../core/services/processor/as
 
 @Component({
   selector: 'app-superscalar-pipeline-view',
-  standalone: true,
   templateUrl: './superscalar-pipeline-view.component.html',
-  styleUrls: ['./superscalar-pipeline-view.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  styleUrl: './superscalar-pipeline-view.component.scss',
   imports: [
     MatIcon,
     TranslocoDirective

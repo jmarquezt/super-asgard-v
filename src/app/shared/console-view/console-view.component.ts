@@ -1,15 +1,13 @@
-import { Component, inject, ElementRef, effect, computed, ChangeDetectionStrategy, viewChild } from '@angular/core';
+import { Component, inject, ElementRef, effect, computed, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AsgProcessorFactoryService } from '../../core/services/processor/asg.processor-factory';
 import { TranslocoDirective } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-console-view',
-  standalone: true,
   imports: [FormsModule, TranslocoDirective],
   templateUrl: './console-view.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrls: ['./console-view.component.scss'],
+  styleUrl: './console-view.component.scss',
 })
 export class ConsoleViewComponent {
   private processorFactory = inject(AsgProcessorFactoryService);

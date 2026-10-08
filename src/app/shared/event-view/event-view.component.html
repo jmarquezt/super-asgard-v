@@ -43,7 +43,7 @@
       }
 
       @for (entry of filteredEvents(); track entry) {
-        <div class="log-entry" [ngClass]="entry.type">
+        <div class="log-entry" [class]="entry.type">
           <span class="cycle-badge">{{ t('EVENTS.CYCLE') }} {{ entry.cycle }}</span>
           <span class="message">{{ entry.message }}</span>
           <mat-icon class="status-icon">

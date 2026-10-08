@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { FormsModule } from '@angular/forms';
 import { TranslocoDirective } from '@jsverse/transloco';
@@ -16,8 +16,7 @@ import { AsgPipelinedProcessorService } from '../../core/services/processor/asg.
     FormsModule,
     TranslocoDirective
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrls: ['./pipeline-view.component.scss']
+  styleUrl: './pipeline-view.component.scss'
 })
 export class PipelineViewComponent {
   private processorFactory = inject(AsgProcessorFactoryService);

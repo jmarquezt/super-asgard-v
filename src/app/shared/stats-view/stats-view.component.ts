@@ -1,7 +1,6 @@
-import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { MatProgressBar } from '@angular/material/progress-bar';
-import { NgClass } from '@angular/common';
 import { TranslocoDirective } from '@jsverse/transloco';
 import { AsgProcessorFactoryService } from '../../core/services/processor/asg.processor-factory';
 import { AsgPipelinedProcessorService } from '../../core/services/processor/asg.pipelined.processor';
@@ -13,11 +12,9 @@ import { AsgNonPipelinedProcessorService } from '../../core/services/processor/a
   imports: [
     MatIcon,
     MatProgressBar,
-    NgClass,
     TranslocoDirective
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrls: ['./stats-view.component.scss']
+  styleUrl: './stats-view.component.scss'
 })
 export class StatsViewComponent {
 

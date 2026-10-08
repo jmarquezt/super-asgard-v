@@ -1,15 +1,13 @@
-import { Component, inject, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
 
 import { TranslocoDirective } from '@jsverse/transloco';
 import { AsgSuperscalarProcessorService } from '../../core/services/processor/asg.superscalar.processor';
 
 @Component({
   selector: 'app-cdb-view',
-  standalone: true,
   imports: [TranslocoDirective],
   templateUrl: './cdb-view.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrls: ['./cdb-view.component.scss']
+  styleUrl: './cdb-view.component.scss'
 })
 export class CdbViewComponent {
   private processor = inject(AsgSuperscalarProcessorService);

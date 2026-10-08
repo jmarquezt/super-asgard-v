@@ -1,4 +1,5 @@
-import { Component, OnInit, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, OnInit, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -14,7 +15,6 @@ import { MatOption, MatSelect } from '@angular/material/select';
 
 @Component({
   selector: 'app-settings',
-  standalone: true,
   imports: [
     ReactiveFormsModule,
     MatDialogModule,
@@ -29,11 +29,11 @@ import { MatOption, MatSelect } from '@angular/material/select';
     MatOption
 ],
   templateUrl: './settings.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrls: ['./settings.component.scss']
+  styleUrl: './settings.component.scss'
 })
 export class SettingsComponent implements OnInit {
   private fb = inject(FormBuilder);
+  private destroyRef = inject(DestroyRef);
   dialogRef = inject<MatDialogRef<SettingsComponent>>(MatDialogRef);
   data = inject<AsgConfig>(MAT_DIALOG_DATA);
 
@@ -123,9 +123,9 @@ export class SettingsComponent implements OnInit {
     this.applyNonPipelinedState(this.settingsForm.get('processorType')!.value);
 
     // Escuchar cambios para activar/desactivar controles dependientes
-    this.settingsForm.get('branchPredictionStrategy')!.valueChanges.subscribe(v => this.applyGhrBitsState(v));
-    this.settingsForm.get('loggingEnabled')!.valueChanges.subscribe(v => this.applyLogLevelState(v));
-    this.settingsForm.get('processorType')!.valueChanges.subscribe(v => this.applyNonPipelinedState(v));
+    this.settingsForm.get('branchPredictionStrategy')!.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(v => this.applyGhrBitsState(v));
+    this.settingsForm.get('loggingEnabled')!.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(v => this.applyLogLevelState(v));
+    this.settingsForm.get('processorType')!.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(v => this.applyNonPipelinedState(v));
   }
 
   private applyGhrBitsState(strategy: string): void {

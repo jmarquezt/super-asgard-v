@@ -1,4 +1,4 @@
-import { Component, signal, computed, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, signal, computed, inject } from '@angular/core';
 
 import { FormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -13,7 +13,6 @@ import { AsgStaticSchedulerService, StaticSchedulerConfig, OptimizeResult } from
 
 @Component({
   selector: 'app-static-scheduling-dialog',
-  standalone: true,
   imports: [
     FormsModule,
     MatDialogModule,
@@ -26,8 +25,7 @@ import { AsgStaticSchedulerService, StaticSchedulerConfig, OptimizeResult } from
     TranslocoModule
 ],
   templateUrl: './static-scheduling-dialog.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrls: ['./static-scheduling-dialog.component.scss'],
+  styleUrl: './static-scheduling-dialog.component.scss',
 })
 export class StaticSchedulingDialogComponent {
   dialogRef = inject<MatDialogRef<StaticSchedulingDialogComponent>>(MatDialogRef);

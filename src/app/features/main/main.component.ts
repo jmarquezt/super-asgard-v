@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
@@ -21,7 +21,6 @@ import { MemoryViewGroupComponent } from '../../shared/memory-view-group/memory-
 
 @Component({
   selector: 'app-main',
-  standalone: true,
   imports: [
     RegistersViewComponent,
     PipelineViewComponent,
@@ -39,8 +38,7 @@ import { MemoryViewGroupComponent } from '../../shared/memory-view-group/memory-
     MobileMainComponent
 ],
   templateUrl: './main.component.html',
-  changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrls: ['./main.component.scss'],
+  styleUrl: './main.component.scss',
 })
 export class MainComponent {
   private processorFactory = inject(AsgProcessorFactoryService);

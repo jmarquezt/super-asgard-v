@@ -1,4 +1,4 @@
-import {Component, computed, signal, ChangeDetectionStrategy, input} from '@angular/core';
+import {Component, computed, signal, input} from '@angular/core';
 import {MatIcon} from '@angular/material/icon';
 import {MatButtonToggle, MatButtonToggleGroup} from '@angular/material/button-toggle';
 import {FormsModule} from '@angular/forms';
@@ -17,8 +17,7 @@ import {AsgMemoryService} from '../../core/services/asg.memory';
     FormsModule,
     TranslocoDirective
   ],
-  changeDetection: ChangeDetectionStrategy.Eager,
-  styleUrls: ['./memory-view.component.scss']
+  styleUrl: './memory-view.component.scss'
 })
 export class MemoryViewComponent {
 
