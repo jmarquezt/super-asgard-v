@@ -72,7 +72,7 @@ describe('RegistersViewComponent (integración)', () => {
     fixture.detectChanges();
     const component = fixture.componentInstance;
 
-    expect(component.displayMode).toBe('dec');
+    expect(component.displayMode()).toBe('dec');
 
     const toggles: HTMLElement[] = Array.from(fixture.nativeElement.querySelectorAll('mat-button-toggle'));
     const hexToggle = toggles.find(t => t.textContent?.trim() === 'HEX');
@@ -81,6 +81,6 @@ describe('RegistersViewComponent (integración)', () => {
     hexButton.click();
     fixture.detectChanges();
 
-    expect(component.displayMode).toBe('hex');
+    expect(component.displayMode()).toBe('hex');
   });
 });

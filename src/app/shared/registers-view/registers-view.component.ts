@@ -1,4 +1,4 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, computed, signal } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { MatButtonToggle, MatButtonToggleGroup } from '@angular/material/button-toggle';
 import { MatTab, MatTabGroup } from '@angular/material/tabs';
@@ -48,7 +48,7 @@ export class RegistersViewComponent {
   });
 
   // Estado local para el Pipe que creamos
-  displayMode: 'hex' | 'dec' | 'bin' = 'dec';
+  readonly displayMode = signal<'hex' | 'dec' | 'bin'>('dec');
 
   // Unified accessors for both processor types
   lastModifiedReg = computed(() => {

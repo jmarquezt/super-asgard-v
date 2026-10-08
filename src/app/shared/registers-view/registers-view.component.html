@@ -2,7 +2,7 @@
   <div class="registers-container shadow-sm">
     <div class="header">
       <h3><mat-icon>memory</mat-icon> {{ t('REGISTERS.TITLE') }}</h3>
-      <mat-button-toggle-group [(ngModel)]="displayMode" aria-label="Modo de visualización">
+      <mat-button-toggle-group [ngModel]="displayMode()" (ngModelChange)="displayMode.set($event)" aria-label="Modo de visualización">
         <mat-button-toggle value="dec">DEC</mat-button-toggle>
         <mat-button-toggle value="hex">HEX</mat-button-toggle>
         <mat-button-toggle value="bin">BIN</mat-button-toggle>
@@ -22,12 +22,12 @@
                   <span class="rob-badge">ROB[{{ getIntRRF($index).slot }}]</span>
                 }
               </div>
-              <span class="reg-value">{{ val | numberFormat:displayMode:'R' }}</span>
+              <span class="reg-value">{{ val | numberFormat:displayMode():'R' }}</span>
             </div>
           }
           <div class="reg-card special-reg" [class.modified]="iar() !== 0">
             <span class="reg-name">IAR</span>
-            <span class="reg-value">{{ iar() | numberFormat:displayMode:'R' }}</span>
+            <span class="reg-value">{{ iar() | numberFormat:displayMode():'R' }}</span>
           </div>
         </div>
       </mat-tab>
@@ -49,16 +49,16 @@
               @if ($index % 2 === 0) {
                 @if (isDouble($index)) {
                   <span class="reg-value" [title]="val">
-                  {{ getFloatValue($index, true) | numberFormat:displayMode:'D' }}
+                  {{ getFloatValue($index, true) | numberFormat:displayMode():'D' }}
                 </span>
                 } @else {
-                  <span class="reg-value" [title]="val">{{ getFloatValue($index, false) | numberFormat:displayMode:'F' }}</span>
+                  <span class="reg-value" [title]="val">{{ getFloatValue($index, false) | numberFormat:displayMode():'F' }}</span>
                 }
               } @else {
                 @if (isDouble($index - 1)) {
                   <span class="reg-value empty">-</span>
                 } @else {
-                  <span class="reg-value" [title]="val">{{ getFloatValue($index, false) | numberFormat:displayMode:'F' }}</span>
+                  <span class="reg-value" [title]="val">{{ getFloatValue($index, false) | numberFormat:displayMode():'F' }}</span>
                 }
               }
             </div>
@@ -110,7 +110,7 @@
                     @for (val of reg; track $index) {
                       <div class="vector-card" [class.has-value]="val !== 0">
                         <span class="v-idx">[{{$index}}]</span>
-                        <span class="v-val">{{ val | numberFormat:displayMode:'D' }}</span>
+                        <span class="v-val">{{ val | numberFormat:displayMode():'D' }}</span>
                       </div>
                     }
                   </div>
