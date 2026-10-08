@@ -28,12 +28,12 @@
   "private": true,
   "packageManager": "npm@12.2.0",
   "dependencies": {
-    "@angular/cdk": "^22.2.1",
+    "@angular/cdk": "^22.2.2",
     "@angular/common": "^22.2.1",
     "@angular/compiler": "^22.2.1",
     "@angular/core": "^22.2.1",
     "@angular/forms": "^22.2.1",
-    "@angular/material": "^22.2.1",
+    "@angular/material": "^22.2.2",
     "@angular/platform-browser": "^22.2.1",
     "@angular/router": "^22.2.1",
     "@jsverse/transloco": "^8.4.0",
@@ -43,8 +43,8 @@
     "uuid": "^14.0.2"
   },
   "devDependencies": {
-    "@angular/build": "^22.2.1",
-    "@angular/cli": "^22.2.1",
+    "@angular/build": "^22.2.2",
+    "@angular/cli": "^22.2.2",
     "@angular/compiler-cli": "^22.2.1",
     "@vitest/coverage-v8": "^4.1.11",
     "jsdom": "^27.4.0",
