@@ -8,7 +8,7 @@ import {
   viewChild,
   signal,
   computed,
-  Input
+  input
 } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { MatButton, MatIconButton } from '@angular/material/button';
@@ -48,12 +48,12 @@ interface TabState {
     MatSliderThumb,
     TranslocoDirective,
   ],
-  styleUrls: ['./editor.component.scss'],
+  styleUrl: './editor.component.scss',
 })
 export class EditorComponent implements AfterViewInit, OnDestroy {
 
   // flag para controlar si hay que ocultar la botonera de ejecucion (para movil se oculta y aparece la flotante)
-  @Input() hideControls = false;
+  readonly hideControls = input(false);
   private editor!: monaco.editor.IStandaloneCodeEditor;
   private readonly editorElement = viewChild<ElementRef<HTMLDivElement>>('editorContainer');
 
@@ -309,12 +309,19 @@ export class EditorComponent implements AfterViewInit, OnDestroy {
   }
 
   toggleBreakpoint(localLine: number) {
-    const tab = this.tabs()[this.activeTabIndex()];
-    if (tab.breakpoints.has(localLine)) {
-      tab.breakpoints.delete(localLine);
-    } else {
-      tab.breakpoints.add(localLine);
-    }
+    // Actualización inmutable para que el signal notifique el cambio (necesario con OnPush,
+    // ya que el evento viene de Monaco y no de una plantilla de Angular)
+    const activeIndex = this.activeTabIndex();
+    this.tabs.update(tabs => tabs.map((tab, i) => {
+      if (i !== activeIndex) return tab;
+      const breakpoints = new Set(tab.breakpoints);
+      if (breakpoints.has(localLine)) {
+        breakpoints.delete(localLine);
+      } else {
+        breakpoints.add(localLine);
+      }
+      return { ...tab, breakpoints };
+    }));
     this.updateBreakpointMarkers();
   }
 

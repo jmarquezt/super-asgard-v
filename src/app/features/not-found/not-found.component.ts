@@ -10,7 +10,6 @@ import {MatIcon} from '@angular/material/icon';
     TranslocoModule,
     MatIcon,
   ],
-  standalone: true,
   templateUrl: './not-found.component.html',
   styleUrl: './not-found.component.scss'
 })

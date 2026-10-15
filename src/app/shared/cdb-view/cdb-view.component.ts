@@ -1,14 +1,13 @@
 import { Component, inject, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { TranslocoDirective } from '@jsverse/transloco';
 import { AsgSuperscalarProcessorService } from '../../core/services/processor/asg.superscalar.processor';
 
 @Component({
   selector: 'app-cdb-view',
-  standalone: true,
-  imports: [CommonModule, TranslocoDirective],
+  imports: [TranslocoDirective],
   templateUrl: './cdb-view.component.html',
-  styleUrls: ['./cdb-view.component.scss']
+  styleUrl: './cdb-view.component.scss'
 })
 export class CdbViewComponent {
   private processor = inject(AsgSuperscalarProcessorService);

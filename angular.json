@@ -85,7 +85,7 @@
 		  "options": {
             "tsConfig": "tsconfig.spec.json",
             "include": ["../tests/**/*.spec.ts"],
-            "runnerConfig": "vitest.config.ts"
+            "runnerConfig": "vitest.config.mts"
           }
         }
       }

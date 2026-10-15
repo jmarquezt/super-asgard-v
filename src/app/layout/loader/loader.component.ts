@@ -5,7 +5,6 @@ import { ThemeService } from '../../services/theme';
 
 @Component({
   selector: 'app-loader',
-  standalone: true,
   imports: [MatProgressSpinner, TranslocoDirective],
   template: `
     <ng-container *transloco="let t">

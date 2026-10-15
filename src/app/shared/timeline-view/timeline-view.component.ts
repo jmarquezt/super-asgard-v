@@ -1,9 +1,9 @@
-import { Component, ElementRef, ViewChild, effect, inject, computed } from '@angular/core';
+import { Component, ElementRef, effect, inject, computed, viewChild } from '@angular/core';
 import { MatCard, MatCardContent, MatCardHeader, MatCardTitle } from '@angular/material/card';
 import { MatIcon } from '@angular/material/icon';
 import { MatIconButton } from '@angular/material/button';
 import { MatTooltip } from '@angular/material/tooltip';
-import { NgFor, NgIf } from '@angular/common';
+
 import { TranslocoDirective } from '@jsverse/transloco';
 import { AsgConfigService } from '../../core/services/asg.config';
 import { exportCronogramaCSV, exportCronogramaPNG } from '../../core/services/utils/asg.exporter';
@@ -12,8 +12,7 @@ import { AsgProcessorFactoryService } from '../../core/services/processor/asg.pr
 
 @Component({
   selector: 'app-timeline-view',
-  standalone: true,
-  imports: [MatCard, MatCardContent, MatCardHeader, MatCardTitle, MatIcon, MatIconButton, MatTooltip, NgFor, NgIf, TranslocoDirective],
+  imports: [MatCard, MatCardContent, MatCardHeader, MatCardTitle, MatIcon, MatIconButton, MatTooltip, TranslocoDirective],
   templateUrl: './timeline-view.component.html',
   styleUrl: './timeline-view.component.scss'
 })
@@ -22,7 +21,7 @@ export class TimelineViewComponent {
   private processorFactory = inject(AsgProcessorFactoryService);
   private configService = inject(AsgConfigService);
 
-  @ViewChild('viewport') private viewportRef!: ElementRef<HTMLDivElement>;
+  private readonly viewportRef = viewChild<ElementRef<HTMLDivElement>>('viewport');
 
   protected get processor(): AsgProcessorService {
     return this.processorFactory.getProcessor();
@@ -70,7 +69,7 @@ export class TimelineViewComponent {
       const finished = this.processor.finished();
       if (cycle > 0 && !finished && this.timelineMode() === 'live') {
         setTimeout(() => {
-          const vp = this.viewportRef?.nativeElement;
+          const vp = this.viewportRef()?.nativeElement;
           if (vp) { vp.scrollLeft = vp.scrollWidth; vp.scrollTop = vp.scrollHeight; }
         }, 0);
       }

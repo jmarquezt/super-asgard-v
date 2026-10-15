@@ -1,19 +1,17 @@
 import { Component, inject, computed } from '@angular/core';
-import { CommonModule } from '@angular/common';
+
 import { MatIcon } from '@angular/material/icon';
 import { TranslocoDirective } from '@jsverse/transloco';
 import { AsgSuperscalarProcessorService } from '../../core/services/processor/asg.superscalar.processor';
 
 @Component({
   selector: 'app-superscalar-pipeline-view',
-  standalone: true,
   templateUrl: './superscalar-pipeline-view.component.html',
-  styleUrls: ['./superscalar-pipeline-view.component.scss'],
+  styleUrl: './superscalar-pipeline-view.component.scss',
   imports: [
-    CommonModule,
     MatIcon,
     TranslocoDirective
-  ]
+]
 })
 export class SuperscalarPipelineViewComponent {
   public processor = inject(AsgSuperscalarProcessorService);

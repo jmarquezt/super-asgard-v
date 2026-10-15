@@ -1,4 +1,5 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, OnInit, DestroyRef, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,15 +9,13 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSliderModule } from '@angular/material/slider';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoDirective } from '@jsverse/transloco';
-import { CommonModule } from '@angular/common';
+
 import { AsgConfig, LogLevel, DEFAULT_LATENCIES, DEFAULT_SUPERSCALAR_CONFIG, SUPERSCALAR_PRESETS } from '../../core/models/asg.config';
 import { MatOption, MatSelect } from '@angular/material/select';
 
 @Component({
   selector: 'app-settings',
-  standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatDialogModule,
     MatButtonModule,
@@ -27,12 +26,17 @@ import { MatOption, MatSelect } from '@angular/material/select';
     MatIconModule,
     TranslocoDirective,
     MatSelect,
-    MatOption,
-  ],
+    MatOption
+],
   templateUrl: './settings.component.html',
-  styleUrls: ['./settings.component.scss']
+  styleUrl: './settings.component.scss'
 })
 export class SettingsComponent implements OnInit {
+  private fb = inject(FormBuilder);
+  private destroyRef = inject(DestroyRef);
+  dialogRef = inject<MatDialogRef<SettingsComponent>>(MatDialogRef);
+  data = inject<AsgConfig>(MAT_DIALOG_DATA);
+
   settingsForm!: FormGroup;
 
   readonly LIMITS = {
@@ -50,12 +54,6 @@ export class SettingsComponent implements OnInit {
   };
 
   readonly DEFAULT_LATENCIES = DEFAULT_LATENCIES;
-
-  constructor(
-    private fb: FormBuilder,
-    public dialogRef: MatDialogRef<SettingsComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: AsgConfig
-  ) {}
 
   ngOnInit(): void {
     this.settingsForm = this.fb.group({
@@ -125,9 +123,9 @@ export class SettingsComponent implements OnInit {
     this.applyNonPipelinedState(this.settingsForm.get('processorType')!.value);
 
     // Escuchar cambios para activar/desactivar controles dependientes
-    this.settingsForm.get('branchPredictionStrategy')!.valueChanges.subscribe(v => this.applyGhrBitsState(v));
-    this.settingsForm.get('loggingEnabled')!.valueChanges.subscribe(v => this.applyLogLevelState(v));
-    this.settingsForm.get('processorType')!.valueChanges.subscribe(v => this.applyNonPipelinedState(v));
+    this.settingsForm.get('branchPredictionStrategy')!.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(v => this.applyGhrBitsState(v));
+    this.settingsForm.get('loggingEnabled')!.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(v => this.applyLogLevelState(v));
+    this.settingsForm.get('processorType')!.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(v => this.applyNonPipelinedState(v));
   }
 
   private applyGhrBitsState(strategy: string): void {

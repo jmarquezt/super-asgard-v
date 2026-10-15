@@ -1,5 +1,5 @@
 import { Component, inject, computed } from '@angular/core';
-import { CommonModule, DecimalPipe, NgClass } from '@angular/common';
+import { DecimalPipe } from '@angular/common';
 import { MatIcon } from '@angular/material/icon';
 import { MatProgressBar } from '@angular/material/progress-bar';
 import { TranslocoDirective } from '@jsverse/transloco';
@@ -7,10 +7,9 @@ import { AsgSuperscalarProcessorService } from '../../core/services/processor/as
 
 @Component({
   selector: 'app-superscalar-stats-view',
-  standalone: true,
-  imports: [CommonModule, TranslocoDirective, DecimalPipe, NgClass, MatIcon, MatProgressBar],
+  imports: [TranslocoDirective, DecimalPipe, MatIcon, MatProgressBar],
   templateUrl: './superscalar-stats-view.component.html',
-  styleUrls: ['./superscalar-stats-view.component.scss']
+  styleUrl: './superscalar-stats-view.component.scss'
 })
 export class SuperscalarStatsViewComponent {
   private processor = inject(AsgSuperscalarProcessorService);

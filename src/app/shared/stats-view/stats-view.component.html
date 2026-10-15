@@ -106,7 +106,7 @@
       <span class="stat-helper" [title]="t('STATS.BRANCH_HITS_HINT')">{{ t('STATS.BRANCH_HITS_HINT') }}</span>
     </div>
 
-    <div class="stat-card" [ngClass]="getBranchHitRateClass(processor.stats().branchHitRate)">
+    <div class="stat-card" [class]="getBranchHitRateClass(processor.stats().branchHitRate)">
       <span class="stat-label" [title]="t('STATS.BRANCH_ACCURACY')">{{ t('STATS.BRANCH_ACCURACY') }}</span>
       <div class="stat-main with-progress">
         <div class="stat-icon">

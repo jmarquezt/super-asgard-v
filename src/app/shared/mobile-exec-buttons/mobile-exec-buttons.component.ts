@@ -1,4 +1,4 @@
-import { Component, Input, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { MatIconButton } from '@angular/material/button';
 import { MatTooltip } from '@angular/material/tooltip';
@@ -13,14 +13,13 @@ import { EditorComponent } from '../editor/editor.component';
  */
 @Component({
   selector: 'app-mobile-exec-buttons',
-  standalone: true,
   imports: [MatIcon, MatIconButton, MatTooltip, MatSlider, MatSliderThumb, TranslocoDirective],
   templateUrl: './mobile-exec-buttons.component.html',
-  styleUrls: ['./mobile-exec-buttons.component.scss'],
+  styleUrl: './mobile-exec-buttons.component.scss',
 })
 export class MobileExecButtonsComponent {
   //instancia del editor que se ha caragado en el layout movil
-  @Input({ required: true }) editor!: EditorComponent;
+  readonly editor = input.required<EditorComponent>();
 
   private processorFactory = inject(AsgProcessorFactoryService);
 
@@ -33,24 +32,24 @@ export class MobileExecButtonsComponent {
     if (this.processor.isRunning()) {
       this.processor.pause();
     } else {
-      this.editor.onRun();
+      this.editor().onRun();
     }
   }
 
   stop() {
-    this.editor.onStop();
+    this.editor().onStop();
   }
 
   step() {
-    this.editor.onStep();
+    this.editor().onStep();
   }
 
   runToBreakpoint() {
-    this.editor.onRunToBreakpoint();
+    this.editor().onRunToBreakpoint();
   }
 
   toggleTurbo() {
-    this.editor.togglePerformanceMode();
+    this.editor().togglePerformanceMode();
   }
 
   reset() {

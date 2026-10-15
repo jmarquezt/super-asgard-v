@@ -16,7 +16,7 @@ import { AsgPipelinedProcessorService } from '../../core/services/processor/asg.
     FormsModule,
     TranslocoDirective
   ],
-  styleUrls: ['./pipeline-view.component.scss']
+  styleUrl: './pipeline-view.component.scss'
 })
 export class PipelineViewComponent {
   private processorFactory = inject(AsgProcessorFactoryService);

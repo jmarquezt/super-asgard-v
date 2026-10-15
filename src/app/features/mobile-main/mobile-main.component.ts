@@ -25,7 +25,6 @@ type MobileTab = 'editor' | 'execution' | 'registers' | 'stats';
  */
 @Component({
   selector: 'app-mobile-main',
-  standalone: true,
   imports: [
     TranslocoDirective,
     MatIcon,
@@ -45,7 +44,7 @@ type MobileTab = 'editor' | 'execution' | 'registers' | 'stats';
     MobileExecButtonsComponent,
   ],
   templateUrl: './mobile-main.component.html',
-  styleUrls: ['./mobile-main.component.scss'],
+  styleUrl: './mobile-main.component.scss',
 })
 export class MobileMainComponent {
   private processorFactory = inject(AsgProcessorFactoryService);

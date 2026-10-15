@@ -1,4 +1,4 @@
-import {Component, computed, Input, signal} from '@angular/core';
+import {Component, computed, signal, input} from '@angular/core';
 import {NumberFormatPipe} from '../pipes/number-format.pipe';
 import {MatIcon} from '@angular/material/icon';
 import {MatButtonToggle, MatButtonToggleGroup} from '@angular/material/button-toggle';
@@ -20,11 +20,11 @@ import {MatTab, MatTabGroup} from '@angular/material/tabs';
     MatTabGroup,
     MatTab
   ],
-  styleUrls: ['./memory-view-group.component.scss']
+  styleUrl: './memory-view-group.component.scss'
 })
 export class MemoryViewGroupComponent {
 
-  @Input({ required: true }) memories!: AsgMemoryService[];
+  readonly memories = input.required<AsgMemoryService[]>();
 
   readonly displayMode = signal<'hex' | 'dec' | 'bin' | 'ascii'>('dec');
   readonly searchQuery = signal('');
@@ -32,7 +32,7 @@ export class MemoryViewGroupComponent {
 
   readonly activeMemory = computed(() => {
     const index = this.activeTabIndex();
-    return this.memories[index];
+    return this.memories()[index];
   });
 
   readonly memoryWords = computed(() => {

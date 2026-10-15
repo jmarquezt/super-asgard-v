@@ -27,15 +27,15 @@
       </button>
 
       <button mat-icon-button (click)="runToBreakpoint()" [matTooltip]="t('EDITOR.RUN_TO_BP')"
-              [disabled]="processor.isRunning() || processor.finished() || !editor.hasBreakpoints">
+              [disabled]="processor.isRunning() || processor.finished() || !editor().hasBreakpoints">
         <mat-icon>fast_forward</mat-icon>
       </button>
 
       <button mat-icon-button
-              [class.performance-active]="editor.performanceMode()"
-              [matTooltip]="t(editor.performanceMode() ? 'EDITOR.PERFORMANCE_ON' : 'EDITOR.PERFORMANCE_OFF')"
+              [class.performance-active]="editor().performanceMode()"
+              [matTooltip]="t(editor().performanceMode() ? 'EDITOR.PERFORMANCE_ON' : 'EDITOR.PERFORMANCE_OFF')"
               (click)="toggleTurbo()">
-        <mat-icon>{{ editor.performanceMode() ? 'flash_on' : 'flash_off' }}</mat-icon>
+        <mat-icon>{{ editor().performanceMode() ? 'flash_on' : 'flash_off' }}</mat-icon>
       </button>
 
       <button mat-icon-button (click)="reset()" [matTooltip]="t('EDITOR.RESET')">

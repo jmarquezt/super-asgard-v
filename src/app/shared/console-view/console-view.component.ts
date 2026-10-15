@@ -1,21 +1,20 @@
-import { Component, inject, ViewChild, ElementRef, effect, computed } from '@angular/core';
+import { Component, inject, ElementRef, effect, computed, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AsgProcessorFactoryService } from '../../core/services/processor/asg.processor-factory';
 import { TranslocoDirective } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-console-view',
-  standalone: true,
   imports: [FormsModule, TranslocoDirective],
   templateUrl: './console-view.component.html',
-  styleUrls: ['./console-view.component.scss'],
+  styleUrl: './console-view.component.scss',
 })
 export class ConsoleViewComponent {
   private processorFactory = inject(AsgProcessorFactoryService);
   protected inputText = '';
 
-  @ViewChild('terminalBody') private terminalBody?: ElementRef<HTMLDivElement>;
-  @ViewChild('stdinInput')   private stdinInput?:   ElementRef<HTMLInputElement>;
+  private readonly terminalBody = viewChild<ElementRef<HTMLDivElement>>('terminalBody');
+  private readonly stdinInput = viewChild<ElementRef<HTMLInputElement>>('stdinInput');
 
   protected consoleOutput = computed(() => {
     return this.processorFactory.getProcessor().consoleOutput();
@@ -30,7 +29,7 @@ export class ConsoleViewComponent {
     effect(() => {
       this.consoleOutput();
       setTimeout(() => {
-        const el = this.terminalBody?.nativeElement;
+        const el = this.terminalBody()?.nativeElement;
         if (el) el.scrollTop = el.scrollHeight;
       }, 0);
     });
@@ -39,7 +38,7 @@ export class ConsoleViewComponent {
     effect(() => {
       const req = this.trapStdinRequest();
       if (req) {
-        setTimeout(() => this.stdinInput?.nativeElement?.focus(), 30);
+        setTimeout(() => this.stdinInput()?.nativeElement?.focus(), 30);
       }
     });
   }
