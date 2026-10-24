@@ -53,12 +53,13 @@
         <div class="speed-control-container">
           <div class="speed-label">
             <mat-icon>speed</mat-icon>
-            <span>{{ t('EDITOR.SPEED') }}: <strong>{{ velocidadHz() }}</strong></span>
+            <span>{{ t('EDITOR.SPEED') }}: <strong>{{ performanceMode() ? t('EDITOR.SPEED_MAX') : velocidadHz() }}</strong></span>
           </div>
 
-          <mat-slider min="4" max="2000" discrete [displayWith]="formatLabel">
+          <mat-slider min="0" [max]="maxSpeedIndex" step="1" discrete [displayWith]="formatLabel"
+                      [disabled]="performanceMode()">
             <input matSliderThumb
-                   [value]="currentSpeed()"
+                   [value]="speedIndex()"
                    (valueChange)="onSpeedChange($event)">
           </mat-slider>
         </div>

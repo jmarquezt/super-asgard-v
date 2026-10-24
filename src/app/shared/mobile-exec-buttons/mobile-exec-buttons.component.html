@@ -2,9 +2,10 @@
   <div class="exec-buttons shadow-lg">
     <div class="speed-row">
       <mat-icon>speed</mat-icon>
-      <mat-slider min="4" max="2000" discrete [displayWith]="formatLabel">
+      <mat-slider min="0" [max]="maxSpeedIndex" step="1" discrete [displayWith]="formatLabel"
+                  [disabled]="editor().performanceMode()">
         <input matSliderThumb
-               [value]="processor.speed()"
+               [value]="speedIndex()"
                (valueChange)="onSpeedChange($event)">
       </mat-slider>
     </div>

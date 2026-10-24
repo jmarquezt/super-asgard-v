@@ -1,0 +1,21 @@
+.cell {
+  padding: 4px 10px;
+  font-family: 'Roboto Mono', monospace;
+  font-size: 0.72rem;
+  display: flex;
+  align-items: center;
+
+  &.address {
+    flex: 0 0 auto;
+    min-width: 100px;
+    border-right: 1px solid var(--mat-sys-outline-variant);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  &.content {
+    flex: 1;
+    justify-content: flex-start;
+    white-space: nowrap;
+  }
+}

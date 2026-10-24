@@ -44,18 +44,7 @@
               </div>
 
               @for (word of filteredWords(); track word.address) {
-                <div class="memory-row" [class.last-access]="memory.getLastAccess() === (word.address / 4)">
-                  <div class="cell address">{{ word.address | numberFormat:(displayMode() === 'ascii' ? 'dec' : displayMode()) }}</div>
-                  <div class="cell content">
-                    @if (displayMode() === 'hex' || displayMode() === 'dec') {
-                      @for(i of [0,1,2,3]; track i) {
-                        {{ memory.get()[word.address + i] | numberFormat:displayMode() }}{{ i < 3 ? ' ' : '' }}
-                      }
-                    } @else {
-                      {{ word.value | numberFormat:displayMode() }}
-                    }
-                  </div>
-                </div>
+                <div class="memory-row" appMemoryRow [memory]="memory" [address]="word.address" [mode]="displayMode()"></div>
               }
             </div>
           </div>

@@ -20,7 +20,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { v4 as uuidv4 } from 'uuid';
 import * as monaco from 'monaco-editor';
 import { TranslocoDirective } from '@jsverse/transloco';
-import { AsgProcessorService } from '../../core/services/processor/asg.processor';
+import { AsgProcessorService, CLOCK_SPEEDS, formatClockSpeed } from '../../core/services/processor/asg.processor';
 import { AsgProcessorFactoryService } from '../../core/services/processor/asg.processor-factory';
 import { AsgAssemblerService } from '../../core/services/assembly/asg.assembler';
 import { StaticSchedulingDialogComponent } from '../static-scheduling-dialog/static-scheduling-dialog.component';
@@ -85,17 +85,21 @@ export class EditorComponent implements AfterViewInit, OnDestroy {
   });
 
   /**
-   * Velocidad de ejecucion actual
+   * Velocidad de ejecucion actual (ciclos por segundo)
    * @protected
    */
   protected currentSpeed = computed(() => {
-    return this.processor.speed();
+    return this.processor.cyclesPerSecond();
   });
 
+  /** Posición del slider de velocidad (índice en CLOCK_SPEEDS) */
+  protected speedIndex = computed(() => Math.max(0, CLOCK_SPEEDS.indexOf(this.currentSpeed())));
+  protected readonly maxSpeedIndex = CLOCK_SPEEDS.length - 1;
+
   /**
-   * Signal para el modo performance
+   * Modo velocidad máxima (tantos ciclos por frame como permita el equipo)
    */
-  performanceMode = signal(false);
+  performanceMode = computed(() => this.processor.maxSpeed());
 
   /**
    * TABS del editor
@@ -114,12 +118,10 @@ export class EditorComponent implements AfterViewInit, OnDestroy {
         monaco.editor.setTheme(dark ? 'asg-dark' : 'asg-light');
     });
 
-    // Effect para manejar los decorators de monaco para los procesadores segmentado y no-segmentado
+    // Flecha de ejecución: en cada ciclo (Run o Step) marca la línea de la última instrucción que ha
+    // entrado al procesador, según lo que indique cada tipo de procesador
     effect(() => {
-      if (this.processorFactory.isSuperscalar()) return;
-      // Access processor to track signals
       const currentCycle = this.processor.cycle();
-      const running = this.processor.isRunning();
       const finished = this.processor.finished();
       if (!this.editor) return;
 
@@ -128,33 +130,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy {
         return;
       }
 
-      if (running) {
-        const line = this.processor.getExSourceLine();
-        if (line !== null) {
-          this.highlightCurrentLine(line, true);
-        } else {
-          this.currentLineDecorations?.set([]);
-        }
-      }
-    });
-
-    // Effect para manejar los decoratos de monaco para el procesador superescalar
-    effect(() => {
-      if (!this.processorFactory.isSuperscalar()) return;
-      const currentCycle = this.processor.cycle();
-      const running = this.processor.isRunning();
-      const finished = this.processor.finished();
-      if (!this.editor) return;
-
-      if (currentCycle === 0 || finished) {
-        this.currentLineDecorations?.set([]);
-        return;
-      }
-
-      if (running) {
-        // En superscalar, resaltar todas las instrucciones en ejecución (EX)
-        this.highlightMultipleLines();
-      }
+      this.highlightActiveLines(this.processor.getActiveSourceLines());
     });
   }
 
@@ -264,6 +240,28 @@ export class EditorComponent implements AfterViewInit, OnDestroy {
       this.lastHoveredLine = null;
       this.hoverBreakpointDecoration.set([]);
     });
+
+    this.editor.onDidChangeModelContent(() => this.followBreakpointEdits());
+  }
+
+  /**
+   * Al editar el texto, Monaco desplaza las marcas de breakpoint junto a sus líneas, pero los números
+   * guardados en la pestaña no cambian. Se recalculan a partir de las marcas (descartando las que hayan
+   * quedado en una línea sin instrucción) para que el procesador pare donde se ve el breakpoint.
+   */
+  private followBreakpointEdits() {
+    const index = this.activeTabIndex();
+    const tab = this.tabs()[index];
+    const lines = new Set(this.breakpointDecorationsCollection.getRanges()
+      .map(range => range.startLineNumber)
+      .filter(line => this.isInstructionLine(line)));
+
+    const unchanged = lines.size === tab.breakpoints.size && [...lines].every(line => tab.breakpoints.has(line));
+    if (unchanged) return;
+
+    this.tabs.update(tabs => tabs.map((t, i) => i === index ? { ...t, breakpoints: lines } : t));
+    this.updateBreakpointMarkers();
+    this.syncBreakpoints();
   }
 
   addTab() {
@@ -323,6 +321,17 @@ export class EditorComponent implements AfterViewInit, OnDestroy {
       return { ...tab, breakpoints };
     }));
     this.updateBreakpointMarkers();
+    // Con el programa ya cargado (p. ej. en pausa), el procesador debe conocer el cambio sin re-ensamblar
+    this.syncBreakpoints();
+  }
+
+  /** Pasa al procesador los breakpoints de todas las pestañas, convertidos a líneas globales del programa cargado. */
+  private syncBreakpoints() {
+    const globalBreakpoints: number[] = [];
+    this.tabs().forEach((tab, i) => {
+      tab.breakpoints.forEach(localLine => globalBreakpoints.push(localLine + (this.lineOffsets[i] ?? 0)));
+    });
+    this.processor.setBreakpointLines(globalBreakpoints);
   }
 
   updateBreakpointMarkers() {
@@ -350,56 +359,34 @@ export class EditorComponent implements AfterViewInit, OnDestroy {
     return { tabIndex: 0, localLine: globalLine };
   }
 
-  highlightCurrentLine(globalLine: number, autoSwitch = false) {
+  /**
+   * Marca con la flecha de ejecución las líneas globales indicadas (de la más antigua a la más joven).
+   * Cambia a la pestaña de la más joven y solo marca las que pertenecen a esa pestaña.
+   */
+  private highlightActiveLines(globalLines: number[]) {
     if (!this.editor || !this.currentLineDecorations) return;
-
-    const { tabIndex, localLine } = this.globalToLocal(globalLine);
-
-    if (tabIndex !== this.activeTabIndex()) {
-      if (!autoSwitch) {
-        this.currentLineDecorations.set([]);
-        return;
-      }
-      this.activateTab(tabIndex);
-    }
-
-    this.currentLineDecorations.set([{
-      range: new monaco.Range(localLine, 1, localLine, 1),
-      options: {
-        isWholeLine: true,
-        className: 'current-line-highlight',
-        glyphMarginClassName: 'current-line-margin',
-      },
-    }]);
-    this.editor.revealLineInCenterIfOutsideViewport(localLine);
-  }
-
-  /** Resalta múltiples líneas (para superscalar) */
-  highlightMultipleLines() {
-    if (!this.editor || !this.currentLineDecorations) return;
-
-    const proc = this.processor as any;
-    const executingLines = proc.getExecutingSourceLines?.() || [];
-
-    if (executingLines.length === 0) {
+    if (globalLines.length === 0) {
       this.currentLineDecorations.set([]);
       return;
     }
 
-    const decorations = executingLines.map((globalLine: number) => {
-      const { tabIndex, localLine } = this.globalToLocal(globalLine);
-      return {
+    const youngest = this.globalToLocal(globalLines[globalLines.length - 1]);
+    if (youngest.tabIndex !== this.activeTabIndex()) this.activateTab(youngest.tabIndex);
+
+    this.currentLineDecorations.set(globalLines
+      .map(line => this.globalToLocal(line))
+      .filter(({ tabIndex }) => tabIndex === youngest.tabIndex)
+      .map(({ localLine }) => ({
         range: new monaco.Range(localLine, 1, localLine, 1),
         options: {
           isWholeLine: true,
           className: 'current-line-highlight',
           glyphMarginClassName: 'current-line-margin',
         },
-      };
-    });
-
-    this.currentLineDecorations.set(decorations);
+      })));
+    this.editor.revealLineInCenterIfOutsideViewport(youngest.localLine);
   }
+
 
   compileAndLoad(): boolean {
     if (!this.editor) return false;
@@ -419,13 +406,7 @@ export class EditorComponent implements AfterViewInit, OnDestroy {
     const pcToLine = new Map<number, number>();
     result.instructions.forEach(instr => pcToLine.set(instr.pc, instr.id));
 
-    // Convertir breakpoints locales a líneas globales y cargarlos en el procesador
-    const globalBreakpoints: number[] = [];
-    this.tabs().forEach((tab, i) => {
-      tab.breakpoints.forEach(localLine => globalBreakpoints.push(localLine + (this.lineOffsets[i] ?? 0)));
-    });
-
-    this.processor.setBreakpointLines(globalBreakpoints);
+    this.syncBreakpoints();
 
     this.processor.load(result.instructionBinary, result.dataBuffer, result.initialCodePtr, pcToLine);
     return true;
@@ -467,9 +448,6 @@ export class EditorComponent implements AfterViewInit, OnDestroy {
         return;
       }
     }
-    if (proc.shouldStopAtBreakpoint()) {
-      proc.nextCycle();
-    }
     proc.run();
   }
 
@@ -483,13 +461,11 @@ export class EditorComponent implements AfterViewInit, OnDestroy {
       proc.reset();
       if (!this.compileAndLoad()) return;
     }
+    // La flecha del editor la actualiza el effect de la línea activa al cambiar el ciclo
     proc.nextCycle();
     if (proc.isFinished()) {
       proc.finished.set(true);
       proc.addLog('Programa finalizado', 'success');
-    } else {
-      const line = proc.getCurrentSourceLine();
-      this.highlightCurrentLine(line, true);
     }
   }
 
@@ -499,31 +475,19 @@ export class EditorComponent implements AfterViewInit, OnDestroy {
       proc.reset();
       if (!this.compileAndLoad()) return;
     }
-    // Breakpoint handling only for scalar
-    if (proc.shouldStopAtBreakpoint()) {
-      proc.nextCycle();
-    }
     proc.run();
   }
 
-  formatLabel(value: number): string {
-    return `${value}ms`;
+  formatLabel(index: number): string {
+    return formatClockSpeed(CLOCK_SPEEDS[index]);
   }
 
-  onSpeedChange(value: number) {
-    this.processor.updateSpeed(value);
+  onSpeedChange(index: number) {
+    this.processor.cyclesPerSecond.set(CLOCK_SPEEDS[index]);
   }
 
   togglePerformanceMode() {
-    const newMode = !this.performanceMode();
-    this.performanceMode.set(newMode);
-    this.processor.cyclesPerTick.set(newMode ? 500 : 1);
-
-    // Reiniciar el intervalo si está ejecutándose
-    if (this.processor.isRunning()) {
-      this.processor.pause();
-      this.processor.run();
-    }
+    this.processor.maxSpeed.update(max => !max);
   }
 
   openStaticSchedulingDialog() {
@@ -549,12 +513,6 @@ export class EditorComponent implements AfterViewInit, OnDestroy {
   }
 
   velocidadHz(): string {
-    if (this.currentSpeed() <= 0) return '0 Hz';
-    const hz = 1000 / this.currentSpeed();
-
-    // Si es menor a 1000 Hz, muestra Hz; si es mayor, muestra KHz
-    return hz >= 1000
-      ? `${(hz / 1000).toFixed(2)} kHz`
-      : `${hz.toFixed(1)} Hz`;
+    return formatClockSpeed(this.currentSpeed());
   }
 }

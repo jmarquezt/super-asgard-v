@@ -1,18 +1,18 @@
 import {Component, computed, signal, input} from '@angular/core';
-import {NumberFormatPipe} from '../pipes/number-format.pipe';
 import {MatIcon} from '@angular/material/icon';
 import {MatButtonToggle, MatButtonToggleGroup} from '@angular/material/button-toggle';
 import {FormsModule} from '@angular/forms';
 import {AsgMemoryService} from '../../core/services/asg.memory';
 import {TranslocoDirective} from '@jsverse/transloco';
 import {MatTab, MatTabGroup} from '@angular/material/tabs';
+import {MemoryRowComponent} from './memory-row.component';
 
 @Component({
   selector: 'app-memory-view-group',
   templateUrl: './memory-view-group.component.html',
   imports: [
     MatIcon,
-    NumberFormatPipe,
+    MemoryRowComponent,
     MatButtonToggle,
     MatButtonToggleGroup,
     FormsModule,
@@ -35,14 +35,15 @@ export class MemoryViewGroupComponent {
     return this.memories()[index];
   });
 
-  readonly memoryWords = computed(() => {
-    const memory = this.activeMemory();
-    if (!memory) return [];
+  // Solo depende del tamaño de la memoria (no de su contenido): escribir en memoria no rehace la lista,
+  // cada fila (MemoryRowComponent) se actualiza por su cuenta cuando cambian sus bytes
+  private readonly activeMemorySize = computed(() => this.activeMemory()?.get().length ?? 0);
 
-    const rawData = memory.get();
-    const words = [];
-    for (let i = 0; i < rawData.length; i += 4) {
-      words.push({ address: i, value: memory.read(i, 4, true) });
+  readonly memoryWords = computed(() => {
+    const size = this.activeMemorySize();
+    const words: { address: number }[] = [];
+    for (let i = 0; i < size; i += 4) {
+      words.push({ address: i });
     }
     return words;
   });
@@ -76,7 +77,7 @@ export class MemoryViewGroupComponent {
   });
 
   private matchesQuery(
-    word: { address: number; value: number },
+    word: { address: number },
     q: string,
     mode: 'hex' | 'dec' | 'bin' | 'ascii',
     mem: Uint8Array,
@@ -96,7 +97,8 @@ export class MemoryViewGroupComponent {
       }
       case 'bin': {
         // Display: full 32-bit binary word
-        return (word.value >>> 0).toString(2).padStart(32, '0').includes(q);
+        const value = (bytes[0] << 24) | (bytes[1] << 16) | (bytes[2] << 8) | bytes[3];
+        return (value >>> 0).toString(2).padStart(32, '0').includes(q);
       }
       case 'ascii': {
         // Display: printable chars or '.'

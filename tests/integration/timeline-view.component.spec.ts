@@ -46,10 +46,10 @@ describe('TimelineViewComponent (integración)', () => {
     const component = fixture.componentInstance as any;
     expect(component.hasData()).toBe(false);
     expect(component.displayTimeline()).toEqual([]);
-    expect(component.displayCycles()).toEqual([]);
+    expect(component.displayCycleCount()).toBe(0);
   });
 
-  it('con timelineMode "disabled", displayTimeline()/displayCycles() están siempre vacíos', () => {
+  it('con timelineMode "disabled", displayTimeline()/displayCycleCount() están siempre vacíos', () => {
     const fixture = TestBed.createComponent(TimelineViewComponent);
     TestBed.tick();
     TestBed.inject(AsgConfigService).updateConfig({ timelineMode: 'disabled' });
@@ -57,7 +57,7 @@ describe('TimelineViewComponent (integración)', () => {
 
     const component = fixture.componentInstance as any;
     expect(component.displayTimeline()).toEqual([]);
-    expect(component.displayCycles()).toEqual([]);
+    expect(component.displayCycleCount()).toBe(0);
   });
 
   it('con timelineMode "on-finish", no muestra datos mientras el procesador no ha terminado', () => {
@@ -73,7 +73,7 @@ describe('TimelineViewComponent (integración)', () => {
 
     expect(component.hasData()).toBe(true);
     expect(component.displayTimeline()).toEqual([]);
-    expect(component.displayCycles()).toEqual([]);
+    expect(component.displayCycleCount()).toBe(0);
     expect(component.showLiveOff()).toBe(true);
     expect(component.showDisabled()).toBe(false);
   });
@@ -100,7 +100,7 @@ describe('TimelineViewComponent (integración)', () => {
 
     expect(processor.isFinished()).toBe(true);
     expect(component.displayTimeline().length).toBeGreaterThan(0);
-    expect(component.displayCycles().length).toBeGreaterThan(0);
+    expect(component.displayCycleCount()).toBeGreaterThan(0);
     expect(component.showLiveOff()).toBe(false);
   });
 
@@ -117,7 +117,7 @@ describe('TimelineViewComponent (integración)', () => {
 
     expect(component.showDisabled()).toBe(true);
     expect(component.displayTimeline()).toEqual([]);
-    expect(component.displayCycles()).toEqual([]);
+    expect(component.displayCycleCount()).toBe(0);
   });
 
   it('con timelineMode "live", muestra datos en cada ciclo sin lanzar excepciones', () => {
@@ -136,7 +136,7 @@ describe('TimelineViewComponent (integración)', () => {
     }).not.toThrow();
 
     expect(component.displayTimeline().length).toBeGreaterThan(0);
-    expect(component.displayCycles()).toEqual([1]);
+    expect(component.displayCycleCount()).toBe(1);
   });
 
   describe('cellClass()', () => {
@@ -200,22 +200,92 @@ describe('TimelineViewComponent (integración)', () => {
     });
   });
 
-  describe('funciones de trackBy', () => {
-    let component: any;
-
-    beforeEach(() => {
+  describe('pintado incremental del cronograma', () => {
+    function runLive() {
       const fixture = TestBed.createComponent(TimelineViewComponent);
       TestBed.tick();
+      TestBed.inject(AsgConfigService).updateConfig({ timelineMode: 'live' });
       fixture.detectChanges();
-      component = fixture.componentInstance;
+      const processor = loadTinyProgram();
+      const el: HTMLElement = fixture.nativeElement;
+      const step = () => {
+        processor.nextCycle();
+        fixture.detectChanges();
+        TestBed.tick();
+      };
+      return { fixture, processor, el, step };
+    }
+
+    it('crea una cabecera por ciclo y una fila por instrucción', () => {
+      const { processor, el, step } = runLive();
+      step();
+      step();
+      step();
+
+      expect(el.querySelectorAll('.tl-head-cell').length).toBe(processor.cycle());
+      expect(el.querySelectorAll('.tl-label').length).toBe(processor.timeline().length);
+      expect(el.querySelectorAll('.tl-row').length).toBe(processor.timeline().length);
     });
 
-    it('trackByCycle() devuelve el propio número de ciclo', () => {
-      expect(component.trackByCycle(0, 5)).toBe(5);
+    it('pinta una celda por cada etapa registrada con su clase y texto', () => {
+      const { processor, el, step } = runLive();
+      for (let i = 0; i < 4; i++) step();
+
+      const expected = processor.timeline()
+        .reduce((n, row) => n + Object.keys(row.stages).filter(c => Number(c) <= processor.cycle()).length, 0);
+      const cells = el.querySelectorAll<HTMLElement>('.tl-cell');
+      expect(cells.length).toBe(expected);
+
+      const first = el.querySelector<HTMLElement>('.tl-row .tl-cell')!;
+      expect(first.textContent).toBe('IF');
+      expect(first.classList).toContain('IF');
     });
 
-    it('trackByRow() devuelve el id de la fila', () => {
-      expect(component.trackByRow(0, { id: 42 })).toBe(42);
+    it('no vuelve a crear las celdas ya pintadas en ciclos anteriores', () => {
+      const { el, step } = runLive();
+      step();
+      const firstCell = el.querySelector('.tl-row .tl-cell');
+      step();
+      step();
+
+      expect(el.querySelector('.tl-row .tl-cell')).toBe(firstCell);
+    });
+
+    it('pulsar una instrucción desplaza el cronograma hacia su secuencia si el procesador está parado', () => {
+      const { el, step } = runLive();
+      step();
+      step();
+      const viewport = el.querySelector<HTMLElement>('.timeline-viewport')!;
+      viewport.scrollTo = vi.fn();
+
+      el.querySelectorAll<HTMLElement>('.tl-label')[1].click();
+
+      expect(viewport.scrollTo).toHaveBeenCalledTimes(1);
+    });
+
+    it('pulsar una instrucción no hace nada mientras se ejecuta en directo (manda el auto-scroll)', () => {
+      const { processor, el, step } = runLive();
+      step();
+      const viewport = el.querySelector<HTMLElement>('.timeline-viewport')!;
+      viewport.scrollTo = vi.fn();
+      processor.isRunning.set(true);
+
+      el.querySelector<HTMLElement>('.tl-label')!.click();
+
+      expect(viewport.scrollTo).not.toHaveBeenCalled();
+      processor.isRunning.set(false);
+    });
+
+    it('vacía el cronograma tras un reset del procesador', () => {
+      const { fixture, processor, el, step } = runLive();
+      step();
+      step();
+      processor.reset();
+      fixture.detectChanges();
+      TestBed.tick();
+
+      expect(el.querySelectorAll('.tl-cell').length).toBe(0);
+      expect(el.querySelectorAll('.tl-label').length).toBe(0);
     });
   });
 });

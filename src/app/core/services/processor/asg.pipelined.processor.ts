@@ -141,42 +141,6 @@ export class AsgPipelinedProcessorService extends AsgProcessorService {
   }
 
   /**
-   * Método principal para el funcionamiento del procesador, ejecuta un intervalo segun la velocidad indicada y ejecuta un ciclo en cada vuelta del intervalo hasta la finalizacion de la ejecucion
-   */
-  override run() {
-    this.isStopped.set(false);
-    this.isRunning.set(true);
-    this.runInterval = setInterval(() => {
-      const cycles = this.cyclesPerTick();
-
-      for (let i = 0; i < cycles; i++) {
-        // Si la línea tiene un breakpoint, paramos antes de hacer el Fetch
-        if (this.shouldStopAtBreakpoint()) {
-          this.pause();
-          this.addLog(`Breakpoint alcanzado en línea ${this.getCurrentSourceLine()}`, 'warning');
-          return;
-        }
-
-        this.nextCycle();
-
-        // Verificar si el ciclo pausó por TRAP u otra razón
-        if (!this.isRunning())
-          return;
-
-        // Si no hay más instrucciones en el pipeline ni en el programa, paramos
-        if (this.isFinished()) {
-          this.pause();
-          this.finished.set(true);
-          this.addLog("Programa finalizado", "success");
-          //eliminar el ciclo adicional sumado
-          this.cycle.update(c => c - 1);
-          return;
-        }
-      }
-    }, this.speed()); // Velocidad de ejecución (regulada desde interfaz)
-  }
-
-  /**
    * Verifica si el procesador ha terminado la ejecución.
    * Se considera terminado si:
    * 1. El PC apunta más allá de la última instrucción del programa.
@@ -233,12 +197,12 @@ export class AsgPipelinedProcessorService extends AsgProcessorService {
   }
 
   /**
-   * Helper para marcar la linea actual en la etapa EX en el editor
+   * La instrucción en IF; si IF está vacía (stall de fetch, flush o final del programa), la más joven que siga en el pipeline
    */
-  override getExSourceLine(): number | null {
-    const exInstr = this.pipeline.EX;
-    if (!exInstr) return null;
-    return this.pcToLine.get(exInstr.pc) ?? exInstr.id;
+  override getActiveSourceLines(): number[] {
+    const { IF, ID, EX, MEM, WB } = this.pipeline;
+    const youngest = IF ?? ID ?? EX ?? MEM ?? WB;
+    return youngest ? this.sourceLinesOf([youngest.pc]) : [];
   }
 
   /**
@@ -1103,6 +1067,7 @@ export class AsgPipelinedProcessorService extends AsgProcessorService {
         this.branchPredictor.updateGHRSpeculative(prediction.taken);
 
         this.pipeline.IF = instr;
+        this.recordFetch(instr.pc);
         this.addLog(`IF: Capturada instrucción ${instr.opcode} en PC=0x${this.pc.toString(16)}`, 'info');
 
         if (fetchingDelaySlot) {
