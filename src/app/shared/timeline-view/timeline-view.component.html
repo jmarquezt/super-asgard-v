@@ -28,32 +28,22 @@
           </div>
         }
         @if (!showDisabled() && !showLiveOff()) {
+          <!-- Tabla de referencia (invisible) de la que se miden los tamaños de celda del cronograma -->
+          <table class="pipeline-table timeline-probe" aria-hidden="true" #probe>
+            <thead><tr><th class="cycle-head">0</th></tr></thead>
+            <tbody><tr><td class="cell"></td></tr></tbody>
+          </table>
           <div class="timeline-viewport" #viewport>
-            <table class="pipeline-table">
-              <thead>
-                <tr>
-                  <th class="sticky-corner">{{ t('TIMELINE.INSTRUCTION') }}</th>
-                  @for (c of displayCycles(); track trackByCycle($index, c)) {
-                    <th class="cycle-head">
-                      {{ c }}
-                    </th>
-                  }
-                </tr>
-              </thead>
-              <tbody>
-                @for (row of displayTimeline(); track trackByRow($index, row)) {
-                  <tr [class.flushed]="row.flushed">
-                    <td class="sticky-instr">{{ row.raw }}{{ row.flushed ? ' [FL]' : '' }}</td>
-                    @for (c of displayCycles(); track trackByCycle($index, c)) {
-                      <td
-                        [className]="isStallCell(row, c) ? 'cell ST' : cellClass(row.stages[c])">
-                        {{ isStallCell(row, c) ? 'ST' : (row.stages[c] || '') }}
-                      </td>
-                    }
-                  </tr>
-                }
-              </tbody>
-            </table>
+            <!-- Las filas, celdas y cabeceras de ciclo las añade el componente de forma incremental -->
+            <div class="tl-sheet" #sheet>
+              <div class="tl-instr-col" #instrCol (click)="onInstructionClick($event)">
+                <div class="tl-corner">{{ t('TIMELINE.INSTRUCTION') }}</div>
+              </div>
+              <div class="tl-grid" #grid>
+                <div class="tl-head" #head></div>
+                <div class="tl-body" #body></div>
+              </div>
+            </div>
           </div>
         }
       } @else {

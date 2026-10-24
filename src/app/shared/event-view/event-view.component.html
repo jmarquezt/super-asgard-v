@@ -42,15 +42,9 @@
         </div>
       }
 
+      @let cycleLabel = t('EVENTS.CYCLE');
       @for (entry of filteredEvents(); track entry) {
-        <div class="log-entry" [class]="entry.type">
-          <span class="cycle-badge">{{ t('EVENTS.CYCLE') }} {{ entry.cycle }}</span>
-          <span class="message">{{ entry.message }}</span>
-          <mat-icon class="status-icon">
-            {{ entry.type === 'success' ? 'check_circle' :
-            entry.type === 'warning' ? 'error_outline' : 'info' }}
-          </mat-icon>
-        </div>
+        <div class="log-entry" appLogEntry [entry]="entry" [cycleLabel]="cycleLabel"></div>
       }
     </div>
   </div>

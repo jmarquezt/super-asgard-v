@@ -4,6 +4,7 @@ import {TranslocoDirective} from '@jsverse/transloco';
 import {MatIconButton} from '@angular/material/button';
 import {MatTooltip} from '@angular/material/tooltip';
 import {LogService} from '../../services/log';
+import {LogEntryComponent} from './log-entry.component';
 
 @Component({
   selector: 'app-event-view',
@@ -12,7 +13,8 @@ import {LogService} from '../../services/log';
     MatIcon,
     TranslocoDirective,
     MatIconButton,
-    MatTooltip
+    MatTooltip,
+    LogEntryComponent
   ],
   styleUrl: './event-view.component.scss'
 })

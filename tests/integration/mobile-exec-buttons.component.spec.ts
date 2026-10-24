@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { MobileExecButtonsComponent } from '../../src/app/shared/mobile-exec-buttons/mobile-exec-buttons.component';
 import { AsgProcessorFactoryService } from '../../src/app/core/services/processor/asg.processor-factory';
+import { CLOCK_SPEEDS } from '../../src/app/core/services/processor/asg.processor';
 import { EditorComponent } from '../../src/app/shared/editor/editor.component';
 import { integrationTestProviders, resetIntegrationEnvironment } from './test-providers';
 
@@ -123,24 +124,27 @@ describe('MobileExecButtonsComponent (integración)', () => {
     expect(resetSpy).toHaveBeenCalledTimes(1);
   });
 
-  it('onSpeedChange() llama a processor.updateSpeed() con el valor recibido', () => {
+  it('onSpeedChange() fija en el procesador los ciclos por segundo de esa posición del slider', () => {
     const fixture = TestBed.createComponent(MobileExecButtonsComponent);
     fixture.componentRef.setInput('editor', fakeEditor());
     fixture.detectChanges();
 
     const processor = TestBed.inject(AsgProcessorFactoryService).getProcessor();
 
-    fixture.componentInstance.onSpeedChange(250);
+    fixture.componentInstance.onSpeedChange(5);
 
-    expect(processor.speed()).toBe(250);
+    expect(processor.cyclesPerSecond()).toBe(CLOCK_SPEEDS[5]);
   });
 
-  it('formatLabel() añade el sufijo "ms"', () => {
+  it('formatLabel() muestra la velocidad de esa posición en Hz / kHz', () => {
     const fixture = TestBed.createComponent(MobileExecButtonsComponent);
     fixture.componentRef.setInput('editor', fakeEditor());
     fixture.detectChanges();
 
-    expect(fixture.componentInstance.formatLabel(500)).toBe('500ms');
+    const label = (value: number) => fixture.componentInstance.formatLabel(CLOCK_SPEEDS.indexOf(value));
+    expect(label(0.5)).toBe('0.5 Hz');
+    expect(label(500)).toBe('500 Hz');
+    expect(label(2000)).toBe('2 kHz');
   });
 
   // Los tests anteriores llaman a los métodos directamente sobre la instancia; los siguientes
@@ -182,7 +186,7 @@ describe('MobileExecButtonsComponent (integración)', () => {
     expect(resetSpy).toHaveBeenCalledTimes(1);
   });
 
-  it('mover el slider de velocidad (evento change real) llama a processor.updateSpeed()', () => {
+  it('mover el slider de velocidad (evento change real) cambia los ciclos por segundo del procesador', () => {
     const fixture = TestBed.createComponent(MobileExecButtonsComponent);
     fixture.componentRef.setInput('editor', fakeEditor());
     fixture.detectChanges();
@@ -191,10 +195,10 @@ describe('MobileExecButtonsComponent (integración)', () => {
     const thumbInput: HTMLInputElement = fixture.nativeElement.querySelector('input[matSliderThumb]');
     expect(thumbInput).toBeTruthy();
 
-    thumbInput.value = '250';
+    thumbInput.value = '5';
     thumbInput.dispatchEvent(new Event('change'));
     fixture.detectChanges();
 
-    expect(processor.speed()).toBe(250);
+    expect(processor.cyclesPerSecond()).toBe(CLOCK_SPEEDS[5]);
   });
 });

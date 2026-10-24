@@ -1,0 +1,12 @@
+.cycle-badge {
+  font-weight: 700;
+  color: var(--mat-sys-on-surface-variant);
+  min-width: 72px;
+  font-size: 0.7rem;
+}
+
+.message { flex: 1; color: var(--mat-sys-on-surface); }
+.status-icon { font-size: 14px; width: 14px; height: 14px; margin-left: 6px; }
+
+:host(.success) .message { color: #2e7d32; }
+:host(.warning) .message { color: #ef6c00; }

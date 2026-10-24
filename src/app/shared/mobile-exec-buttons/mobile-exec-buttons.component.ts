@@ -1,10 +1,11 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, computed, inject, input } from '@angular/core';
 import { MatIcon } from '@angular/material/icon';
 import { MatIconButton } from '@angular/material/button';
 import { MatTooltip } from '@angular/material/tooltip';
 import { MatSlider, MatSliderThumb } from '@angular/material/slider';
 import { TranslocoDirective } from '@jsverse/transloco';
 import { AsgProcessorFactoryService } from '../../core/services/processor/asg.processor-factory';
+import { CLOCK_SPEEDS, formatClockSpeed } from '../../core/services/processor/asg.processor';
 import { EditorComponent } from '../editor/editor.component';
 
 /**
@@ -56,11 +57,15 @@ export class MobileExecButtonsComponent {
     this.processor.reset();
   }
 
-  formatLabel(value: number): string {
-    return `${value}ms`;
+  /** Posición del slider de velocidad (índice en CLOCK_SPEEDS) */
+  protected speedIndex = computed(() => Math.max(0, CLOCK_SPEEDS.indexOf(this.processor.cyclesPerSecond())));
+  protected readonly maxSpeedIndex = CLOCK_SPEEDS.length - 1;
+
+  formatLabel(index: number): string {
+    return formatClockSpeed(CLOCK_SPEEDS[index]);
   }
 
-  onSpeedChange(value: number) {
-    this.processor.updateSpeed(value);
+  onSpeedChange(index: number) {
+    this.processor.cyclesPerSecond.set(CLOCK_SPEEDS[index]);
   }
 }

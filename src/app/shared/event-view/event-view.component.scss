@@ -130,20 +130,16 @@
   font-family: 'Roboto Mono', monospace;
   font-size: 0.78rem;
   animation: slideIn 0.2s ease-out;
+  // Aísla cada entrada: al insertar una nueva arriba, el navegador solo desplaza las demás sin recalcular su interior
+  contain: content;
+  // Las entradas fuera de la vista no se pintan ni se maquetan; 'auto' recuerda la altura real una vez pintada
+  content-visibility: auto;
+  contain-intrinsic-size: auto 26px;
 
-  .cycle-badge {
-    font-weight: 700;
-    color: var(--mat-sys-on-surface-variant);
-    min-width: 72px;
-    font-size: 0.7rem;
-  }
-
-  .message { flex: 1; color: var(--mat-sys-on-surface); }
-  .status-icon { font-size: 14px; width: 14px; height: 14px; margin-left: 6px; }
-
+  // El contenido (ciclo, mensaje, icono) lo estiliza LogEntryComponent
   &.info { background: color-mix(in srgb, var(--mat-sys-on-surface) 4%, transparent); border-left: 3px solid var(--mat-sys-outline); }
-  &.success { background: rgba(76, 175, 80, 0.08); border-left: 3px solid #4caf50; .message { color: #2e7d32; } }
-  &.warning { background: rgba(255, 152, 0, 0.08); border-left: 3px solid #ff9800; .message { color: #ef6c00; } }
+  &.success { background: rgba(76, 175, 80, 0.08); border-left: 3px solid #4caf50; }
+  &.warning { background: rgba(255, 152, 0, 0.08); border-left: 3px solid #ff9800; }
 }
 
 .empty-state {

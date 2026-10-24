@@ -57,13 +57,20 @@
   min-height: 0;
 }
 
-// IMPORTANTE: border-collapse:separate es necesario para que position:sticky funcione correctamente en celdas de tabla en navegadores Chromium.
+// Tabla de referencia: no se ve, solo se usa para medir el tamaño real de las celdas con estas reglas.
+.timeline-probe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
 .pipeline-table {
   border-collapse: separate;
   border-spacing: 0;
   font-family: "Segoe UI", Roboto, sans-serif;
   font-size: 11px;
-  user-select: none;
 }
 
 .pipeline-table th,
@@ -73,168 +80,262 @@
   height: 28px;
   border-right: 0.5px solid #e2e8f0;
   border-bottom: 0.5px solid #e2e8f0;
-  text-align: center;
-  vertical-align: middle;
   font-weight: bold;
   white-space: nowrap;
 }
 
-thead th {
-  position: sticky;
-  top: 0;
-  background-color: #1e293b;
-  color: #f8fafc;
-  border-right-color: #334155;
-  border-bottom: 1px solid #334155;
-  font-size: 11px;
-  z-index: 5;
-}
+// Cronograma: los elementos los crea el componente, por eso los estilos van con ::ng-deep (acotados al host).
+// Las medidas (--tl-*) se toman de la tabla de referencia para conservar el aspecto de la tabla original.
+// Se reproducen los estilos que la tabla original aplicaba de verdad: su regla genérica de th/td tenía más
+// especificidad que las de columna/cabecera, así que la columna de instrucciones se ajustaba al texto (sin
+// el mínimo de 220px), su texto salía en negrita y los bordes de cabecera eran los generales de celda.
+:host ::ng-deep {
+  .tl-sheet {
+    display: flex;
+    width: max-content;
+    font-family: "Segoe UI", Roboto, sans-serif;
+    font-size: 11px;
+    user-select: none;
+  }
 
-thead th.sticky-corner {
-  z-index: 30;
-}
+  .tl-instr-col {
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    flex: none;
+  }
 
-.sticky-instr {
-  position: sticky;
-  left: 0;
-  z-index: 10;
-  min-width: 220px;
-  text-align: left !important;
-  padding-left: 8px !important;
-  font-family: "Consolas", "Monaco", monospace;
-  font-weight: normal;
-  color: #0f172a;
-  border-right: 1.5px solid #94a3b8 !important;
-}
+  .tl-corner,
+  .tl-label {
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    border-right: 1.5px solid #94a3b8;
+  }
 
-// Alternancia de fondo en la columna de instrucciones
-tbody tr:nth-child(odd)  .sticky-instr { background-color: #f1f5f9; }
-tbody tr:nth-child(even) .sticky-instr { background-color: #e8eef4; }
+  .tl-corner {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    height: var(--tl-hh);
+    padding: 1px 1px 1px 10px;
+    background-color: #1e293b;
+    color: #f8fafc;
+    font-weight: bold;
+    border-bottom: var(--tl-line) solid #e2e8f0;
+  }
 
+  .tl-label {
+    height: var(--tl-rh);
+    padding: 1px 1px 1px 8px;
+    border-bottom: var(--tl-line) solid #e2e8f0;
+    font-family: "Consolas", "Monaco", monospace;
+    font-weight: bold;
+    color: #0f172a;
+    cursor: pointer;
+  }
 
-.sticky-corner {
-  position: sticky;
-  top: 0;
-  left: 0;
-  z-index: 30;
-  min-width: 220px;
-  text-align: left !important;
-  padding-left: 10px !important;
-  background-color: #1e293b !important;
-  border-right: 1.5px solid #94a3b8 !important;
-}
+  // Alternancia de fondo en la columna de instrucciones (cada bloque empieza en una fila par global)
+  .tl-label:nth-child(odd)  { background-color: #f1f5f9; }
+  .tl-label:nth-child(even) { background-color: #e8eef4; }
 
-// position:relative + z-index:0 fija el orden de apilado por debajo de las sticky (z-index 10+)
-.pipeline-table tbody td:not(.sticky-instr) {
-  position: relative;
-  z-index: 0;
-}
+  .tl-label-chunk { contain: layout style; }
 
-.cell { background-color: #f8fafc; color: transparent; }
+  .tl-head-chunk {
+    position: absolute;
+    top: 0;
+    height: var(--tl-hh);
+    contain: strict;
+  }
 
-// Pipeline escalar
-.IF  { background-color: #dbeafe; color: #1e40af; }
-.ID  { background-color: #fef9c3; color: #92400e; }
-.EX  { background-color: #dcfce7; color: #166534; }
-.MEM { background-color: #fef3c7; color: #b45309; }
-.WB  { background-color: #fee2e2; color: #991b1b; }
+  .tl-row-chunk {
+    position: absolute;
+    left: 0;
+    right: 0;
+    contain: strict;
+  }
 
-// Pipeline superescalar (Tomasulo)
-.II     { background-color: #e0e7ff; color: #3730a3; }  // Issue - indigo
-.II-D   { background-color: #e0e7ff; color: #3730a3; }  // Issue Dispatch
-.II-S   { background-color: #c7d2fe; color: #3730a3; }  // Issue Supervisión (waiting)
-.II-E   { background-color: #a5b4fc; color: #1e1b4b; }  // Issue Emit
-.WR     { background-color: #fce7f3; color: #9d174d; }  // Write Result - pink
-.RI     { background-color: #d1fae5; color: #065f46; }  // Retire - emerald
-.FL     { background-color: #fecaca; color: #991b1b; }  // Flush - red
+  // El ancho/alto visibles los marca .tl-grid (ciclos y filas reales); cabecera y cuerpo tienen un
+  // tamaño reservado mayor y aislado (contain) para que crecer un ciclo no recoloque lo ya pintado.
+  .tl-grid {
+    position: relative;
+    flex: none;
+    overflow: clip;
+  }
 
-.EX.vector  { background-color: #16a34a; color: #ffffff; }
-.MEM.vector { background-color: #d97706; color: #ffffff; }
+  .tl-head {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    height: var(--tl-hh);
+    contain: strict;
+  }
 
-// Fases vectoriales diferenciadas
-.EX.vector-init       { background-color: #fbbf24; color: #78350f; font-size: 9px; }  // Init: amarillo/amber
-.EX.vector-processing { background-color: #10b981; color: #ffffff; font-size: 9px; }  // Processing: verde/emerald
-.EX.vector-wait       { background-color: #8b5cf6; color: #ffffff; font-size: 9px; }  // Wait: violeta (esperando datos)
-.EX.vector-wait-fu    { background-color: #ec4899; color: #ffffff; font-size: 9px; }  // WaitFU: rosa (esperando FU)
-.EX.vector-end        { background-color: #f97316; color: #ffffff; font-size: 9px; }  // End: naranja
+  // Fondo y rejilla de las celdas vacías (equivalente a los <td> vacíos de la tabla)
+  .tl-body {
+    position: relative;
+    contain: strict;
+    background-color: #f8fafc;
+    background-image:
+      linear-gradient(to left, #e2e8f0 var(--tl-line), transparent var(--tl-line)),
+      linear-gradient(to top, #e2e8f0 var(--tl-line), transparent var(--tl-line));
+    background-size: var(--tl-cw) var(--tl-rh);
+  }
 
-// Latencia inicial: patrón rayado diagonal
-.EX.latency {
-  background: repeating-linear-gradient(
-    -45deg,
-    #86efac,
-    #86efac 3px,
-    #dcfce7 3px,
-    #dcfce7 6px
-  );
-  color: #166534;
-}
-.MEM.latency {
-  background: repeating-linear-gradient(
-    -45deg,
-    #fcd34d,
-    #fcd34d 3px,
-    #fef3c7 3px,
-    #fef3c7 6px
-  );
-  color: #b45309;
-}
+  .tl-row {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: var(--tl-rh);
+    contain: strict;
+  }
 
-// Stall: instrucción bloqueada en ID por RAW hazard
-.ST { background-color: #fecaca; color: #dc2626; font-size: 9px; }
+  .tl-head-cell,
+  .tl-cell {
+    position: absolute;
+    top: 0;
+    box-sizing: border-box;
+    width: var(--tl-cw);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    white-space: nowrap;
+  }
 
-// Instrucción descartada por misprediction
-tr.flushed {
-  opacity: 0.5;
-  text-decoration: line-through;
+  .tl-head-cell {
+    height: var(--tl-hh);
+    background-color: #1e293b;
+    color: #f8fafc;
+    border-right: var(--tl-line) solid #e2e8f0;
+    border-bottom: var(--tl-line) solid #e2e8f0;
+  }
 
-  .sticky-instr {
+  .tl-cell {
+    height: var(--tl-rh);
+    border-right: var(--tl-line) solid #e2e8f0;
+    border-bottom: var(--tl-line) solid #e2e8f0;
+  }
+
+  .tl-cell.cell { background-color: #f8fafc; color: transparent; }
+
+  // Pipeline escalar
+  .tl-cell.IF  { background-color: #dbeafe; color: #1e40af; }
+  .tl-cell.ID  { background-color: #fef9c3; color: #92400e; }
+  .tl-cell.EX  { background-color: #dcfce7; color: #166534; }
+  .tl-cell.MEM { background-color: #fef3c7; color: #b45309; }
+  .tl-cell.WB  { background-color: #fee2e2; color: #991b1b; }
+
+  // Pipeline superescalar (Tomasulo)
+  .tl-cell.II     { background-color: #e0e7ff; color: #3730a3; }  // Issue - indigo
+  .tl-cell.II-D   { background-color: #e0e7ff; color: #3730a3; }  // Issue Dispatch
+  .tl-cell.II-S   { background-color: #c7d2fe; color: #3730a3; }  // Issue Supervisión (waiting)
+  .tl-cell.II-E   { background-color: #a5b4fc; color: #1e1b4b; }  // Issue Emit
+  .tl-cell.WR     { background-color: #fce7f3; color: #9d174d; }  // Write Result - pink
+  .tl-cell.RI     { background-color: #d1fae5; color: #065f46; }  // Retire - emerald
+  .tl-cell.FL     { background-color: #fecaca; color: #991b1b; }  // Flush - red
+
+  .tl-cell.EX.vector  { background-color: #16a34a; color: #ffffff; }
+  .tl-cell.MEM.vector { background-color: #d97706; color: #ffffff; }
+
+  // Fases vectoriales diferenciadas
+  .tl-cell.EX.vector-init       { background-color: #fbbf24; color: #78350f; font-size: 9px; }  // Init: amarillo/amber
+  .tl-cell.EX.vector-processing { background-color: #10b981; color: #ffffff; font-size: 9px; }  // Processing: verde/emerald
+  .tl-cell.EX.vector-wait       { background-color: #8b5cf6; color: #ffffff; font-size: 9px; }  // Wait: violeta (esperando datos)
+  .tl-cell.EX.vector-wait-fu    { background-color: #ec4899; color: #ffffff; font-size: 9px; }  // WaitFU: rosa (esperando FU)
+  .tl-cell.EX.vector-end        { background-color: #f97316; color: #ffffff; font-size: 9px; }  // End: naranja
+
+  // Latencia inicial: patrón rayado diagonal
+  .tl-cell.EX.latency {
+    background: repeating-linear-gradient(
+      -45deg,
+      #86efac,
+      #86efac 3px,
+      #dcfce7 3px,
+      #dcfce7 6px
+    );
+    color: #166534;
+  }
+  .tl-cell.MEM.latency {
+    background: repeating-linear-gradient(
+      -45deg,
+      #fcd34d,
+      #fcd34d 3px,
+      #fef3c7 3px,
+      #fef3c7 6px
+    );
+    color: #b45309;
+  }
+
+  // Stall: instrucción bloqueada en ID por RAW hazard
+  .tl-cell.ST { background-color: #fecaca; color: #dc2626; font-size: 9px; }
+
+  // Instrucción descartada por misprediction. El fondo de la fila reproduce la transparencia
+  // que tenían los <td> vacíos de una fila con opacidad en la tabla original.
+  .tl-row.flushed {
+    opacity: 0.5;
+    background-color: var(--mat-sys-surface-container);
+  }
+  .tl-row.flushed .tl-cell { text-decoration: line-through; }
+
+  .tl-label.flushed {
+    opacity: 0.5;
+    text-decoration: line-through;
     color: #dc2626;
     font-style: italic;
   }
 }
 
-:host-context(.dark-theme) {
-  .pipeline-table th,
-  .pipeline-table td       { border-right-color: #334155; border-bottom-color: #334155; }
+:host-context(.dark-theme) ::ng-deep {
+  .tl-label,
+  .tl-cell             { border-bottom-color: #334155; }
+  .tl-cell             { border-right-color: #334155; }
 
-  thead th                 { background-color: #0f172a; border-right-color: #1e293b; border-bottom-color: #1e293b; }
+  .tl-head-cell        { background-color: #0f172a; border-right-color: #334155; border-bottom-color: #334155; }
 
-  .sticky-corner           { background-color: #0f172a !important; border-right-color: #475569 !important; }
-  .sticky-instr            { color: #e2e8f0; border-right-color: #475569 !important; }
+  .tl-corner           { background-color: #0f172a; border-right-color: #475569; border-bottom-color: #334155; }
+  .tl-label            { color: #e2e8f0; border-right-color: #475569; }
 
-  tbody tr:nth-child(odd)  .sticky-instr { background-color: #1e293b; }
-  tbody tr:nth-child(even) .sticky-instr { background-color: #162032; }
+  .tl-label:nth-child(odd)  { background-color: #1e293b; }
+  .tl-label:nth-child(even) { background-color: #162032; }
 
-  .cell { background-color: #0f172a; }
+  .tl-body {
+    background-color: #0f172a;
+    background-image:
+      linear-gradient(to left, #334155 var(--tl-line), transparent var(--tl-line)),
+      linear-gradient(to top, #334155 var(--tl-line), transparent var(--tl-line));
+  }
+
+  .tl-cell.cell { background-color: #0f172a; }
 
   // Pipeline escalar
-  .IF  { background-color: #1e3a5f; color: #93c5fd; }
-  .ID  { background-color: #3b2e00; color: #fde68a; }
-  .EX  { background-color: #14301f; color: #86efac; }
-  .MEM { background-color: #3b2500; color: #fcd34d; }
-  .WB  { background-color: #3b1a1a; color: #fca5a5; }
+  .tl-cell.IF  { background-color: #1e3a5f; color: #93c5fd; }
+  .tl-cell.ID  { background-color: #3b2e00; color: #fde68a; }
+  .tl-cell.EX  { background-color: #14301f; color: #86efac; }
+  .tl-cell.MEM { background-color: #3b2500; color: #fcd34d; }
+  .tl-cell.WB  { background-color: #3b1a1a; color: #fca5a5; }
 
   // Pipeline superescalar (Tomasulo)
-  .II     { background-color: #1e1b4b; color: #a5b4fc; }  // Issue - indigo
-  .II-D   { background-color: #1e1b4b; color: #a5b4fc; }  // Issue Dispatch
-  .II-S   { background-color: #312e81; color: #c7d2fe; }  // Issue Supervisión
-  .II-E   { background-color: #3730a3; color: #e0e7ff; }  // Issue Emit
-  .WR     { background-color: #500724; color: #fbcfe8; }  // Write Result - pink
-  .RI     { background-color: #022c22; color: #6ee7b7; }  // Retire - emerald
-  .FL     { background-color: #450a0a; color: #fecaca; }  // Flush - red
+  .tl-cell.II     { background-color: #1e1b4b; color: #a5b4fc; }  // Issue - indigo
+  .tl-cell.II-D   { background-color: #1e1b4b; color: #a5b4fc; }  // Issue Dispatch
+  .tl-cell.II-S   { background-color: #312e81; color: #c7d2fe; }  // Issue Supervisión
+  .tl-cell.II-E   { background-color: #3730a3; color: #e0e7ff; }  // Issue Emit
+  .tl-cell.WR     { background-color: #500724; color: #fbcfe8; }  // Write Result - pink
+  .tl-cell.RI     { background-color: #022c22; color: #6ee7b7; }  // Retire - emerald
+  .tl-cell.FL     { background-color: #450a0a; color: #fecaca; }  // Flush - red
 
-  .EX.vector  { background-color: #15803d; color: #ffffff; }
-  .MEM.vector { background-color: #b45309; color: #ffffff; }
+  .tl-cell.EX.vector  { background-color: #15803d; color: #ffffff; }
+  .tl-cell.MEM.vector { background-color: #b45309; color: #ffffff; }
 
   // Fases vectoriales diferenciadas (tema oscuro)
-  .EX.vector-init       { background-color: #92400e; color: #fcd34d; font-size: 9px; }  // Init: amber oscuro
-  .EX.vector-processing { background-color: #047857; color: #d1fae5; font-size: 9px; }  // Processing: emerald oscuro
-  .EX.vector-wait       { background-color: #6d28d9; color: #e9d5ff; font-size: 9px; }  // Wait: violeta oscuro
-  .EX.vector-wait-fu    { background-color: #9d174d; color: #fce7f3; font-size: 9px; }  // WaitFU: rosa oscuro
-  .EX.vector-end        { background-color: #c2410c; color: #fed7aa; font-size: 9px; }  // End: naranja oscuro
+  .tl-cell.EX.vector-init       { background-color: #92400e; color: #fcd34d; font-size: 9px; }  // Init: amber oscuro
+  .tl-cell.EX.vector-processing { background-color: #047857; color: #d1fae5; font-size: 9px; }  // Processing: emerald oscuro
+  .tl-cell.EX.vector-wait       { background-color: #6d28d9; color: #e9d5ff; font-size: 9px; }  // Wait: violeta oscuro
+  .tl-cell.EX.vector-wait-fu    { background-color: #9d174d; color: #fce7f3; font-size: 9px; }  // WaitFU: rosa oscuro
+  .tl-cell.EX.vector-end        { background-color: #c2410c; color: #fed7aa; font-size: 9px; }  // End: naranja oscuro
 
-  .EX.latency {
+  .tl-cell.EX.latency {
     background: repeating-linear-gradient(
       -45deg,
       #22c55e,
@@ -244,7 +345,7 @@ tr.flushed {
     );
     color: #86efac;
   }
-  .MEM.latency {
+  .tl-cell.MEM.latency {
     background: repeating-linear-gradient(
       -45deg,
       #d97706,
@@ -255,13 +356,9 @@ tr.flushed {
     color: #fcd34d;
   }
 
-  .ST { background-color: #450a0a; color: #fca5a5; }
+  .tl-cell.ST { background-color: #450a0a; color: #fca5a5; }
 
-  tr.flushed {
-    .sticky-instr {
-      color: #ef4444;
-    }
-  }
+  .tl-label.flushed { color: #ef4444; }
 }
 
 .center-msg {

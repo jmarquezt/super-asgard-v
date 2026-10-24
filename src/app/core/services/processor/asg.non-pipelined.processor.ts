@@ -137,42 +137,6 @@ export class AsgNonPipelinedProcessorService extends AsgProcessorService {
   }
 
   /**
-   * Método principal para el funcionamiento del procesador, ejecuta un intervalo segun la velocidad indicada y ejecuta un ciclo en cada vuelta del intervalo hasta la finalizacion de la ejecucion
-   */
-  override run() {
-    this.isStopped.set(false);
-    this.isRunning.set(true);
-    this.runInterval = setInterval(() => {
-      const cycles = this.cyclesPerTick();
-
-      for (let i = 0; i < cycles; i++) {
-        // Si la línea tiene un breakpoint, paramos antes de hacer el Fetch
-        if (this.shouldStopAtBreakpoint()) {
-          this.pause();
-          this.addLog(`Breakpoint alcanzado en línea ${this.getCurrentSourceLine()}`, 'warning');
-          return;
-        }
-
-        this.nextCycle();
-
-        // Verificar si el ciclo pausó por TRAP u otra razón
-        if (!this.isRunning())
-          return;
-
-        // Si no hay más instrucciones en el pipeline ni en el programa, paramos
-        if (this.isFinished()) {
-          this.pause();
-          this.finished.set(true);
-          this.addLog("Programa finalizado", "success");
-          //eliminar el ciclo adicional sumado
-          this.cycle.update(c => c - 1);
-          return;
-        }
-      }
-    }, this.speed()); // Velocidad de ejecución (regulada desde interfaz)
-  }
-
-  /**
    * Método que simula un ciclo de reloj
    */
   override nextCycle(): void {
@@ -767,6 +731,7 @@ export class AsgNonPipelinedProcessorService extends AsgProcessorService {
 
       this.currentInstr = instr;
       this.pipeline.IF = instr;
+      this.recordFetch(instr.pc);
       this.addLog(`IF: Capturada instrucción ${instr.opcode} en PC=0x${this.pc.toString(16)}`, 'info');
       this.currentStage = 'IF';
       this.pc += 4; // Flujo secuencial
@@ -1309,12 +1274,10 @@ export class AsgNonPipelinedProcessorService extends AsgProcessorService {
   }
 
   /**
-   * Helper para marcar la linea actual en la etapa EX en el editor
+   * La instrucción en curso: al ir de una en una, se mantiene durante todas sus etapas
    */
-  override getExSourceLine(): number | null {
-    const exInstr = this.currentInstr;
-    if (!exInstr) return null;
-    return this.pcToLine.get(exInstr.pc) ?? exInstr.id;
+  override getActiveSourceLines(): number[] {
+    return this.currentInstr ? this.sourceLinesOf([this.currentInstr.pc]) : [];
   }
 
   /**

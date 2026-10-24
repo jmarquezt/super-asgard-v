@@ -64,7 +64,7 @@
       },
       "CONTROLS": {
         "NAME": "Simulation Master Control",
-        "DESCRIPTION": "The toolbar above the editor provides full control over the execution engine:\n- Run ▶: assembles the code in every open tab and starts continuous clock cycling. If assembly fails, the error is shown on the exact editor line and the simulation does not start.\n- Pause ❙❙: temporarily stops the cycle count without losing state; Run resumes exactly where it left off.\n- Stop ■: halts execution and leaves the processor in a 'stopped' state; the next press of Run re-assembles and reloads the program from scratch.\n- Step ⏭ (Single cycle): advances exactly one clock cycle. The main tool for debugging forwarding, stalls, and the effect of each breakpoint. Disabled while Run is active or the program has finished.\n- Run to breakpoint ⏩: assembles and automatically runs until it stops at the next breakpoint marked in the editor; only available when at least one breakpoint is set.\n- Turbo mode (lightning bolt): multiplies by 500 the number of cycles processed per browser 'tick'. Essential for long programs (loops with many iterations); in exchange, the UI only refreshes every so many cycles.\n- Reset ↻: performs a full 'Cold Boot'. Clears the pipeline (or the ROB/RS in superscalar), zeroes every register, and reloads the original .data segment into RAM. It does not re-assemble the editor's code on its own.\n- Speed (slider, 4-2000 ms): controls the interval between cycles when using Run without turbo mode; the lower the value, the faster the simulation animation.",
+        "DESCRIPTION": "The toolbar above the editor provides full control over the execution engine:\n- Run ▶: assembles the code in every open tab and starts continuous clock cycling. If assembly fails, the error is shown on the exact editor line and the simulation does not start.\n- Pause ❙❙: temporarily stops the cycle count without losing state; Run resumes exactly where it left off.\n- Stop ■: halts execution and leaves the processor in a 'stopped' state; the next press of Run re-assembles and reloads the program from scratch.\n- Step ⏭ (Single cycle): advances exactly one clock cycle. The main tool for debugging forwarding, stalls, and the effect of each breakpoint. Disabled while Run is active or the program has finished.\n- Run to breakpoint ⏩: assembles and automatically runs until it stops at the next breakpoint marked in the editor; only available when at least one breakpoint is set.\n- Turbo mode (lightning bolt): runs the program at the maximum speed the computer allows. Essential for long programs (loops with many iterations); the UI still refreshes every frame, so the timeline can be watched advancing live.\n- Reset ↻: performs a full 'Cold Boot'. Clears the pipeline (or the ROB/RS in superscalar), zeroes every register, and reloads the original .data segment into RAM. It does not re-assemble the editor's code on its own.\n- Clock (slider, 0.5 Hz - 10 kHz): sets how many cycles per second Run executes when turbo mode is off; the higher the value, the faster the simulation.",
         "NOTES": "You can insert breakpoints by clicking on the left margin of the editor. The simulator will stop just before fetching (IF) the marked instruction. A typical workflow is: Step to debug cycle by cycle, Run + slow Speed to watch the animation, and Run + turbo mode to reach the end of a long program quickly."
       },
       "MODULES": {
@@ -1070,8 +1070,9 @@
     "RUN_TO_BP": "Run to breakpoint",
     "RESET": "Reset processor",
     "SPEED": "CLOCK",
-    "PERFORMANCE_OFF": "Performance Mode: OFF (1 cycle/tick)",
-    "PERFORMANCE_ON": "Performance Mode: ON (500 cycles/tick)",
+    "SPEED_MAX": "MAX",
+    "PERFORMANCE_OFF": "Maximum speed: OFF (clock speed is used)",
+    "PERFORMANCE_ON": "Maximum speed: ON (as many cycles as the computer allows)",
     "ADD_MODULE": "Add module",
     "CLEAR_TAB": "Clear tab",
     "CLOSE": "Close",

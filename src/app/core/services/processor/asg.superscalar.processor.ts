@@ -94,38 +94,16 @@ export class AsgSuperscalarProcessorService extends AsgProcessorService {
     this.addLog(`[LOAD] instructions.length=${instructions.length}, dataMemory.length=${dataMemory.length}, initialCodePtr=${initialCodePtr}, this.pc after reset=${this.pc}`, 'info');
   }
 
-  /**
-   * Método principal para el funcionamiento del procesador, ejecuta un intervalo segun la velocidad indicada y ejecuta un ciclo en cada vuelta del intervalo hasta la finalizacion de la ejecucion
-   */
   override run(): void {
-    if (this.isRunning() || this.finished()) return;
+    if (this.finished()) return;
+    super.run();
+  }
 
-    this.isRunning.set(true);
-    this.isStopped.set(false);
-
-    this.runInterval = setInterval(() => {
-      const cycles = this.cyclesPerTick();
-
-      for (let i = 0; i < cycles; i++) {
-        if (!this.isRunning() || this.finished() || this.isStopped()) {
-          this.pause();
-          return;
-        }
-
-        // Si la línea tiene un breakpoint, paramos antes de ejecutar el ciclo
-        if (this.shouldStopAtBreakpoint()) {
-          this.pause();
-          this.addLog(`Breakpoint alcanzado en línea ${this.getCurrentSourceLine()}`, 'warning');
-          return;
-        }
-
-        this.nextCycle();
-
-        // Verificar si el ciclo pausó por TRAP u otra razón
-        if (!this.isRunning())
-          return;
-      }
-    }, this.speed());
+  /** En el superescalar es nextCycle() quien marca `finished` al terminar; solo hay que detener el bucle */
+  protected override checkRunFinished(): boolean {
+    if (!this.finished()) return false;
+    this.pause();
+    return true;
   }
 
   /**
@@ -251,25 +229,24 @@ export class AsgSuperscalarProcessorService extends AsgProcessorService {
     return this.finished();
   }
 
-  /** Devuelve la línea del editor correspondiente al PC actual. */
-  override getCurrentSourceLine(): number {
-    return this.pcToLine.get(this.pc) ?? -1;
-  }
-
   /**
-   * Obtiene las líneas de código de todas las instrucciones en ejecución (EX) para resaltar múltiples líneas en el editor
+   * Las instrucciones que están ahora en IF (hasta el ancho de emisión por ciclo), con el mismo criterio que
+   * la etiqueta IF del cronograma. Si no hay ninguna (fetch detenido o final del programa), la última
+   * capturada que siga en vuelo. Las descartadas por un flush no cuentan.
    */
-  getExecutingSourceLines(): number[] {
-    const lines: number[] = [];
-    for (const inflight of this.inFlight.values()) {
-      if (inflight.state === 'EXECUTING') {
-        const sourceLine = this.pcToLine.get(inflight.pc);
-        if (sourceLine !== undefined && sourceLine > 0) {
-          lines.push(sourceLine);
-        }
-      }
+  override getActiveSourceLines(): number[] {
+    const cycle = this.cycle();
+    const inIF: InFlightInstruction[] = [];
+    let youngest: InFlightInstruction | null = null;
+
+    for (const inf of this.inFlight.values()) {
+      if (inf.state === 'FLUSHED') continue;
+      if (!youngest || inf.id > youngest.id) youngest = inf;
+      if (inf.cycleIF && cycle >= inf.cycleIF && (!inf.cycleID || cycle < inf.cycleID)) inIF.push(inf);
     }
-    return lines;
+
+    if (inIF.length > 0) return this.sourceLinesOf(inIF.sort((a, b) => a.id - b.id).map(inf => inf.pc));
+    return youngest ? this.sourceLinesOf([youngest.pc]) : [];
   }
 
   /**
@@ -347,6 +324,7 @@ export class AsgSuperscalarProcessorService extends AsgProcessorService {
 
       this.fetchBuffer.instructions.push(instr);
       this.fetchBuffer.pcs.push(currentPC);
+      this.recordFetch(currentPC);
 
       // Crear entrada en timeline
       const id = this.nextInstrId++;
